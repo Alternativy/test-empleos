@@ -1,0 +1,1211 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Match Empleos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+/* Sistema tomado de los Figma de Match Empleos (web de escritorio + web app).
+   Una sola estética de marca, sin modo oscuro alternativo: azul prusiano como base,
+   verde primaveral como señal, alabastro como respiro. */
+:root{
+  --navy:#002147;      /* fondo/base */
+  --navy2:#062C56;     /* fondo/elevado */
+  --gray:#E9E9E9;      /* fondo/claro (alabastro) */
+  --gray2:#D9D9D9;     /* gris de "Situación actual" */
+  --green:#36F48C;     /* marca/verde (manual) */
+  --green-deep:#0F7A45;
+  --white:#FFFFFF;
+  --t2:#8EA7C6;        /* texto/secundario */
+  --t3:#5D7799;        /* texto/apagado */
+  --line:#16406F;      /* líneas y bordes */
+  --font:"Host Grotesk", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--navy);color:var(--white);font-family:var(--font);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+img{max-width:100%;display:block}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+html{scroll-behavior:smooth}
+
+/* ================= WEB DE ESCRITORIO (Home y páginas legales) ================= */
+.site{background:var(--navy);color:var(--navy);min-height:100%;overflow-x:hidden}
+.wrap{width:min(1240px,100% - 32px);margin-inline:auto}
+.top{background:var(--navy);height:107px;display:flex;align-items:center}
+.top .wrap{display:flex;align-items:center;gap:clamp(16px,3.5vw,50px);width:min(890px,100% - 32px)}
+.lockup{display:flex;align-items:center;gap:8px;text-decoration:none;flex:none}
+.lockup .iso{width:41px;height:38px}
+.lockup .words{display:flex;flex-direction:column;gap:2px;width:78px}
+.lockup .words img:first-child{width:63px}
+.lockup .words img:last-child{width:76px}
+.search{flex:1;display:flex;align-items:center;height:26px;border-radius:20px;background:var(--gray2);padding:0 6px 0 14px;min-width:0}
+.search input{flex:1;border:0;background:transparent;font:inherit;font-size:14px;color:var(--navy);min-width:0;outline:none}
+.search button{border:0;border-left:1px solid #9a9a9a;background:transparent;padding:0 4px 0 8px;display:flex}
+.top nav{display:flex;gap:clamp(16px,4.2vw,60px)}
+.top nav a{color:var(--gray);text-decoration:none;font-size:20px;white-space:nowrap}
+.top nav a:hover{color:var(--green)}
+
+/* Hero */
+.hero{background:linear-gradient(var(--navy) 0 45%,var(--green) 45%)}
+.hero-in{background:var(--gray);border-radius:0 270px 380px 0 / 0 250px 330px 0;min-height:694px;display:grid;grid-template-columns:1fr 1.15fr;align-items:center;padding:60px clamp(16px,8vw,120px) 80px clamp(16px,8.5vw,122px);gap:40px}
+.hero-in img{width:384px;justify-self:start}
+.hero-txt{display:flex;flex-direction:column;align-items:center;gap:40px;text-align:center}
+.hero h1{font-size:clamp(34px,3.6vw,52px);line-height:1.15;font-weight:700;color:var(--navy);letter-spacing:-.01em}
+.btn-mas{display:block;width:min(545px,100%);height:52px;border:0;border-radius:30px;background:var(--green);color:var(--white);font-size:24px;font-weight:600}
+.btn-mas:hover{filter:brightness(.95)}
+.green-gap{background:var(--green);height:110px}
+
+/* Quiénes somos */
+.quienes{background:var(--green)}
+.quienes-in{position:relative;background:var(--navy) url(img/foto-quienes.jpg) center/cover no-repeat;border-top-left-radius:78% 96%;min-height:670px;padding:70px clamp(16px,5.7vw,82px) 90px;display:flex;flex-direction:column;align-items:flex-end;scroll-margin-top:0}
+.quienes h2{font-size:clamp(40px,4.4vw,64px);font-weight:700;color:var(--gray);margin-bottom:28px;letter-spacing:-.01em}
+.quienes .txt{max-width:1010px;text-align:right;color:var(--gray);font-size:19px;line-height:35px;display:flex;flex-direction:column;gap:35px}
+
+/* Situación actual */
+.sit{background:var(--navy)}
+.sit-in{background:var(--gray2);border-bottom-left-radius:520px 640px;padding:52px clamp(16px,5.8vw,84px) 150px;scroll-margin-top:0}
+.sit h2{font-size:clamp(36px,4.2vw,60px);font-weight:700;color:var(--navy);margin-bottom:40px;letter-spacing:-.01em}
+.stats{display:flex;align-items:flex-start;gap:clamp(20px,3vw,40px);padding-left:clamp(0px,7vw,100px);flex-wrap:wrap}
+.stat{width:232px;min-height:298px;padding:28px 14px 24px;text-align:center;position:relative}
+.stat .n{font-size:72px;font-weight:700;line-height:1;letter-spacing:-.02em;margin-bottom:22px}
+.stat p{font-size:16px;line-height:1.5}
+.stat.g{background:var(--green);color:var(--navy);box-shadow:11px 12px 0 var(--navy)}
+.stat.d{background:var(--navy);color:var(--gray);margin-top:72px;box-shadow:-11px -12px 0 var(--green);padding-top:30px}
+.stat.d .n{color:var(--gray)}
+.sit .ilus{width:279px;margin-left:auto;align-self:center}
+.navy-gap{background:var(--navy);height:120px}
+
+/* Cómo funciona */
+.como{background:linear-gradient(var(--navy) 0 50%,var(--gray) 50%)}
+.como-in{position:relative;background:var(--green) url(img/foto-como.jpg) center/cover no-repeat;border-radius:0 300px 300px 0 / 0 330px 300px 0;min-height:790px;padding:50px clamp(16px,7vw,100px) 100px;scroll-margin-top:0}
+.como h2{font-size:clamp(40px,4.4vw,64px);font-weight:700;color:var(--navy);text-align:right;padding-right:clamp(0px,17vw,250px);margin-bottom:40px;letter-spacing:-.01em}
+.steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(20px,9vw,130px);row-gap:20px;max-width:1130px}
+.step{position:relative;padding:0 0 0 68px}
+.step:nth-child(2){margin-top:76px}
+.step:nth-child(3){margin-left:clamp(0px,11vw,160px);margin-top:-30px}
+.step:nth-child(4){margin-left:clamp(0px,11vw,160px);margin-top:46px}
+.step .num{z-index:2;position:absolute;left:0;top:-40px;width:128px;height:110px;border-radius:55px;background:var(--navy);color:var(--green);font-size:84px;font-weight:800;line-height:1;padding:12px 0 0 32px;letter-spacing:-.04em}
+.step .card{position:relative;background:var(--navy);color:var(--white);border-radius:40px;padding:26px 28px 40px;text-align:center;max-width:344px;min-height:182px;display:flex;flex-direction:column;gap:16px}
+.step h3{font-size:26px;font-weight:600;padding-left:40px;line-height:1.3}
+.step p{font-size:16px;line-height:1.3}
+
+/* Futuro */
+.futuro{background:var(--gray);padding-top:40px}
+.futuro h2{font-size:clamp(36px,4.2vw,60px);font-weight:700;color:var(--navy);padding:0 clamp(16px,5.8vw,84px);margin-bottom:28px;letter-spacing:-.01em}
+.futuro{overflow:hidden}
+.fut-in{position:relative;isolation:isolate;padding:130px clamp(16px,5vw,70px) 90px;color:var(--gray)}
+.fut-in::before{content:"";position:absolute;z-index:-1;top:0;bottom:0;left:0;right:0;background:var(--navy);border-top-left-radius:78% 470px}
+.fut-row{display:flex;align-items:center;gap:50px}
+.fut-row.a{justify-content:flex-end}
+.fut-row.a .t{text-align:right;max-width:640px}
+.fut-row.a h3{font-size:34px;font-weight:600;line-height:1.05;margin-bottom:10px}
+.fut-row.a p{font-size:19px;line-height:30px}
+.fut-row.a img{width:353px}
+.fut-row.b{margin-top:10px;gap:70px}
+.fut-row.b img{width:309px}
+.fut-row.b h3{font-size:clamp(40px,4.4vw,64px);font-weight:600;line-height:1;letter-spacing:-.01em}
+.fut-row.b p{font-size:clamp(20px,1.9vw,27px)}
+
+/* Footer */
+.foot{background:var(--green);color:var(--navy);padding:50px 0 50px}
+.foot .wrap{width:min(1156px,100% - 32px)}
+.foot-cols{display:flex;gap:clamp(20px,7vw,100px);flex-wrap:wrap;padding-bottom:40px;border-bottom:2px solid var(--navy)}
+.foot h4{margin:0 0 20px;font-size:36px;font-weight:600}
+.foot .soc{display:flex;gap:44px;flex-wrap:wrap}
+.foot .soc span{display:flex;align-items:center;gap:20px;font-size:16px}
+.foot .soc svg{width:36px;height:36px;flex:none}
+.foot .soc a{display:flex;align-items:center;gap:20px;color:inherit;text-decoration:none}
+.foot-links{display:flex;justify-content:space-between;gap:16px 30px;flex-wrap:wrap;padding:32px 0;border-bottom:2px solid var(--navy)}
+.foot-links a{font-size:24px;font-weight:600;text-decoration:none}
+.foot-links a:hover{text-decoration:underline}
+.foot small{display:block;margin-top:24px;font-size:16px;line-height:25px}
+
+/* Páginas legales de escritorio */
+.legal-top{height:113px}
+.legal-top .wrap{width:min(1252px,100% - 32px)}
+.legal{background:linear-gradient(var(--navy) 0 40%,var(--green) 40%)}
+.legal-in{background:var(--gray);border-radius:0 260px 380px 0 / 0 230px 420px 0;padding:34px clamp(16px,7.5vw,108px) 80px;color:var(--navy)}
+.legal-in .doc{max-width:960px}
+.legal-in h1{font-size:28px;font-weight:600;margin-bottom:28px}
+.doc h2{font-size:17px;font-weight:700;margin:22px 0 4px}
+.doc h3{font-size:15px;font-weight:700;margin:12px 0 2px}
+.doc p,.doc li{font-size:15px;line-height:20px}
+.doc p+p{margin-top:2px}
+.doc ul{margin:4px 0;padding-left:24px}
+.doc .lead{font-weight:700}
+.doc .parte{display:inline-block;margin-top:26px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:var(--navy);color:var(--green)}
+
+/* ================= WEB APP ================= */
+.app{min-height:100%;position:relative}
+.app.cand{--bg:var(--navy);--fg:var(--white);--card:var(--navy2);--accent:var(--green);--on-accent:var(--navy);--sub:var(--t2);--mute:var(--t3);--bd:var(--line);--chip-bd:var(--line);--chip-fg:var(--t2);--wave:var(--green);--wave-fg:var(--navy)}
+.app.emp{--bg:var(--green);--fg:var(--navy);--card:var(--navy);--accent:var(--navy);--on-accent:var(--green);--sub:#0B3A5E;--mute:#2E5E57;--bd:var(--navy);--chip-bd:var(--navy);--chip-fg:var(--navy);--wave:var(--navy);--wave-fg:var(--green)}
+.app{background:var(--bg);color:var(--fg)}
+.screen{width:min(100%,430px);margin-inline:auto;padding:52px 24px 190px;min-height:100%}
+.hdr{display:flex;align-items:center;justify-content:space-between;min-height:24px;margin-bottom:22px;gap:12px}
+.hdr .wm{height:14px;width:auto}
+.hdr .side{font-size:13px;color:var(--fg)}
+.back{background:none;border:0;padding:0;font-size:13px;color:var(--sub);display:inline-flex;gap:8px;align-items:center}
+.back:hover{color:var(--fg)}
+.emp .back{color:var(--navy)}
+.t-display{font-size:28px;font-weight:600;line-height:1.2;letter-spacing:-.005em}
+.t-title{font-size:28px;font-weight:600;line-height:1.2}
+.t-sec{font-size:18px;font-weight:600;margin:22px 0 12px}
+.t-note{font-size:13px;color:var(--sub)}
+.muted{color:var(--mute)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:12px;border:0;font-weight:600;font-size:15px;text-decoration:none;padding:10px 16px;text-align:center}
+.btn.pri{background:var(--accent);color:var(--on-accent)}
+.cand .btn.pri{color:var(--navy)}
+.btn.out{background:transparent;border:1.5px solid var(--bd);color:var(--fg)}
+.btn.pri:hover{filter:brightness(1.05)}
+.btn.out:hover{background:color-mix(in srgb,var(--fg) 6%,transparent)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.btn.sm{min-height:44px;font-size:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{width:100%;height:24px;border-radius:20px;border:0;background:var(--gray);color:var(--navy);padding:0 18px;font:inherit;font-size:14px}
+.field::placeholder{color:#8a8a8a}
+.field.tall{height:40px;border-radius:12px}
+textarea.field{height:150px;border-radius:14px;padding:12px 16px;resize:vertical;line-height:1.4}
+.flabel{font-size:15px;color:var(--fg);padding-left:18px;margin-bottom:2px}
+.linkline{font-size:13px;color:var(--sub);text-align:center}
+.linkline button{background:none;border:0;padding:0;color:var(--fg);font-weight:700;margin-left:6px}
+.linkline button:hover{text-decoration:underline}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;min-height:30px;padding:4px 10px;border-radius:20px;border:1px solid var(--chip-bd);color:var(--chip-fg);font-size:13px;background:transparent}
+button.chip{cursor:pointer}
+button.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600}
+.cand button.chip[aria-pressed="true"]{color:var(--navy)}
+.emp .chip.fill{background:var(--navy);color:var(--green);border-color:var(--navy)}
+.cand .chip.fill{background:var(--green);color:var(--navy);border-color:var(--green)}
+.card{background:var(--card);border-radius:16px;padding:16px;color:var(--white)}
+.emp .card{color:var(--white)}
+.card .t-note,.item .t-note,.emp .card .t-note,.emp .item .t-note{color:var(--t2)}
+.bignum{font-size:34px;font-weight:600;color:var(--green);line-height:1}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--green);flex:none}
+.sq{width:28px;height:28px;border-radius:7px;background:var(--green);flex:none}
+.progress{height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+.emp .progress{background:color-mix(in srgb,var(--navy) 25%,transparent)}
+.progress i{display:block;height:100%;background:var(--green)}
+.emp .card .progress{background:var(--line)}
+.top-bar{height:4px;border-radius:2px;background:color-mix(in srgb,var(--fg) 18%,transparent);margin-bottom:24px;overflow:hidden}
+.top-bar i{display:block;height:100%;background:var(--accent)}
+.cand .top-bar i{background:var(--green)}
+
+/* Ola y barra inferior (teléfono) */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;pointer-events:none}
+.dock svg{display:block;width:100%;height:92px}
+.dock .band{background:var(--wave);height:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);pointer-events:auto}
+.dock.plain .band{height:calc(34px + env(safe-area-inset-bottom,0px))}
+.nav-b{display:flex;justify-content:space-around;max-width:430px;margin:0 auto;height:64px;align-items:center}
+.nav-b a{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--wave-fg);text-decoration:none;opacity:.6;min-width:54px}
+.nav-b a .ico{width:20px;height:20px;border-radius:5px;background:var(--wave-fg)}
+.nav-b a[aria-current="page"]{opacity:1;font-weight:700}
+
+/* Escritorio de la app: menú lateral */
+.side-nav{display:none}
+@media (min-width:900px){
+  .app.has-nav{display:grid;grid-template-columns:248px minmax(0,1fr)}
+  .side-nav{display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;background:var(--wave);padding:36px 20px;z-index:5}
+  .side-nav .wm{height:16px;width:auto;margin:0 0 40px 8px}
+  .side-nav a{display:flex;align-items:center;gap:14px;padding:12px 12px;border-radius:12px;color:var(--wave-fg);text-decoration:none;font-size:16px;opacity:.65}
+  .side-nav a .ico{width:22px;height:22px;border-radius:6px;background:var(--wave-fg)}
+  .side-nav a[aria-current="page"]{opacity:1;font-weight:700;background:color-mix(in srgb,var(--wave-fg) 12%,transparent)}
+  .side-nav a:hover{opacity:1}
+  .side-nav .who{margin-top:auto;font-size:13px;color:var(--wave-fg);opacity:.8;padding:0 12px}
+  .has-nav .dock .band{display:none}
+  .has-nav .dock{left:248px}
+  .has-nav .dock svg{height:120px}
+  .has-nav .screen{width:min(100%,1080px);padding:56px 48px 170px}
+  .has-nav .hdr .wm{display:none}
+  .auth .screen{width:min(100%,480px);padding-top:80px}
+  .dock svg{height:150px}
+  .wide2{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:40px;align-items:start}
+  .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .split{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:24px;align-items:start}
+  .only-m{display:none!important}
+}
+@media (max-width:899px){.only-d{display:none!important}.wide2>*+*{margin-top:0}}
+
+/* Feed */
+.offer{background:var(--navy2);border-radius:16px;overflow:hidden}
+.offer .ph{width:100%;aspect-ratio:340/206;object-fit:cover;border-radius:16px 16px 0 0}
+.offer .bd{padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px}
+.offer .co{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500}
+.offer h2{font-size:28px;font-weight:600;line-height:1.15}
+.strip{display:flex;gap:12px;align-items:center;background:var(--navy);border-radius:12px;padding:14px;font-size:13px;line-height:1.45}
+.cupo{font-size:13px;color:var(--t3);text-align:center;margin-top:14px}
+.resp-box{border:1.5px solid var(--green);border-radius:16px;padding:16px;background:var(--navy2)}
+.resp-box .lbl{font-size:12px;font-weight:600;color:var(--green);margin-bottom:6px}
+.empty{border:1.5px dashed var(--line);border-radius:16px;padding:28px 20px;text-align:center;color:var(--t2);display:flex;flex-direction:column;gap:14px}
+.emp .empty{border-color:var(--navy);color:var(--navy)}
+
+/* Listas */
+.item{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;border:0;background:var(--card);border-radius:16px;padding:16px;color:var(--white);text-decoration:none}
+button.item:hover,a.item:hover{filter:brightness(1.15)}
+.item .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.item h3{font-size:15px;font-weight:600}
+.state{font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;border:1px solid currentColor}
+.state.Enviada{color:var(--t3)}
+.state.Vista{color:var(--t2)}
+.state.Respondida{color:var(--green)}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px}
+.steps3 i{height:4px;border-radius:2px;background:var(--line)}
+.steps3 i.on{background:var(--green)}
+.steps3l{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:11px;color:var(--t3)}
+.unread{position:relative}
+.rowline{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font-size:15px;width:100%;background:none;border-left:0;border-right:0;border-top:0;color:var(--fg);text-align:left}
+.emp .rowline{border-bottom-color:var(--navy)}
+button.rowline:hover{color:var(--green)}
+.emp button.rowline:hover{color:var(--navy2);text-decoration:underline}
+.rowline .v{color:var(--t3)}
+.emp .rowline .v{color:var(--navy)}
+.badge-act{background:var(--green);color:var(--navy);font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px}
+.badge-off{border:1px solid var(--line);color:var(--t2);font-size:12px;padding:4px 10px;border-radius:20px}
+.avatar{width:56px;height:56px;border-radius:14px;object-fit:cover;background:var(--navy2);flex:none}
+.emp .avatar.ph{background:var(--navy)}
+.avatar.lg{width:92px;height:92px;border-radius:24px}
+.tag-sm{font-size:12px;color:var(--green);font-weight:600}
+
+/* Chat */
+.chat-wrap{display:flex;flex-direction:column;gap:10px}
+.note-match{font-size:12px;color:var(--t2);text-align:center;background:var(--navy2);border-radius:12px;padding:10px 14px}
+.emp .note-match{background:var(--navy);color:var(--t2)}
+.bub{max-width:82%;padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.4}
+.bub small{display:block;font-size:11px;opacity:.65;margin-top:4px}
+.bub.them{background:var(--navy2);color:var(--white);border-bottom-left-radius:4px;align-self:flex-start}
+.emp .bub.them{background:var(--navy);color:var(--white)}
+.bub.me{background:var(--green);color:var(--navy);border-bottom-right-radius:4px;align-self:flex-end}
+.emp .bub.me{background:var(--white);color:var(--navy)}
+.typing{font-size:12px;color:var(--t2);font-style:italic}
+.emp .typing{color:var(--navy)}
+.composer{display:flex;gap:8px;margin-top:16px}
+.composer input{flex:1;height:48px;border-radius:12px;border:1.5px solid var(--bd);background:transparent;color:var(--fg);padding:0 14px;font:inherit;min-width:0}
+.composer input::placeholder{color:var(--t3)}
+.emp .composer input::placeholder{color:#2E5E57}
+.composer button{width:auto;padding:0 18px}
+.conv-list{display:flex;flex-direction:column;gap:10px}
+.conv-list .item[aria-current="true"]{outline:2px solid var(--green)}
+.emp .conv-list .item[aria-current="true"]{outline-color:var(--white)}
+.chat-panel{background:color-mix(in srgb,var(--card) 35%,transparent);border-radius:16px;padding:18px;min-height:420px;display:flex;flex-direction:column}
+.chat-panel .chat-wrap{flex:1}
+
+/* Opciones de plazo (E2) */
+.opt{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;border:0;background:var(--navy);color:var(--white);border-radius:16px;padding:18px 20px}
+.opt .rad{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);flex:none;margin-top:2px}
+.opt[aria-pressed="true"] .rad{background:var(--green);border-color:var(--green)}
+.opt h3{font-size:15px;font-weight:500;margin-bottom:4px}
+.warn{background:var(--navy);color:var(--white);border-radius:14px;padding:14px 16px;font-size:14px;display:flex;flex-direction:column;gap:10px}
+.warn b{color:var(--green)}
+.tpl{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;background:var(--navy);color:var(--white);border:1.5px solid transparent;border-radius:14px;padding:14px 16px}
+.tpl[aria-pressed="true"]{border-color:var(--white)}
+.tpl b{font-size:15px;font-weight:600}
+.tpl span{font-size:13px;color:var(--t2)}
+
+/* Match */
+.match-hero{text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;padding-top:90px}
+.match-hero h1{font-size:40px;font-weight:600}
+.match-pair{display:flex;align-items:center;gap:16px;margin:28px 0}
+.match-pair img{width:92px;height:92px;border-radius:24px;object-fit:cover;background:var(--white)}
+.match-pair i{width:28px;height:4px;border-radius:2px;background:var(--green)}
+.match-top{position:absolute;inset:0 0 auto 0;height:180px;pointer-events:none}
+.match-top svg{width:100%;height:100%}
+
+/* Legal dentro de la app */
+.app-doc h2{font-size:17px;font-weight:600;margin:22px 0 6px;color:var(--fg)}
+.app-doc h3{font-size:15px;font-weight:600;margin:14px 0 4px;color:var(--fg)}
+.app-doc p,.app-doc li{font-size:14px;line-height:1.5;color:var(--sub)}
+.emp .app-doc p,.emp .app-doc li{color:var(--navy)}
+.app-doc ul{padding-left:20px;margin:6px 0}
+.app-doc .lead{color:var(--fg);font-weight:600}
+.app-doc .parte{display:inline-block;margin-top:22px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:var(--green);color:var(--navy)}
+.emp .app-doc .parte{background:var(--navy);color:var(--green)}
+
+
+/* Ajustes según las 39 pantallas del Figma */
+.reg-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.reg-bar{display:block;width:145px;height:3px;border-radius:2px;background:var(--green)}
+.reg-h{margin:22px 0 30px}
+.reg-sub{margin:10px 0 22px;font-size:14px}
+.reg-lbl{font-size:14px;color:var(--t2);margin:18px 0 10px}
+.reg-cta{margin-top:40px}
+.rstack{display:flex;flex-direction:column;gap:22px}
+.rf .flabel{display:block;font-size:14px;padding-left:18px;margin-bottom:2px}
+.state.Respondida{background:var(--green);color:var(--navy);border-color:var(--green)}
+.post-foot{font-size:12px;color:var(--t3);margin-top:8px}
+.chat-head{display:flex;align-items:center;gap:12px;background:var(--navy2);margin:-52px -24px 18px;padding:44px 24px 14px;color:var(--white)}
+.emp .chat-head{background:var(--navy)}
+.chat-head .back{font-size:20px;color:var(--t2)}
+.chat-head b{font-weight:500;display:block}
+.day{text-align:center;font-size:12px;color:var(--t3);margin-bottom:6px}
+.emp .day{color:var(--navy)}
+.note-match{display:flex!important;gap:10px;align-items:flex-start;text-align:left}
+.note-match .dot{margin-top:4px;width:8px;height:8px}
+.composer input{background:var(--navy2);border:0;border-radius:26px;color:var(--white)}
+.composer input::placeholder{color:var(--t3)}
+.emp .composer input{background:var(--navy);color:var(--white)}
+.emp .composer input::placeholder{color:var(--t2)}
+.composer button{border-radius:26px}
+.vence{border:1px solid var(--line);color:var(--t2);font-size:12px;padding:4px 10px;border-radius:20px;white-space:nowrap;flex:none}
+.back.big{font-size:22px;font-weight:600;color:var(--navy)}
+.ccard{background:var(--navy);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:12px;color:var(--white)}
+.ccard a{display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit}
+.ccard h3{font-size:15px;font-weight:500}
+.btn.cno{background:transparent;border:1.5px solid var(--line);color:var(--white)}
+.btn.cyes{background:var(--green);color:var(--navy)}
+.ccard .row2 .btn{min-height:52px;font-size:15px}
+textarea.prev{display:block;width:100%;background:var(--navy);color:var(--white);border:0;border-radius:14px;padding:14px 16px;min-height:120px;font:inherit;font-size:15px;line-height:1.5;resize:vertical}
+.sec-lbl{font-size:13px;font-weight:600;margin:16px 0 8px}
+.conv-item{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:16px;padding:14px 16px;color:var(--white);text-decoration:none}
+.conv-item:hover{filter:brightness(1.15)}
+.conv-item .grow{flex:1;min-width:0}
+.conv-item h3{font-size:15px;font-weight:500}
+.conv-item p{font-size:13px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-item[aria-current="true"]{outline:2px solid var(--green)}
+.emp .conv-item[aria-current="true"]{outline-color:var(--white)}
+.pend-item .btn{width:auto;min-height:36px;padding:6px 14px;font-size:13px;background:var(--green);color:var(--navy);border-radius:10px}
+.prof-head{display:flex;gap:14px;align-items:center;margin-bottom:22px}
+.prof-head img{width:56px;height:56px;border-radius:14px;object-fit:cover;background:#fff}
+.prof-head h1{font-size:20px;font-weight:500}
+.rowline.dim{color:var(--t3)}
+.ccard .t-note,.conv-item .t-note,.chat-head .t-note,.emp .ccard .t-note,.emp .conv-item .t-note,.emp .chat-head .t-note{color:var(--t2)}
+.emp .chat-panel{background:color-mix(in srgb,var(--navy) 10%,transparent)}
+
+.toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:50;background:var(--white);color:var(--navy);border-radius:12px;padding:10px 16px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:calc(100% - 32px)}
+
+/* ================= HOME EN TELÉFONO ================= */
+@media (max-width:900px){
+  .top{height:auto;padding:16px 0}
+  .top .wrap{flex-wrap:wrap;justify-content:space-between;gap:12px}
+  .search{order:3;flex-basis:100%}
+  .top nav{gap:16px}
+  .top nav a{font-size:15px}
+  .hero{background:linear-gradient(var(--navy) 0 45%,var(--green) 45%)}
+  .hero-in{grid-template-columns:1fr;min-height:0;border-radius:0 120px 160px 0/0 100px 140px 0;padding:36px 24px 56px;justify-items:center;gap:24px}
+  .hero-in img{width:min(280px,80%);justify-self:center}
+  .hero-txt{gap:24px}
+  .btn-mas{font-size:19px;height:48px}
+  .green-gap{height:48px}
+  .quienes-in{border-top-left-radius:60% 120px;padding:110px 20px 56px;min-height:0;background-position:70% center}
+  .quienes .txt{font-size:16px;line-height:1.6;gap:18px}
+  .sit-in{border-bottom-left-radius:160px 200px;padding:40px 20px 90px}
+  .stats{padding-left:0;justify-content:center;gap:28px}
+  .stat{width:min(260px,100%);min-height:0;padding-bottom:28px}
+  .stat .n{font-size:60px}
+  .stat.d{margin-top:0}
+  .sit .ilus{margin:10px auto 0;width:200px}
+  .navy-gap{height:56px}
+  .como-in{border-radius:0 120px 120px 0/0 140px 120px 0;padding:40px 20px 70px;min-height:0}
+  .como h2{text-align:left;padding-right:0}
+  .steps{grid-template-columns:1fr;row-gap:56px;padding-top:30px}
+  .step,.step:nth-child(n){margin:0;padding-left:40px}
+  .step .num{width:96px;height:84px;font-size:62px;padding:10px 0 0 24px;top:-34px}
+  .step h3{font-size:21px;padding-left:46px}
+  .step .card{max-width:none;padding:20px 20px 28px;min-height:0;border-radius:30px}
+  .futuro h2{padding:0 20px}
+  .fut-in{padding:90px 20px 56px}
+  .fut-in::before{right:0;border-top-left-radius:70% 90px}
+  .fut-row,.fut-row.b{flex-direction:column;gap:22px}
+  .fut-row.a{flex-direction:column-reverse}
+  .fut-row.a .t{text-align:left}
+  .fut-row.a h3{font-size:26px}
+  .fut-row.a p{font-size:16px;line-height:1.55}
+  .fut-row.a img,.fut-row.b img{width:min(300px,85%)}
+  .fut-row.b{margin-top:44px;align-items:flex-start}
+  .foot h4{font-size:28px}
+  .foot-links a{font-size:18px}
+  .foot .soc{gap:20px}
+  .legal-in{border-radius:0 80px 120px 0/0 70px 120px 0;padding:28px 22px 60px}
+}
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="db.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ---------- Iconos y piezas de marca ---------- */
+const ISO = '<img class="iso" src="img/isotipo.svg" alt="">';
+const LOCKUP = `<a class="lockup" href="#/" aria-label="Match Empleos, inicio">${ISO}<span class="words"><img src="img/logo-match.png" alt=""><img src="img/logo-empleos.png" alt=""></span></a>`;
+const WM = '<img class="wm" src="img/logo-match-empleos.png" alt="Match Empleos">';
+const WM_INV = '<img class="wm" src="img/logo-match-empleos-inv.png" alt="Match Empleos">';
+const IG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>';
+const XI = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L1.9 3h6.3l4.4 5.9L17.8 3Zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5Z"/></svg>';
+const WA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11.6a8.2 8.2 0 0 1-12.1 7.2L3.5 20l1.2-4.2A8.2 8.2 0 1 1 20 11.6Z"/><path d="M9 8.3c.3-.6.6-.6.9-.6h.6c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .4-.1.6l-.5.6c-.1.2-.2.3 0 .6.4.7 1 1.4 1.7 1.9.6.4 1 .5 1.3.4.2-.1.6-.7.8-.9.2-.2.4-.2.6-.1l1.8.9c.3.1.4.2.4.4 0 .5-.2 1.2-.8 1.6-.6.4-1.5.6-2.6.2-1.3-.5-3-1.5-4.3-3.2-1.1-1.4-1.5-2.7-1.5-3.6 0-.7.3-1.1.6-1.6Z"/></svg>';
+const SEARCH = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const now = () => { const d=new Date(); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); };
+
+/* ---------- Textos legales unificados (postulante + empresa) ---------- */
+const LEGAL = {
+privacidad: { titulo:'Centro de Privacidad', html:`
+<p class="lead">Tu información es tuya. Vos decidís cómo compartirla.</p>
+<p>En Match Empleos creemos que encontrar una oportunidad laboral, o encontrar a la persona indicada para tu equipo, no debería significar perder el control sobre tu información. La plataforma usa los datos que compartís para conectar postulantes con empresas que se adapten a su perfil, intereses y objetivos. Queremos que entiendas qué información usamos, para qué y quién puede verla.</p>
+<span class="parte">Si buscás trabajo</span>
+<h2>¿Qué información recopilamos?</h2>
+<ul><li>Nombre y datos de contacto.</li><li>Edad.</li><li>Formación y estudios.</li><li>Experiencia laboral, si la tenés.</li><li>Habilidades, conocimientos, intereses y preferencias laborales.</li><li>Ubicación o zona de búsqueda.</li><li>CV y otros datos que decidas sumar a tu perfil.</li></ul>
+<h2>¿Quién puede ver tu perfil?</h2>
+<p>Una empresa ve tu perfil completo solo cuando te postulaste a una de sus búsquedas o cuando hay Match. Tu teléfono y tu correo no se muestran: la conversación pasa por el chat de Match Empleos hasta que vos decidas compartirlos.</p>
+<span class="parte">Si buscás gente para tu empresa</span>
+<h2>¿Qué información recopilamos?</h2>
+<ul><li>Nombre de la empresa, rubro, tamaño y ubicación.</li><li>Datos de la persona responsable de la cuenta.</li><li>Las búsquedas que publicás y el plazo de respuesta que elegiste.</li><li>Tu historial de respuestas.</li></ul>
+<h2>¿Qué se muestra en público?</h2>
+<p>Tu tasa de respuesta y tu demora promedio son visibles para los postulantes antes de que se postulen. Es la regla central de la plataforma: quien busca trabajo tiene derecho a saber si la empresa contesta.</p>
+<span class="parte">Para las dos partes</span>
+<h2>¿Para qué usamos tus datos?</h2>
+<ul><li>Encontrar coincidencias entre perfiles y búsquedas.</li><li>Generar Matches entre postulantes y empresas.</li><li>Medir y mostrar el cumplimiento de los plazos de respuesta.</li><li>Facilitar la comunicación cuando existe un Match.</li><li>Mejorar el funcionamiento de la plataforma.</li></ul>
+<h2>Vos tenés el control</h2>
+<ul><li>Revisar y modificar tu información cuando quieras.</li><li>Actualizar tus preferencias.</li><li>Gestionar la visibilidad de tu perfil.</li><li>Pedir la eliminación de tu cuenta y tus datos desde Configuración.</li></ul>
+<p class="lead">La privacidad también es parte del Match.</p>
+<p>¿Tenés dudas sobre tu privacidad? Escribinos por WhatsApp al +54 9 11 3600-9773 o por Instagram a @matchempleos.</p>`},
+terminos: { titulo:'Términos y Condiciones', html:`
+<p class="lead">Bienvenido a Match Empleos</p>
+<p>Estos Términos y Condiciones establecen las reglas para usar Match Empleos, una plataforma que conecta a personas que buscan sus primeras oportunidades laborales con empresas y reclutadores. Al crear una cuenta, como postulante o como empresa, aceptás estos términos.</p>
+<span class="parte">Para las dos partes</span>
+<h2>1. ¿Qué es Match Empleos?</h2>
+<p>Una plataforma digital que facilita la conexión entre postulantes y empresas. Usa la información de los perfiles para identificar coincidencias. Facilita la conexión, pero no garantiza la obtención de un empleo ni la contratación.</p>
+<h2>2. Creación de una cuenta</h2>
+<p>Al registrarte te comprometés a dar información verdadera y actualizada, mantener tus datos de acceso seguros, no usar la cuenta de otra persona y no crear perfiles falsos. Cada usuario es responsable de la información que incorpora a su perfil.</p>
+<h2>3. Uso de la plataforma</h2>
+<p>Match Empleos se usa solo para buscar, publicar y conectar oportunidades laborales. No está permitido:</p>
+<ul><li>Publicar información falsa o engañosa.</li><li>Acosar, discriminar o perjudicar a otros usuarios.</li><li>Usar datos de otros usuarios para fines ajenos a la búsqueda laboral.</li><li>Intentar acceder a cuentas sin autorización o realizar actividades ilegales.</li></ul>
+<h2>4. El sistema de Match</h2>
+<p>Hay Match cuando el postulante se interesa por una búsqueda y la empresa se interesa por ese postulante. El Match abre un chat por 7 días. No constituye una contratación: la decisión final corresponde al postulante y a la empresa.</p>
+<span class="parte">Si buscás trabajo</span>
+<h2>5. Postulaciones</h2>
+<ul><li>Tenés 5 postulaciones por semana. El cupo se libera cada lunes.</li><li>Cada postulación muestra su estado: Enviada, Vista o Respondida.</li><li>Podés descartar las búsquedas que no te interesan sin dar explicaciones.</li><li>Aun si la respuesta es un no, tenés derecho a recibirla.</li></ul>
+<span class="parte">Si buscás gente para tu empresa</span>
+<h2>6. Compromiso de respuesta</h2>
+<ul><li>Al publicar una búsqueda elegís un plazo de respuesta: 3, 5 o 7 días. No se puede publicar sin elegirlo.</li><li>Tenés que responder a cada postulante dentro de ese plazo, sea para avanzar o para decir que no avanza.</li><li>No podés publicar una búsqueda nueva mientras tengas postulaciones sin responder.</li><li>Tu tasa de respuesta y tu demora promedio son públicas. Con 90% o más entrás en el grupo de empresas destacadas.</li><li>Si no contestás a tiempo, tu tasa baja y el postulante recibe un aviso.</li></ul>
+<h2>7. Publicaciones</h2>
+<p>Las búsquedas deben incluir información real sobre puesto, tareas, requisitos, modalidad, ubicación y jornada. La empresa es responsable de las condiciones que publica.</p>
+<span class="parte">Para las dos partes</span>
+<h2>8. Contenido y perfiles</h2>
+<p>Nos reservamos el derecho de revisar, limitar o eliminar contenido que infrinja estos términos o afecte la seguridad de otros usuarios.</p>
+<h2>9. Disponibilidad</h2>
+<p>Buscamos que la plataforma funcione siempre, pero puede haber interrupciones por mantenimiento o problemas técnicos. Si hacemos cambios relevantes en estos términos, lo vamos a comunicar con claridad.</p>
+<h2>10. Contacto</h2>
+<p>Si tenés dudas, escribinos por WhatsApp al +54 9 11 3600-9773.</p>`},
+ayuda: { titulo:'Centro de Ayuda', html:`
+<p class="lead">¿En qué podemos ayudarte?</p>
+<p>Estamos para acompañarte en cada paso, busques trabajo o busques gente para tu equipo.</p>
+<span class="parte">Si buscás trabajo</span>
+<h3>¿Cómo creo mi perfil?</h3><p>Registrate, elegí “Busco trabajo” y completá tus datos, rubros, preferencias y una breve descripción. Cuanto más completo esté tu perfil, más coincidencias vas a tener.</p>
+<h3>¿Necesito tener experiencia?</h3><p>No. Match Empleos está pensado para quienes buscan su primer trabajo.</p>
+<h3>¿Por qué tengo un límite de postulaciones?</h3><p>Tenés 5 por semana para que cada postulación cuente. Las empresas saben que elegiste su búsqueda a propósito.</p>
+<h3>¿Cómo sé si me van a contestar?</h3><p>Cada búsqueda muestra la tasa de respuesta de la empresa y cuántos días tarda en promedio. En Mis postulaciones ves si tu postulación fue enviada, vista o respondida.</p>
+<h3>¿Qué pasa después de hacer Match?</h3><p>Se abre un chat con la empresa por 7 días para coordinar los próximos pasos. Un Match no significa que conseguiste el trabajo.</p>
+<span class="parte">Si buscás gente para tu empresa</span>
+<h3>¿Cómo publico una búsqueda?</h3><p>Desde Búsquedas, tocá “Publicar una búsqueda”, completá el puesto y elegí tu plazo de respuesta.</p>
+<h3>¿Por qué no puedo publicar?</h3><p>Porque tenés postulaciones sin responder. Respondelas desde Candidatos y vas a poder publicar de nuevo.</p>
+<h3>¿Cómo respondo rápido?</h3><p>En cada candidato elegí “Me interesa” o “No avanza”. Vas a tener respuestas listas para usar que podés editar antes de enviar.</p>
+<h3>¿Qué es la tasa de respuesta?</h3><p>El porcentaje de postulaciones que respondiste dentro del plazo. La ven todos los postulantes. Con 90% o más, tus búsquedas aparecen primero.</p>
+<span class="parte">Para las dos partes</span>
+<h3>¿Puedo modificar mi información o eliminar mi cuenta?</h3><p>Sí, desde Configuración.</p>
+<h3>¿Encontraste un problema?</h3><p>Escribinos para reportar problemas técnicos, perfiles o publicaciones sospechosas, información incorrecta o comportamientos inapropiados.</p>`}
+};
+
+/* ---------- Estado simulado ---------- */
+function freshState(){ return {
+  c:{ cupo:3, idx:0,
+    ofertas:[
+      {id:'cafe',emp:'Café Mercado',meta:'Gastronomía · 12 empleados',puesto:'Ayudante de cocina',chips:['Lomas de Zamora','Medio tiempo','Sin experiencia','Turno tarde'],fchips:['Lomas de Zamora','Part Time','Sin experiencia'],tasa:94,dias:3,foto:'img/oferta-cafe.jpg',logo:'img/logo-cafe-mercado.png',match:true,
+       desc:'Buscamos a alguien para sumarse a la cocina por la tarde. No hace falta experiencia: te enseñamos. Sí pedimos ganas, puntualidad y trabajo en equipo.'},
+      {id:'libreria',emp:'Librería Laprida',meta:'Comercio · 6 empleados',puesto:'Atención al público',chips:['Lomas de Zamora','Part Time','Sin experiencia','Turno mañana'],fchips:['Lomas de Zamora','Part Time','Sin experiencia'],tasa:91,dias:4,
+       desc:'Atención en mostrador y armado de pedidos escolares. Buscamos alguien amable y ordenado. Te capacitamos en el sistema de ventas.'},
+      {id:'logis',emp:'Distribuidora Sur',meta:'Logística · 40 empleados',puesto:'Auxiliar de depósito',chips:['Banfield','Full Time','Sin experiencia','Turno mañana'],fchips:['Banfield','Full Time','Sin experiencia'],tasa:88,dias:5,
+       desc:'Recepción de mercadería, control de stock y preparación de envíos. Valoramos responsabilidad y ganas de aprender.'},
+      {id:'estudio',emp:'Estudio Contable Ruiz',meta:'Administración · 8 empleados',puesto:'Asistente administrativo',chips:['Lomas de Zamora','Pasantía','Estudiantes','Turno tarde'],fchips:['Lomas de Zamora','Pasantía','Estudiantes'],tasa:97,dias:2,
+       desc:'Carga de comprobantes, archivo y atención telefónica. Ideal si estudiás Ciencias Económicas o algo afín.'}
+    ],
+    posts:[
+      {id:'p1',puesto:'Repositor',emp:'Supermercado Norte',estado:'Vista',pie:'La vieron hace 1 día'},
+      {id:'p2',puesto:'Atención al cliente',emp:'Tienda Ruiz',estado:'Enviada',pie:'Enviada hace 3 días'},
+      {id:'p3',puesto:'Cadete',emp:'Farmacia Sur',estado:'Respondida',pie:'Te contestaron ayer',chat:'farmacia'}
+    ],
+    chats:{
+      farmacia:{con:'Farmacia Sur',puesto:'Cadete',tasa:89,match:false,msgs:[{de:'them',t:'Hola Tomás, gracias por postularte. Buscamos a alguien que pueda arrancar el lunes. ¿Tenés bici o moto?',h:'10:24'}]}
+    },
+    notifs:[
+      {t:'Te contestaron',d:'Farmacia Sur respondió tu postulación a Cadete.',cuando:'1 día',go:'#/c/chat/farmacia',nuevo:true},
+      {t:'Tu postulación fue vista',d:'Supermercado Norte abrió tu perfil. Tiene 7 días para contestarte.',cuando:'1 día',go:'#/c/postulaciones',nuevo:true},
+      {t:'Se libera tu cupo',d:'El lunes volvés a tener 5 postulaciones disponibles.',cuando:'3 días',go:'#/c/feed',nuevo:false},
+      {t:'Sumá tu experiencia',d:'Los perfiles completos reciben el doble de respuestas.',cuando:'5 días',go:'#/c/datos',nuevo:false}
+    ]
+  },
+  e:{ tasa:87, demora:4, plazo:3,
+    busquedas:[{id:'b1',puesto:'Ayudante de cocina',total:12,estado:'Activa'},{id:'b2',puesto:'Cajero fin de semana',total:5,estado:'Activa'}],
+    pend:[
+      {id:'tomas',nombre:'Tomás Ferreyra',corto:'Tomás F.',edad:20,zona:'Lomas de Zamora',linea:'Primer trabajo · Lomas',busca:'Busca su primer trabajo',hace:5,quedan:2,avatar:'img/avatar-tomas.png',
+       porque:'«Trabajé ayudando en el kiosco de mi tía los fines de semana. Me gusta la cocina y quiero aprender en serio. Vivo a diez cuadras del local.»',
+       sabe:['Atención al público','Manipulación de alimentos','Trabajo en equipo','Disponibilidad tarde'],estudios:'Secundario completo · Escuela Técnica N.º 4, Lomas de Zamora'},
+      {id:'aylen',nombre:'Aylén Ríos',corto:'Aylén R.',edad:22,zona:'Banfield',linea:'Ya trabajó · Banfield',busca:'Ya trabajó en atención al público',hace:4,quedan:3,
+       porque:'«Trabajé seis meses en una panadería atendiendo el mostrador. Quiero aprender cocina y el horario de la tarde me queda perfecto.»',
+       sabe:['Atención al público','Manipulación de alimentos','Puntualidad'],estudios:'Secundario completo'},
+      {id:'nicolas',nombre:'Nicolás Pereyra',corto:'Nicolás P.',edad:19,zona:'Temperley',linea:'Primer trabajo · Temperley',busca:'Busca su primer trabajo',hace:2,quedan:5,
+       porque:'«Siempre cocino en casa y me encantaría hacerlo en un lugar de verdad. Aprendo rápido y no tengo problema con los horarios.»',
+       sabe:['Trabajo en equipo','Disponibilidad tarde','Ganas de aprender'],estudios:'Secundario completo'},
+      {id:'sofia',nombre:'Sofía Romero',corto:'Sofía R.',edad:21,zona:'Lomas de Zamora',linea:'Estudia Gastronomía · Lomas',busca:'Estudia Gastronomía',hace:1,quedan:6,
+       porque:'«Estoy en primer año de Gastronomía y busco mi primera experiencia en una cocina real.»',
+       sabe:['Pastelería básica','Atención al público','Disponibilidad tarde'],estudios:'Tecnicatura en Gastronomía · en curso'}
+    ],
+    chats:{
+      malena:{con:'Malena T.',puesto:'Ayudante de cocina',match:true,msgs:[{de:'me',t:'Hola Malena, nos interesó tu perfil. ¿Podés venir el jueves a las 16?',h:'Hoy'},{de:'them',t:'Perfecto, el jueves a las 16 estoy',h:'hace 1 h'}]},
+      lucia:{con:'Lucía M.',puesto:'Cajero fin de semana',match:true,msgs:[{de:'them',t:'¡Hola! Gracias por responder. ¿Qué día puedo pasar?',h:'hace 3 días'},{de:'me',t:'Te esperamos el martes',h:'hace 3 días'}]}
+    },
+    resp:[{nombre:'Malena T.',tipo:'si'},{nombre:'Lucía M.',tipo:'si'},{nombre:'Joaquín D.',tipo:'no'},{nombre:'Brenda S.',tipo:'no'}],
+    notifs:[
+      {t:'La postulación más vieja vence en 2 días',d:'Tomás F. se postuló a Ayudante de cocina hace 5 días.',go:'#/e/candidato/tomas',nuevo:true},
+      {t:'Malena T. te escribió',d:'Ayudante de cocina: «Perfecto, el jueves a las 16 estoy»',go:'#/e/chat/malena',nuevo:true},
+      {t:'Tu tasa bajó a 87%',d:'Respondé a tiempo para volver a superar el 90% y aparecer entre las destacadas.',go:'#/e/empresa',nuevo:false},
+      {t:'Nueva postulación',d:'Sofía R. se postuló a Ayudante de cocina.',go:'#/e/candidato/sofia',nuevo:false}
+    ]
+  },
+  reg:{ chips:{} }
+};}
+let S = freshState();
+const timers = [];
+
+/* ---------- Utilidades ---------- */
+const root = document.getElementById('root');
+let toastT;
+function toast(msg){
+  let el=document.querySelector('.toast'); if(el) el.remove();
+  el=document.createElement('div'); el.className='toast'; el.setAttribute('role','status'); el.textContent=msg; document.body.appendChild(el);
+  clearTimeout(toastT); toastT=setTimeout(()=>el.remove(),3200);
+}
+function go(h){ if(location.hash===h) render(); else location.hash=h; }
+function waveSVG(bg, fill, rim){
+  return `<svg viewBox="0 0 390 92" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50 L240 50 C330 50 378 26 390 0 L390 92 L0 92Z" fill="${rim}"/><path d="M0 70 L252 70 C340 70 384 44 390 16 L390 92 L0 92Z" fill="${fill}"/></svg>`;
+}
+const CNAV=[['#/c/feed','Match'],['#/c/postulaciones','Postulaciones'],['#/c/mensajes','Mensajes'],['#/c/notificaciones','Notificaciones'],['#/c/perfil','Perfil']];
+const ENAV=[['#/e/panel','Búsquedas'],['#/e/candidatos','Candidatos'],['#/e/mensajes','Mensajes'],['#/e/notificaciones','Notificaciones'],['#/e/empresa','Empresa']];
+function shell(kind, active, inner, opts={}){
+  const emp = kind==='e';
+  const nav = emp?ENAV:CNAV;
+  const links = nav.map(([h,l])=>`<a href="${h}"${h===active?' aria-current="page"':''}><span class="ico"></span>${l}</a>`).join('');
+  const side = `<aside class="side-nav">${emp?WM:WM_INV}${links}<p class="who">${emp?'Café Mercado':'Tomás Ferreyra'}</p></aside>`;
+  const rim='#E9E9E9';
+  const dock = `<div class="dock">${waveSVG('',emp?'#002147':'#36F48C',rim)}<div class="band"><nav class="nav-b" aria-label="Secciones">${links}</nav></div></div>`;
+  return `<div class="app has-nav ${emp?'emp':'cand'}">${side}<main class="screen${opts.cls?' '+opts.cls:''}">${inner}</main>${dock}</div>`;
+}
+function authShell(inner, kind='c'){
+  return `<div class="app auth ${kind==='e'?'emp':'cand'}"><main class="screen">${inner}</main><div class="dock plain">${waveSVG('',kind==='e'?'#002147':'#36F48C','#E9E9E9')}<div class="band"></div></div></div>`;
+}
+function hdr(left, right=''){ return `<div class="hdr">${left}${right?`<span class="side">${right}</span>`:''}</div>`; }
+const backBtn = (to,label='Volver') => `<button class="back" data-go="${to}">‹&nbsp;&nbsp;${label}</button>`;
+
+/* ================= HOME ================= */
+function siteFooter(){
+  return `<footer class="foot"><div class="wrap">
+  <div class="foot-cols">
+    <div><h4>Seguinos en:</h4><div class="soc"><span><a href="https://www.instagram.com/matchempleosarg/" target="_blank" rel="noopener">${IG}@matchempleosarg</a></span></div></div>
+    <div><h4>Contacto:</h4><div class="soc"><span>${WA}+54 9 11 3600-9773</span></div></div>
+  </div>
+  <nav class="foot-links" aria-label="Pie de página">
+    <a href="#/" data-scroll="quienes">¿Quiénes somos?</a><a href="#/" data-scroll="como">¿Cómo funciona?</a>
+    <a href="#/privacidad">Centro de Privacidad</a><a href="#/terminos">Términos y Condiciones</a><a href="#/ayuda">Ayuda</a>
+  </nav>
+  <small>2026 – Match Empleos – Todos los derechos reservados.<br>Propuesta presentada para Premios OBRAR Estudiantes 2026.</small>
+  </div></footer>`;
+}
+function home(){
+  return `<div class="site">
+  <header class="top"><div class="wrap">${LOCKUP}
+    <form class="search" role="search" data-form="search"><label class="vh" for="q">Buscar empleos</label><input id="q" type="search" placeholder="" autocomplete="off"><button type="submit" aria-label="Buscar">${SEARCH}</button></form>
+    <nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>
+  </div></header>
+
+  <section class="hero"><div class="hero-in">
+    <img src="img/ilus-hero.png" alt="Dos jóvenes trabajando frente a una computadora">
+    <div class="hero-txt"><h1>¡Conocé aquí los empleos que ofrecemos y comenzá a matchear!</h1>
+    <button class="btn-mas" data-scroll="quienes">Más Información</button></div>
+  </div></section>
+  <div class="green-gap"></div>
+
+  <section class="quienes"><div class="quienes-in" id="quienes">
+    <h2>¿Quiénes somos?</h2>
+    <div class="txt">
+      <p>Somos un equipo de cinco estudiantes que desarrollamos una plataforma digital pensada para facilitar el acceso de los jóvenes al mundo laboral y generar nuevas formas de conexión con empresas y reclutadores.</p>
+      <p>De esta búsqueda nace Match Empleos, una plataforma digital que conecta a jóvenes en búsqueda de sus primeras oportunidades laborales con empresas y reclutadores que buscan nuevos talentos.</p>
+      <p>La propuesta busca transformar la manera tradicional de buscar empleo, haciendo que el proceso sea más simple, dinámico y personalizado. En lugar de enfrentarse a una gran cantidad de ofertas, los usuarios reciben oportunidades relevantes para su perfil y pueden mostrar interés en aquellas que realmente les resulten atractivas.</p>
+    </div>
+  </div></section>
+
+  <section class="sit"><div class="sit-in" id="situacion">
+    <h2>Situación actual en Argentina</h2>
+    <div class="stats">
+      <div class="stat g"><div class="n">16,5%</div><p>Desocupación en personas<br>entre 14 y 29 años,<br>con un 7,5% general.</p></div>
+      <div class="stat d"><div class="n">43%</div><p>De la generación Z sufrió ghosting al postularse.<br>El 45% dudó de sus capacidades.</p></div>
+      <div class="stat g"><div class="n">0,17%</div><p>Es la tasa de 1.500 inserciones sobre 900.000 beneficiarios.</p></div>
+      <img class="ilus" src="img/ilus-situacion.png" alt="Joven pensativa sentada sobre su valija con un CV en la mano">
+    </div>
+  </div></section>
+  <div class="navy-gap"></div>
+
+  <section class="como"><div class="como-in" id="como">
+    <h2>¿Cómo funciona?</h2>
+    <div class="steps">
+      <div class="step"><div class="num">1.</div><div class="card"><h3>Creá tu perfil</h3><p>Contanos quién sos, qué estudias, qué experiencia tenes, qué habilidades posees.</p></div></div>
+      <div class="step"><div class="num">2.</div><div class="card"><h3>Descubrí oportunidades</h3><p>Te mostramos empleos y empresas que coinciden con tu perfil y tus intereses.</p></div></div>
+      <div class="step"><div class="num">3.</div><div class="card"><h3>Hace MATCH</h3><p>Buscá y comunicá aquellas oportunidades que te interesan o te llaman la atención.</p></div></div>
+      <div class="step"><div class="num">4.</div><div class="card"><h3>Conectá</h3><p>Si hay match, podras ponerte en contacto, interactuar y avanzar en la selección.</p></div></div>
+    </div>
+  </div></section>
+
+  <section class="futuro"><h2>¡El futuro no espera, vos tampoco!</h2>
+    <div class="fut-in">
+      <div class="fut-row a"><div class="t"><h3>En Match Empleos creemos que todas las oportunidades cuentan.</h3><p>Buscamos acercarte a trabajos, oficios, comercios y oportunidades reales que puedan coincidir con lo que sabés hacer, lo que te interesa y lo que estás buscando.</p></div><img src="img/ilus-oficios.png" alt="Jóvenes trabajando en carpintería y en cocina"></div>
+      <div class="fut-row b"><img src="img/ilus-oficina.png" alt="Dos jóvenes conversando frente a una computadora"><div><h3>Encontrá tu Match.</h3><p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p></div></div>
+    </div>
+  </section>
+  ${siteFooter()}
+  </div>`;
+}
+function legalSite(doc){
+  const d=LEGAL[doc];
+  return `<div class="site">
+  <header class="top legal-top"><div class="wrap">${LOCKUP}</div></header>
+  <section class="legal"><div class="legal-in"><div class="doc"><h1>${d.titulo}</h1>${d.html}</div></div></section>
+  ${siteFooter()}</div>`;
+}
+
+/* ================= ACCESO Y REGISTRO ================= */
+function login(){
+  return authShell(`<div class="hdr">${WM}${backBtn('#/')}</div>
+  <h1 class="t-display" style="margin:28px 0 48px">Iniciar sesión en MATCH EMPLEOS</h1>
+  <form data-form="login" class="stack" style="gap:8px">
+    <p class="flabel">Completar:</p>
+    <label class="vh" for="lg-mail">Correo</label><input class="field" id="lg-mail" type="email" placeholder="ejemplo@correo.com" autocomplete="email">
+    <label class="vh" for="lg-pass">Contraseña</label><input class="field" id="lg-pass" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <div class="stack" style="margin-top:56px">
+      <button class="btn pri" type="submit">Iniciar sesión</button>
+      <button class="btn out" type="button" data-go="#/recuperar">¿Has olvidado tu contraseña?</button>
+    </div>
+  </form>
+  <p class="linkline" style="margin-top:56px">¿Aún no te has registrado?<button data-go="#/registro">Registraté</button></p>
+  <p class="linkline" style="margin-top:14px">Demo:<button data-go="#/c/feed">Entrar como candidato</button><button data-go="#/e/panel">Entrar como empresa</button></p>`);
+}
+function recuperar(){
+  return authShell(`<div class="hdr">${WM}${backBtn('#/login')}</div>
+  <h1 class="t-display" style="margin:16px 0 18px">Recuperá tu contraseña</h1>
+  <p class="t-note">Ingresá el email asociado a tu cuenta y te enviaremos instrucciones para crear una nueva contraseña.</p>
+  <form data-form="recuperar" class="stack" style="margin-top:56px">
+    <label class="vh" for="rc-mail">Correo</label><input class="field" id="rc-mail" type="email" placeholder="ejemplo@correo.com" required>
+    <p class="t-note" style="margin-top:44px">Te enviamos un enlace para recuperar tu contraseña a tu dirección de email.<br>Si no encontrás el correo, revisá también la carpeta de spam o correo no deseado.</p>
+    <button class="btn pri" type="submit" style="margin-top:28px">Enviar</button>
+  </form>`);
+}
+function registro(){
+  return authShell(`<div class="hdr">${WM}${backBtn('#/')}</div>
+  <h1 class="t-display" style="margin:28px 0 48px">Registarse en MATCH EMPLEOS</h1>
+  <div class="stack" style="gap:8px">
+    <p class="flabel">Completar:</p>
+    <label class="vh" for="rg-mail">Correo</label><input class="field" id="rg-mail" type="email" placeholder="ejemplo@correo.com">
+    <label class="vh" for="rg-pass">Contraseña</label><input class="field" id="rg-pass" type="password" placeholder="Contraseña">
+    <div class="stack" style="margin-top:56px">
+      <button class="btn pri" data-go="#/registro/c/1">Busco trabajo</button>
+      <button class="btn out" data-go="#/registro/e/1">Busco gente para mi empresa</button>
+    </div>
+  </div>
+  <p class="linkline" style="margin-top:56px">¿Ya tenés cuenta?<button data-go="#/login">Iniciá sesión</button></p>`);
+}
+function chipToggles(key, opts, max){
+  const sel = S.reg.chips[key]||[];
+  return `<div class="chips">${opts.map(o=>`<button class="chip" data-chip="${key}" data-val="${esc(o)}"${max?` data-max="${max}"`:''} aria-pressed="${sel.includes(o)}">${esc(o)}</button>`).join('')}</div>`;
+}
+function inputs(list){ return list.map(([id,ph,type])=>`<label class="vh" for="${id}">${ph}</label><input class="field tall" id="${id}" type="${type||'text'}" placeholder="${ph}">`).join(''); }
+function regField(id,label,type){ return `<div class="rf"><label class="flabel" for="${id}">${label}</label><input class="field" id="${id}" type="${type||'text'}" placeholder="completar"></div>`; }
+function regTop(back,withLogo){ return withLogo?`<div class="hdr">${WM}${backBtn(back)}</div>`:`<div class="reg-top"><span class="reg-bar"></span>${backBtn(back)}</div>`; }
+function writeHere(id){ return `<button class="btn pri" data-action="write" data-target="${id}">Escribí aquí</button>`; }
+const RUBROS=['Atención al público','Gastronomía','Administración','Logística','Ventas','Diseño','Sistemas','Salud'];
+const TIPO=['Full Time','Part Time','Pasantía','Otro'], MODO=['Presencial','Remoto','Híbrido'], HORA=['Mañana','Tarde','Noche','Rotativo'];
+function regCand(step){
+  const back={1:'#/registro',2:'#/registro/c/1',exp:'#/registro/c/2',3:'#/registro/c/2',4:'#/registro/c/3',5:'#/registro/c/4'}[step]||'#/registro';
+  let b='';
+  if(step==='1') b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('rc-nom','Nombre')}${regField('rc-ape','Apellido')}${regField('rc-mail','Email','email')}${regField('rc-pass','Contraseña','password')}</div><button class="btn pri reg-cta" data-go="#/registro/c/2">Continuar</button>`;
+  if(step==='2') b=`${regTop(back,true)}<h1 class="t-display reg-h">Datos Personales</h1><div class="rstack">${regField('rc-edad','Edad','number')}${regField('rc-ubi','Ubicación/Residencia')}</div><p style="text-align:center;font-size:14px;margin:30px 0 14px;color:var(--t2)">¿Tenés experiencia laboral?</p><div class="row2"><button class="btn pri" data-go="#/registro/c/exp">Si</button><button class="btn pri" data-go="#/registro/c/3">No</button></div><p style="text-align:center;font-size:14px;margin-top:24px;color:var(--t2);line-height:1.6">¡No necesitás experiencia para empezar a encontrar tu Match!</p>`;
+  if(step==='exp') b=`${regTop(back)}<h1 class="t-display">Experiencia laboral</h1><p class="t-note reg-sub">Contanos brevemente donde trabajaste, en que puesto y durante cuanto tiempo.</p><div class="rstack">${regField('rx-emp','Empresa')}${regField('rx-puesto','Puesto/Posición')}${regField('rx-dur','Duración en el cargo')}</div><button class="btn pri reg-cta" data-go="#/registro/c/3">Continuar</button>`;
+  if(step==='3') b=`${regTop(back)}<h1 class="t-display">¿Qué buscás?</h1><p class="t-note reg-sub">Elegí hasta tres rubros. Con eso te mostramos búsquedas que tengan que ver con vos.</p>${chipToggles('rubros',RUBROS,3)}<div style="margin-top:34px">${regField('rc-puesto','Elegí un puesto/posición')}</div><button class="btn pri reg-cta" data-go="#/registro/c/4">Continuar</button>`;
+  if(step==='4') b=`${regTop(back)}<h1 class="t-display">¿Cómo te gustaría trabajar?</h1><p class="reg-lbl">Tipo de empleo</p>${chipToggles('tipo',TIPO)}<p class="reg-lbl">Modalidad</p>${chipToggles('modo',MODO)}<p class="reg-lbl">Horario</p>${chipToggles('hora',HORA)}<button class="btn pri reg-cta" data-go="#/registro/c/5">Continuar</button>`;
+  if(step==='5') b=`${regTop(back)}<h1 class="t-display">Completá tu perfil</h1><p class="t-note reg-sub">Terminá de relatarnos tus capacidades.</p><h2 class="t-display">Adjuntá tu curriculum</h2><p class="t-note reg-sub" style="margin-top:6px">Subí el archivo en formato PDF</p><label class="btn pri" for="rc-cv" style="cursor:pointer"><span data-cvname>Subir tu CV</span></label><input id="rc-cv" type="file" accept=".pdf" hidden><h2 class="t-display" style="margin-top:30px">Contanos más sobre vos</h2><p class="t-note reg-sub" style="line-height:1.6">Escribí brevemente cuales son tus habilidades u oficios, tus estudios, que cosas te interesan o algún otro dato que te parezca necesario compartirlo.</p>${writeHere('rc-sobre')}<button class="btn pri" style="margin-top:24px" data-go="#/registro/terminos/c">Continuar</button>`;
+  return authShell(b);
+}
+function regEmp(step){
+  const n=+step||1; const back = n===1?'#/registro':'#/registro/e/'+(n-1); const next = n<5?'#/registro/e/'+(n+1):'#/registro/terminos/e';
+  const cta=`<button class="btn pri reg-cta" data-go="${next}">Continuar</button>`;
+  let b='';
+  if(n===1) b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('re-resp','Nombre del responsable')}${regField('re-nom','Nombre de la empresa')}${regField('re-mail','Email','email')}${regField('re-pass','Contraseña','password')}</div>${cta}`;
+  if(n===2) b=`${regTop(back,true)}<h1 class="t-display reg-h">Contanos sobre tu empresa</h1><div class="rstack">${regField('re-rubro','Rubro')}${regField('re-ubi','Ubicación')}${regField('re-tam','Tamaño de la empresa')}</div>${cta}`;
+  if(n===3) b=`${regTop(back)}<h1 class="t-display">¿Qué perfil necesitas?</h1><p class="reg-lbl">Elegi un area/sector</p>${chipToggles('esector',['Comercio','Gastronomía','Administración','Logística','Ventas','Diseño','Sistemas','Salud','Otro'])}<div style="margin-top:34px">${regField('re-puesto','Elegí un puesto/posición')}</div>${cta}`;
+  if(n===4) b=`${regTop(back)}<h1 class="t-display">Especificá las características del empleo</h1><p class="reg-lbl">Tipo de empleo</p>${chipToggles('etipo',TIPO)}<p class="reg-lbl">Experiencia requerida</p>${chipToggles('eexp',['Sin experiencia','1–2 años','3 años o más','Indistinto'])}<p class="reg-lbl">Modalidad</p>${chipToggles('emodo',MODO)}<p class="reg-lbl">Horario</p>${chipToggles('ehora',HORA)}${cta}`;
+  if(n===5) b=`${regTop(back)}<h1 class="t-display">Completá tu perfil</h1><p class="t-note reg-sub" style="line-height:1.6">Escribí brevemente las características de la empresa, que personalidades busca, sus valores, objetivos u algún otro dato que te parezca necesario compartirlo.</p>${writeHere('re-desc')}<button class="btn pri" style="margin-top:20px" data-go="${next}">Continuar</button>`;
+  return authShell(b);
+}
+function regTerminos(kind){
+  const d=LEGAL.terminos;
+  return authShell(`<div class="hdr">${WM}${backBtn(kind==='e'?'#/registro/e/5':'#/registro/c/5')}</div><h1 class="t-display" style="margin-bottom:6px">${d.titulo}</h1><div class="app-doc">${d.html}</div><button class="btn pri" style="margin-top:28px" data-go="${kind==='e'?'#/e/panel':'#/c/feed'}" data-welcome="${kind}">Acepto</button>`);
+}
+
+/* ================= CANDIDATO ================= */
+function offerById(id){ return S.c.ofertas.find(o=>o.id===id); }
+function offerCard(o){
+  return `<article class="offer">
+    ${o.foto?`<img class="ph" src="${o.foto}" alt="Preparación de café en ${esc(o.emp)}">`:''}
+    <div class="bd">
+      <div class="co"><span class="sq"></span>${esc(o.emp)}</div>
+      <h2>${esc(o.puesto)}</h2>
+      <div class="chips">${o.fchips.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>
+      <div class="strip"><span class="dot"></span><span>Contesta el ${o.tasa}% de las postulaciones, en ${o.dias} días promedio</span></div>
+      <button class="btn out sm only-m" data-go="#/c/oferta/${o.id}">Ver detalle</button>
+    </div></article>`;
+}
+function cupoTxt(){ return S.c.cupo>0?`Te quedan ${S.c.cupo} postulaciones esta semana`:'Usaste tus 5 postulaciones de esta semana. Se libera tu cupo el lunes.'; }
+function applied(id){ return S.c.posts.some(p=>p.oid===id); }
+function offerDetail(o, withBack){
+  const ya=applied(o.id);
+  return `${withBack?`<div class="hdr">${backBtn('#/c/feed')}<span class="side">Guardar</span></div>`:''}
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px"><span class="sq" style="width:40px;height:40px;border-radius:10px"></span><div><p style="font-weight:500">${esc(o.emp)}</p><p class="t-note">${esc(o.meta)}</p></div></div>
+  <h1 class="t-title" style="margin-bottom:16px">${esc(o.puesto)}</h1>
+  <div class="chips" style="margin-bottom:16px">${o.chips.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>
+  <div class="resp-box"><p class="lbl">Esta empresa responde:</p>
+    <div class="row2"><div><p class="bignum">${o.tasa}%</p><p class="t-note">de las postulaciones</p></div><div><p class="bignum">${o.dias} días</p><p class="t-note">tarda en promedio</p></div></div>
+    <p style="font-size:13px;margin-top:12px">Si no te contesta en 7 días, su tasa baja y vos recibís un aviso.</p></div>
+  <h2 class="t-sec">¿De qué se trata?</h2><p style="color:var(--t2);line-height:1.55">${esc(o.desc)}</p>
+  <button class="btn pri" style="margin-top:20px" data-apply="${o.id}" ${ya||S.c.cupo<=0?'disabled':''}>${ya?'Ya te postulaste':'Me interesa'}</button>
+  <p class="cupo">${cupoTxt()}</p>`;
+}
+function cFeed(){
+  const o=S.c.ofertas[S.c.idx];
+  let inner = hdr(WM);
+  if(!o){
+    inner += `<div class="empty"><p style="font-size:18px;color:var(--white);font-weight:600">Viste todas las búsquedas de hoy</p><p>Mañana te mostramos nuevas oportunidades para tu perfil. Mientras tanto, seguí tus postulaciones.</p><button class="btn out sm" data-go="#/c/postulaciones">Ver mis postulaciones</button><button class="btn out sm" data-action="feed-reset">Volver a ver las búsquedas</button></div>`;
+    return shell('c','#/c/feed',inner);
+  }
+  const ya=applied(o.id);
+  inner += `<div class="wide2"><div>${offerCard(o)}
+    <div class="row2" style="margin-top:14px"><button class="btn out" data-action="descartar">Descartar</button><button class="btn pri" data-apply="${o.id}" ${ya||S.c.cupo<=0?'disabled':''}>${ya?'Postulado':'Me interesa'}</button></div>
+    <p class="cupo">${cupoTxt()}</p></div>
+    <div class="only-d">${offerDetail(o,false).replace(/<button class="btn pri"[^>]*data-apply[^>]*>[^<]*<\/button>\s*<p class="cupo">[^<]*<\/p>/,'')}</div></div>`;
+  return shell('c','#/c/feed',inner);
+}
+function cOferta(id){ const o=offerById(id); if(!o) return cFeed(); return shell('c','#/c/feed',`<div style="max-width:560px">${offerDetail(o,true)}</div>`); }
+function cMatch(id){
+  const o=offerById(id)||S.c.ofertas[0];
+  return `<div class="app auth cand"><div class="match-top">${'<svg viewBox="0 0 390 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H390V24C300 24 240 40 170 70C90 104 30 150 0 180Z" fill="#E9E9E9"/><path d="M0 0H390V4C310 4 250 22 180 52C100 86 30 132 0 160Z" fill="#36F48C"/></svg>'}</div>
+  <main class="screen"><div class="match-hero">
+    <h1>¡Hay match!</h1>
+    <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
+    <div class="match-pair"><img src="img/avatar-tomas.png" alt="Tomás"><i></i><img src="${o.logo||'img/logo-cafe-mercado.png'}" alt="${esc(o.emp)}"></div>
+    <p class="note-match" style="max-width:342px">Tenés el chat abierto por 7 días. Después la búsqueda se cierra sola.</p>
+  </div>
+  <div class="stack" style="margin-top:60px"><button class="btn pri" data-go="#/c/chat/${o.id}">Escribirle ahora</button><button class="btn out" data-go="#/c/feed">Seguir viendo búsquedas</button></div>
+  </main><div class="dock plain">${waveSVG('','#36F48C','#E9E9E9')}<div class="band"></div></div></div>`;
+}
+let postFilter='Todas';
+function cPost(){
+  const f=postFilter;
+  const list=S.c.posts.filter(p=>f==='Todas'||(f==='Sin respuesta'&&p.estado!=='Respondida')||(f==='Con match'&&p.match));
+  const stepsOf=e=>({Enviada:1,Vista:2,Respondida:3})[e];
+  const items=list.map(p=>`<a class="item" href="${p.chat?'#/c/chat/'+p.chat:(p.oid?'#/c/oferta/'+p.oid:'#/c/postulaciones')}">
+    <div class="grow"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h3>${esc(p.puesto)}</h3><p class="t-note">${esc(p.emp)}${p.match?' · <span class="tag-sm">Match</span>':''}</p></div><span class="state ${p.estado}">${p.estado}</span></div>
+    <div class="steps3">${[1,2,3].map(i=>`<i class="${i<=stepsOf(p.estado)?'on':''}"></i>`).join('')}</div>
+    <p class="post-foot">${esc(p.pie||'')}</p></div></a>`).join('');
+  const inner = `<div class="hdr"><h1 style="font-size:18px;font-weight:600">Mis postulaciones</h1><span class="side" style="color:var(--t2)">${S.c.posts.length} activas</span></div>
+    <div class="chips" style="margin-bottom:18px">${['Todas','Sin respuesta','Con match'].map(x=>`<button class="chip" data-filter="${x}" aria-pressed="${x===f}">${x}</button>`).join('')}</div>
+    <div class="stack grid2">${items||'<div class="empty">No tenés postulaciones en este filtro.</div>'}</div>
+    <p class="cupo">${cupoTxt()}</p>`;
+  return shell('c','#/c/postulaciones',inner);
+}
+function avatarOf(kind,k){
+  if(kind==='e') return k==='tomas'?'<img class="avatar" src="img/avatar-tomas.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">':'<span class="avatar" style="width:44px;height:44px;border-radius:12px;background:var(--navy2)"></span>';
+  return k==='cafe'?'<img class="avatar" src="img/logo-cafe-mercado.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">':'<span class="sq" style="width:44px;height:44px;border-radius:12px"></span>';
+}
+function convItems(kind, active){
+  const chats = kind==='e'?S.e.chats:S.c.chats;
+  return Object.keys(chats).map(k=>{const c=chats[k]; const last=c.msgs[c.msgs.length-1];
+    return `<a class="conv-item" href="#/${kind}/chat/${k}" ${k===active?'aria-current="true"':''}>${avatarOf(kind,k)}<div class="grow"><div style="display:flex;justify-content:space-between;gap:8px"><h3>${esc(c.con)}</h3><span class="t-note" style="flex:none">${esc(last?last.h:'')}</span></div><p>${last?(last.de==='me'?'Vos: ':'')+'«'+esc(last.t)+'»':esc(c.puesto)+' · escribí el primer mensaje'}</p></div></a>`;}).join('');
+}
+function chatHead(kind,id,back){
+  const c=(kind==='e'?S.e.chats:S.c.chats)[id];
+  const sub = kind==='e'? esc(c.puesto) : `${esc(c.puesto)}${c.tasa?' · responde el '+c.tasa+'%':''}`;
+  return `<div class="chat-head"><button class="back" data-go="${back}" aria-label="Volver">‹</button>${avatarOf(kind,id).replace(/44px/g,'36px')}<div><b>${esc(c.con)}</b><p class="t-note">${sub}</p></div></div>`;
+}
+function chatBody(kind, id){
+  const chats = kind==='e'?S.e.chats:S.c.chats; const c=chats[id];
+  if(!c) return '<p class="t-note">Elegí una conversación.</p>';
+  const note = c.match?'Esta conversación nació de un match. Los dos dijeron que sí.':(kind==='e'?`Le pediste más información a ${esc(c.con.split(' ')[0])}.`:`Respondieron tu postulación a ${esc(c.puesto)}.`);
+  return `<div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map(m=>`<div class="bub ${m.de}">${esc(m.t)}</div>`).join('')}${c.typing?`<p class="typing">${esc(c.con.split(' ')[0])} está escribiendo…</p>`:''}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
+  <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>`;
+}
+function mensajes(kind, id){
+  const items=convItems(kind,id);
+  const active = kind==='e'?'#/e/mensajes':'#/c/mensajes';
+  const chats = kind==='e'?S.e.chats:S.c.chats;
+  const n=Object.keys(chats).length;
+  const sub = kind==='e'?'Conversaciones abiertas':'Lo que te respondieron las empresas';
+  const head = `<div class="hdr"><h1 style="font-size:18px;font-weight:600">Mensajes</h1><span class="side">${n} conversaci${n===1?'ón':'ones'}</span></div><p class="sec-lbl">${sub}</p>`;
+  if(id && chats[id]){
+    const c=chats[id];
+    const inner = `<div class="only-m">${chatHead(kind,id,active)}${chatBody(kind,id)}</div>
+    <div class="only-d">${head}<div class="split"><div class="conv-list">${items}</div><div class="chat-panel">${chatHead(kind,id,active).replace('class="chat-head"','class="chat-head" style="margin:-18px -18px 16px;padding:14px 18px;border-radius:16px 16px 0 0"')}${chatBody(kind,id)}</div></div></div>`;
+    return shell(kind,active,inner);
+  }
+  const inner = `${head}${items?`<div class="split"><div class="conv-list">${items}</div><div class="chat-panel only-d" style="align-items:center;justify-content:center"><p class="t-note">Elegí una conversación para leerla.</p></div></div>`:`<div class="empty"><p>Todavía no tenés mensajes.</p><p>${kind==='e'?'Cuando le respondas “Lo quiero conocer” a un candidato, se abre el chat.':'Cuando una empresa te responda o haya match, lo vas a ver acá.'}</p></div>`}`;
+  return shell(kind,active,inner);
+}
+function notifs(kind){
+  const list = kind==='e'?S.e.notifs:S.c.notifs;
+  const items=list.map((n,i)=>`<a class="item" href="${n.go}" data-notif="${kind}:${i}"><span class="dot" style="margin-top:6px;${n.nuevo?'':'background:var(--t3)'}"></span><div class="grow"><div style="display:flex;justify-content:space-between;gap:8px"><h3>${esc(n.t)}</h3><span class="t-note" style="flex:none">${esc(n.cuando||'')}</span></div><p class="t-note">${esc(n.d)}</p></div></a>`).join('');
+  const inner=`<div class="hdr"><h1 style="font-size:18px;font-weight:600">Notificaciones</h1><button class="back" data-action="leidas" data-kind="${kind}" style="color:inherit">Marcar leídas</button></div><div class="stack" style="max-width:760px">${items||'<div class="empty">No tenés novedades.</div>'}</div>`;
+  return shell(kind,kind==='e'?'#/e/notificaciones':'#/c/notificaciones',inner);
+}
+function cPerfil(){
+  const env=S.c.posts.length, resp=S.c.posts.filter(p=>p.estado==='Respondida').length, mt=S.c.posts.filter(p=>p.match).length;
+  const inner=`<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="img/avatar-tomas.png" alt="Tomás Ferreyra" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">Tomás Ferreyra</h1><p class="t-note">Lomas de Zamora · Busco mi primer trabajo</p></div></div>
+  <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:14px"><b style="font-weight:600">Tu perfil está al 70%</b><b style="color:var(--green);font-weight:600">70%</b></div><div class="progress"><i style="width:70%"></i></div><p class="t-note" style="margin-top:14px">Sumá una foto y tus estudios para completarlo.</p></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">${[[env,'enviadas'],[resp,'respuestas'],[mt,'matches']].map(([n,l])=>`<div class="card"><p class="bignum">${n}</p><p class="t-note" style="margin-top:6px">${l}</p></div>`).join('')}</div>
+  <div style="margin-top:14px">${[['Datos personales','#/c/datos'],['Configuración','#/c/config']].map(([l,h])=>`<button class="rowline" data-go="${h}"><span>${l}</span><span class="v">›</span></button>`).join('')}</div></div>`;
+  return shell('c','#/c/perfil',inner);
+}
+function profHead(kind){
+  return kind==='e'
+   ? `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img src="img/logo-cafe-mercado.png" alt=""><div><h1>Café Mercado</h1><p style="font-size:13px">Gastronomía · 12 empleados · Lomas de Zamora</p></div></div>`
+   : `<div class="prof-head"><img src="img/avatar-tomas.png" alt=""><div><h1>Tomás Ferreyra</h1><p class="t-note">Lomas de Zamora · Busco mi primer trabajo</p></div></div>`;
+}
+function configScreen(kind){
+  const e=kind==='e';
+  const all=[[e?'Datos empresariales':'Datos personales',e?'#/e/datos':'#/c/datos'],['Términos y Condiciones',`#/${kind}/legal/terminos`],['Privacidad',`#/${kind}/legal/privacidad`],['Ayuda',`#/${kind}/legal/ayuda`],['Cerrar sesión',`#/${kind}/salir`]];
+  const inner=`<div style="max-width:720px">${profHead(kind)}${all.map(([l,h],i)=>`<button class="rowline${!e&&i===4?' dim':''}" data-go="${h}"><span>${l}</span><span class="v">›</span></button>`).join('')}</div>`;
+  return shell(kind,e?'#/e/empresa':'#/c/perfil',inner);
+}
+function cDatos(){
+  const rows=[['Edad','20'],['Ubicación','Lomas de Zamora'],['Experiencia','Sin experiencia'],['Tipo de empleo','Part Time'],['Modalidad','Presencial'],['Horario','Mañana']];
+  const inner=`<div style="max-width:720px">${hdr(backBtn('#/c/config'))}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img class="avatar" src="img/avatar-tomas.png" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">Tomás Ferreyra</h1><p class="t-note">Lomas de Zamora · Busco mi primer trabajo</p></div></div>
+  ${rows.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${v}</span></div>`).join('')}
+  <p class="t-sec">Mis rubros</p><div class="chips"><span class="chip fill">Gastronomía</span><span class="chip fill">Ventas</span><span class="chip fill">Atención al público</span></div>
+  <p class="t-sec">Tu CV</p><button class="btn pri" data-action="toast" data-msg="CV_Tomas_Ferreyra.pdf · cargado hace 3 días">Curriculum Vitae</button>
+  <p class="t-sec">Descripción</p><p style="color:var(--t2);line-height:1.6">Soy Tomas Ferreyra, busco mis primeras experiencias. Tengo conocimientos sobre gastronomía, especificamente en barismo y pastelería. Me gusta aprender nuevas cosas e intento conocer y dialogar con entornos dinámicos.</p></div>`;
+  return shell('c','#/c/perfil',inner);
+}
+function salir(kind){
+  const inner=`<div style="max-width:560px">${profHead(kind)}<h2 style="font-size:20px;font-weight:500;margin-bottom:6px">¿Querés cerrar sesión?</h2><p style="line-height:1.6;margin-bottom:28px;${kind==='e'?'':'color:var(--t2)'}">Lamentamos que te vayas. Si cerrás sesión, podrás volver a ingresar cuando quieras con tus datos de acceso.<br>Tu perfil, tus Matches y tus preferencias permanecerán guardados.</p><button class="btn pri" data-action="logout">Cerrar sesión</button></div>`;
+  return shell(kind,kind==='e'?'#/e/empresa':'#/c/perfil',inner);
+}
+function legalApp(kind,doc){
+  const d=LEGAL[doc]; if(!d) return configScreen(kind);
+  return shell(kind,kind==='e'?'#/e/empresa':'#/c/perfil',`<div style="max-width:760px">${hdr(backBtn(`#/${kind}/config`))}<h1 class="t-title" style="margin-bottom:6px">${d.titulo}</h1><div class="app-doc">${d.html}</div></div>`);
+}
+
+/* ================= EMPRESA ================= */
+function sinResp(b){ return b.id==='b1'?S.e.pend.length:0; }
+function ePanel(){
+  const p=S.e.pend.length; const vieja=S.e.pend[0];
+  const pendCard = p?`<a class="card" href="#/e/candidatos" style="display:block;text-decoration:none"><h2 style="font-size:20px;font-weight:500;line-height:1.3;margin-bottom:10px">Te faltan responder ${p} postulaci${p===1?'ón':'ones'}</h2><p class="t-note">La más vieja lleva ${vieja.hace} días esperando. Te quedan ${vieja.quedan} para contestarla sin que baje tu tasa.</p></a>`
+    :`<div class="card"><h2 style="font-size:20px;font-weight:500;margin-bottom:8px">Estás al día</h2><p class="t-note">Respondiste todas las postulaciones. Ya podés publicar una búsqueda nueva.</p></div>`;
+  const inner=`<div class="hdr">${'<img class="wm only-m" src="img/logo-match-empleos-inv.png" alt="Match Empleos" style="height:14px">'}<span class="side">Café Mercado</span></div>
+  <h1 class="t-title only-d" style="margin-bottom:20px">Búsquedas</h1>
+  <div class="grid2" style="gap:12px">${pendCard}
+  <div><div class="row2"><div class="card"><p class="bignum">${S.e.tasa}%</p><p class="t-note" style="margin-top:6px">tu tasa de respuesta</p></div><div class="card"><p class="bignum">${S.e.demora} días</p><p class="t-note" style="margin-top:6px">tu demora promedio</p></div></div>
+  <p style="font-size:13px;margin-top:10px">Este número lo ven los candidatos antes de postularse.</p></div></div>
+  <h2 class="t-sec">Tus búsquedas</h2>
+  <div class="stack grid2">${S.e.busquedas.map(b=>{const s=sinResp(b);return `<a class="item" href="#/e/candidatos"><div class="grow"><h3>${esc(b.puesto)}</h3><p class="t-note">${b.total} postulaciones · ${s?s+' sin responder':'al día'}</p></div><span class="badge-act">${b.estado}</span></a>`;}).join('')}</div>
+  <button class="btn out" style="margin-top:16px;max-width:520px" data-go="#/e/publicar">Publicar una búsqueda</button>`;
+  return shell('e','#/e/panel',inner);
+}
+let pubDraft={puesto:'',rubro:[],modo:[],desc:''};
+function ePublicar(step){
+  const p=S.e.pend.length;
+  if(step!=='2'){
+    const inner=`<div style="max-width:620px">${hdr(backBtn('#/e/panel'))}<div class="top-bar"><i style="width:50%"></i></div>
+    <h1 class="t-title" style="margin-bottom:10px">Nueva búsqueda</h1>
+    ${p?`<div class="warn" style="margin:8px 0 18px"><span>Tenés <b>${p} postulaci${p===1?'ón':'ones'} sin responder</b>. Para publicar una búsqueda nueva primero tenés que contestarlas.</span><button class="btn pri sm" style="background:var(--green);color:var(--navy)" data-go="#/e/candidatos">Responder ahora</button></div>`:''}
+    <div class="stack"><label class="vh" for="pb-puesto">Puesto</label><input class="field tall" id="pb-puesto" placeholder="Puesto (por ejemplo: Mozo/a de salón)" value="${esc(pubDraft.puesto)}"></div>
+    <p class="t-sec">Jornada</p>${chipToggles('pjor',['Full Time','Part Time','Fin de semana','Pasantía'])}
+    <p class="t-sec">Turno</p>${chipToggles('ptur',['Mañana','Tarde','Noche'])}
+    <p class="t-sec">¿De qué se trata?</p><label class="vh" for="pb-desc">Descripción</label><textarea class="field" id="pb-desc" placeholder="Contá las tareas y qué buscás en la persona">${esc(pubDraft.desc)}</textarea>
+    <button class="btn out" style="margin-top:20px" data-action="pub-next">Continuar</button></div>`;
+    return shell('e','#/e/panel',inner);
+  }
+  const opts=[[3,'Recomendado. Tu aviso aparece primero en el feed.'],[5,'Plazo estándar.'],[7,'Máximo permitido.']];
+  const inner=`<div style="max-width:620px">${hdr(backBtn('#/e/publicar'))}<div class="top-bar"><i style="width:100%"></i></div>
+  <h1 class="t-title" style="margin-bottom:12px">Tu compromiso de respuesta</h1>
+  <p style="margin-bottom:26px">Para publicar en Match Empleos tenés que elegir en cuánto tiempo vas a contestar. No es opcional: es lo que hace que los jóvenes se postulen.</p>
+  <div class="stack">${opts.map(([d,t])=>`<button class="opt" data-plazo="${d}" aria-pressed="${S.e.plazo===d}"><span class="rad"></span><span><h3>${d} días</h3><span class="t-note">${t}</span></span></button>`).join('')}</div>
+  <p style="font-size:13px;margin:16px 0 20px">Si se te pasa el plazo, tu tasa de respuesta baja y los candidatos lo ven.</p>
+  ${p?`<div class="warn" style="margin-bottom:14px"><span>No podés publicar: tenés <b>${p} postulaci${p===1?'ón':'ones'} sin responder</b>.</span><button class="btn pri sm" style="background:var(--green);color:var(--navy)" data-go="#/e/candidatos">Responder ahora</button></div>`:''}
+  <button class="btn out" data-action="publicar" ${p?'disabled':''}>Publicar búsqueda</button></div>`;
+  return shell('e','#/e/panel',inner);
+}
+let candFilter='pend';
+function eCandidatos(){
+  const list=S.e.pend; const tot=S.e.busquedas.find(b=>b.id==='b1').total;
+  const chips=[['pend',`Sin responder (${list.length})`],['resp','Respondidas'],['match','Con match']].map(([k,l])=>`<button class="chip" data-cfilter="${k}" aria-pressed="${candFilter===k}">${l}</button>`).join('');
+  let body='';
+  if(candFilter==='pend'){
+    body=list.map(c=>`<div class="ccard"><a href="#/e/candidato/${c.id}">${c.avatar?`<img class="avatar" src="${c.avatar}" alt="" style="width:40px;height:40px;border-radius:10px;background:#fff">`:'<span class="avatar" style="width:40px;height:40px;border-radius:10px;background:var(--navy2)"></span>'}<div class="grow" style="flex:1;min-width:0"><h3>${esc(c.corto)}, ${c.edad}</h3><p class="t-note" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.linea)}</p></div><span class="vence">Vence en ${c.quedan} días</span></a>
+      <div class="row2"><button class="btn cno" data-go="#/e/responder/${c.id}/no">No avanza</button><button class="btn cyes" data-go="#/e/responder/${c.id}/si">Me interesa</button></div></div>`).join('')
+      || `<div class="empty"><p style="font-weight:600">Respondiste a todos</p><p>Tu tasa de respuesta sube y ya podés publicar una búsqueda nueva.</p><button class="btn out sm" data-go="#/e/publicar">Publicar una búsqueda</button></div>`;
+  } else {
+    const r=S.e.resp.filter(x=>candFilter==='resp'||x.tipo==='si');
+    body=r.map(x=>`<div class="ccard"><a href="${x.chat?'#/e/chat/'+x.chat:'#/e/candidatos'}"><span class="avatar" style="width:40px;height:40px;border-radius:10px;background:var(--navy2)"></span><div style="flex:1"><h3>${esc(x.nombre)}</h3><p class="t-note">${x.tipo==='si'?'Lo quiero conocer · hay match':x.tipo==='mas'?'Le pediste más información':'Por ahora no'}</p></div></a></div>`).join('')||'<div class="empty">Todavía no hay candidatos en este filtro.</div>';
+  }
+  const inner=`<button class="back big" data-go="#/e/panel">‹&nbsp; Ayudante de cocina</button><p style="font-size:13px;margin:4px 0 14px">${tot} postulaciones · ${list.length} sin responder</p>
+  <div class="chips" style="margin-bottom:16px">${chips}</div><div class="stack grid2">${body}</div>`;
+  return shell('e','#/e/candidatos',inner);
+}
+function eCandidato(id){
+  const c=S.e.pend.find(x=>x.id===id);
+  if(!c) return eCandidatos();
+  const idx=S.e.pend.indexOf(c)+1;
+  const inner=`<div style="max-width:720px">${hdr(backBtn('#/e/candidatos'),`${idx} de ${S.e.pend.length} sin responder`)}
+  <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">${c.avatar?`<img class="avatar" src="${c.avatar}" alt="" style="background:#fff">`:'<span class="avatar ph"></span>'}<div><h1 style="font-size:20px;font-weight:600">${esc(c.nombre)}, ${c.edad}</h1><p style="font-size:13px">${esc(c.zona)} · ${esc(c.busca)}</p></div></div>
+  <div class="card" style="font-size:13px">Se postuló hace ${c.hace} días. Te quedan ${c.quedan} para contestarle.</div>
+  <h2 class="t-sec">Por qué se postuló</h2><p style="line-height:1.6">${esc(c.porque)}</p>
+  <h2 class="t-sec">Lo que sabe hacer</h2><div class="chips">${c.sabe.map(s=>`<span class="chip fill">${esc(s)}</span>`).join('')}</div>
+  <h2 class="t-sec">Estudios</h2><p style="line-height:1.6">${esc(c.estudios)}</p>
+  <div class="row2" style="margin-top:22px"><button class="btn out" data-go="#/e/responder/${c.id}/no">No avanza</button><button class="btn pri" data-go="#/e/responder/${c.id}/si">Me interesa</button></div></div>`;
+  return shell('e','#/e/candidatos',inner);
+}
+const TPL=[
+  ['Lo quiero conocer','Se abre el chat y coordinan una entrevista.','si','Hola {n}, somos Café Mercado. Nos interesó tu perfil para el puesto de Ayudante de cocina. ¿Podés venir el jueves a las 16?'],
+  ['Por ahora no','Le avisamos con respeto y queda disponible para otra búsqueda.','no','Hola {n}, gracias por postularte a Ayudante de cocina en Café Mercado. Por ahora seguimos con otros perfiles, pero tu perfil queda disponible para próximas búsquedas. ¡Mucha suerte!'],
+  ['Quiero saber un poco más','Le mandamos dos preguntas antes de decidir.','mas','Hola {n}, gracias por postularte a Ayudante de cocina. Antes de decidir queremos saber dos cosas: ¿qué días de la semana podés trabajar? ¿Tenés libreta sanitaria?']
+];
+let tplSel=null;
+function eResponder(id,tipo){
+  const c=S.e.pend.find(x=>x.id===id); if(!c) return eCandidatos();
+  const sel = tplSel===null ? (tipo==='no'?1:0) : tplSel;
+  const first=c.nombre.split(' ')[0];
+  const fill=s=>s.replace('{n}',first);
+  const inner=`<div style="max-width:620px">${hdr(backBtn('#/e/candidato/'+id,'Cancelar'),`${esc(c.corto)} · Ayudante de cocina`)}
+  <h1 class="t-title" style="margin-bottom:10px">Contestale a ${esc(first)}</h1><p style="margin-bottom:18px;line-height:1.5">Elegí una respuesta. Podés editarla antes de enviarla.</p>
+  <div class="stack">${TPL.map(([t,d],i)=>`<button class="tpl" data-tpl="${i}" aria-pressed="${i===sel}"><b>${t}</b><span>${d}</span></button>`).join('')}</div>
+  <label class="vh" for="resp-txt">Vista previa del mensaje</label><textarea class="prev" id="resp-txt" style="margin-top:12px">«${esc(fill(TPL[sel][3]))}»</textarea>
+  <button class="btn out" style="margin-top:12px" data-action="enviar-resp" data-id="${id}" data-tipo="${TPL[sel][2]}">Enviar respuesta</button>
+  <p style="text-align:center;font-size:13px;margin-top:12px">Te quedan ${S.e.pend.length} respuestas pendientes</p></div>`;
+  return shell('e','#/e/candidatos',inner);
+}
+function eEmpresa(){
+  const inner=`<div style="max-width:720px"><h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img class="avatar" src="img/logo-cafe-mercado.png" alt="" style="background:#fff"><div><h2 style="font-size:20px;font-weight:500">Café Mercado</h2><p style="font-size:13px">Gastronomía · 12 empleados · Lomas de Zamora</p></div></div>
+  <div class="card"><div class="row2"><div><p class="bignum">${S.e.tasa}%</p><p class="t-note">de respuesta</p></div><div><p class="bignum">${S.e.demora} días</p><p class="t-note">de demora</p></div></div><div class="progress" style="margin:14px 0"><i style="width:${S.e.tasa}%"></i></div><p class="t-note">Con 90% o más entrás en el grupo de empresas destacadas y tus búsquedas aparecen primero.</p></div>
+  <h2 class="t-sec">Historial de respuesta</h2>
+  ${[['Septiembre',S.e.tasa],['Agosto',92],['Julio',78]].map(([m,v])=>`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>${m}</span><span>${v}%</span></div><div class="progress"><i style="width:${v}%;background:var(--navy)"></i></div></div>`).join('')}
+  <button class="rowline" data-go="#/e/datos"><span>Datos empresariales</span><span class="v">›</span></button>
+  <button class="rowline" data-go="#/e/config"><span>Configuración</span><span class="v">›</span></button></div>`;
+  return shell('e','#/e/empresa',inner);
+}
+function eDatos(){
+  const rows=[['Rubro','Gastronomía'],['Ubicación','Lomas de Zamora'],['Tamaño','12 empleados']];
+  const inner=`<div style="max-width:720px">${hdr(backBtn('#/e/empresa'))}<h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="img/logo-cafe-mercado.png" alt="" style="background:#fff"><div><h2 style="font-size:20px;font-weight:500">Café Mercado</h2><p style="font-size:13px">Gastronomía · 12 empleados · Lomas de Zamora</p></div></div>
+  ${rows.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${v}</span></div>`).join('')}
+  <h2 class="t-sec">Descripción</h2><p style="line-height:1.6">Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.<br>No es necesario contar con experiencia previa: valoramos principalmente la responsabilidad, las ganas de aprender, el compromiso y la buena predisposición.</p></div>`;
+  return shell('e','#/e/empresa',inner);
+}
+
+/* ---------- Simulaciones ---------- */
+function later(ms,fn){ timers.push(setTimeout(()=>{fn(); softRender();},ms)); }
+function softRender(){
+  // re-render sin perder lo que se está escribiendo
+  const a=document.activeElement; const id=a&&a.id; const val=a&&('value' in a)?a.value:null;
+  render(true);
+  if(id){ const el=document.getElementById(id); if(el){ if(val!==null) el.value=val; el.focus(); } }
+}
+function apply(oid){
+  const o=offerById(oid); if(!o||applied(oid)||S.c.cupo<=0) return;
+  S.c.cupo--; DB.setCupo(S.c.cupo);
+  if(o.match){
+    const post={id:'p'+Date.now(),oid,puesto:o.puesto,emp:o.emp,estado:'Respondida',pie:'Te contestaron recién',match:true,chat:oid};
+    const msg={de:'them',t:'¡Hola Tomás! Vimos tu perfil y nos interesa. ¿Podés venir el jueves a las 16?',h:now()};
+    S.c.posts.unshift(post);
+    S.c.chats[oid]={con:o.emp,puesto:o.puesto,tasa:o.tasa,match:true,msgs:[msg],auto:['Av. Meeks 250, Lomas. Preguntá por Caro en el mostrador.','¡Genial! Nos vemos el jueves.','Perfecto, cualquier cosa escribinos por acá.']};
+    DB.guardarPostulacion(post,oid,chatMeta(S.c.chats[oid]));
+    DB.nuevoMensaje('c:'+oid,msg.de,msg.t,msg.h);
+    S.c.notifs.unshift({t:'¡Hay match!',cuando:'ahora',d:`${o.emp} también quiere hablar con vos por ${o.puesto}.`,go:'#/c/chat/'+oid,nuevo:true});
+    S.c.idx++;
+    go('#/c/match/'+oid);
+    return;
+  }
+  const post={id:'p'+Date.now(),oid,puesto:o.puesto,emp:o.emp,estado:'Enviada',pie:'Enviada recién'};
+  S.c.posts.unshift(post);
+  DB.guardarPostulacion(post,oid,null);
+  S.c.idx++;
+  toast(`Te postulaste a ${o.puesto}. ${S.c.cupo>0?`Te quedan ${S.c.cupo}.`:'Usaste tu cupo semanal.'}`);
+  if(S.c.cupo===0) S.c.notifs.unshift({t:'Usaste tus 5 postulaciones',d:'Se libera tu cupo el lunes. Mientras tanto, seguí tus postulaciones.',go:'#/c/postulaciones',nuevo:true});
+  later(6000,()=>{ post.estado='Vista'; post.pie='La vieron recién'; DB.guardarPostulacion(post,oid,null);
+    S.c.notifs.unshift({t:'Tu postulación fue vista',cuando:'ahora',d:`${o.emp} abrió tu perfil. Tiene 7 días para contestarte.`,go:'#/c/postulaciones',nuevo:true}); toast(`${o.emp} vio tu postulación`); });
+  later(14000,()=>{ post.estado='Respondida'; post.pie='Te contestaron recién'; post.chat=oid;
+    const msg={de:'them',t:`Hola Tomás, gracias por postularte a ${o.puesto}. Nos gustaría conocerte. ¿Te queda bien pasar el miércoles a las 15?`,h:now()};
+    S.c.chats[oid]={con:o.emp,puesto:o.puesto,tasa:o.tasa,match:false,msgs:[msg]};
+    DB.guardarPostulacion(post,oid,chatMeta(S.c.chats[oid]));
+    DB.nuevoMensaje('c:'+oid,msg.de,msg.t,msg.h);
+    S.c.notifs.unshift({t:'Te contestaron',cuando:'ahora',d:`${o.emp} respondió tu postulación a ${o.puesto}.`,go:'#/c/chat/'+oid,nuevo:true}); toast(`${o.emp} te respondió`); });
+  render();
+}
+
+const AUTO={
+  c:['¡Genial! Te esperamos. Cualquier duda escribinos por acá.','Perfecto, lo anotamos. Traé el DNI el día de la entrevista.','Gracias por responder rápido. Te confirmamos mañana.'],
+  e:['¡Dale! Muchas gracias por la oportunidad.','Perfecto, ahí estaré. ¿Tengo que llevar algo?','Buenísimo, cualquier cosa les escribo por acá.']
+};
+function sendChat(kind,id,text){
+  const chats=kind==='e'?S.e.chats:S.c.chats; const c=chats[id]; if(!c||!text.trim()) return;
+  const key=(kind==='e'?'e:':'c:')+id;
+  const body=text.trim();
+  c.msgs.push({de:'me',t:body,h:now()});
+  DB.nuevoMensaje(key,'me',body,now());
+  c.n=(c.n||0)+1;
+  render(true);
+  timers.push(setTimeout(()=>{ c.typing=true; softRender(); },700));
+  timers.push(setTimeout(()=>{ c.typing=false;
+    const m={de:'them',t:(c.auto||AUTO[kind])[(c.n-1)%3],h:now()};
+    c.msgs.push(m); DB.nuevoMensaje(key,'them',m.t,m.h); softRender(); },2400));
+}
+
+function enviarResp(id,tipo,text){
+  const i=S.e.pend.findIndex(x=>x.id===id); if(i<0) return;
+  const c=S.e.pend.splice(i,1)[0];
+  S.e.tasa=Math.min(100,S.e.tasa+2); if(S.e.demora>2 && S.e.pend.length%2===0) S.e.demora--;
+  DB.guardarCandidato(c.id,c.corto,tipo);
+  DB.setTasa(S.e.tasa);
+  const rec={nombre:c.corto,tipo}; S.e.resp.unshift(rec);
+  if(tipo==='si'||tipo==='mas'){
+    rec.chat=c.id;
+    const key='e:'+c.id;
+    const bienvenida=text.replace(/^«|»$/g,'');
+    S.e.chats[c.id]={con:c.corto,puesto:'Ayudante de cocina',match:tipo==='si',msgs:[{de:'me',t:bienvenida,h:now()}],
+      auto:tipo==='si'?['¡Dale! Muchas gracias por la oportunidad. ¿Llevo algo?','Perfecto, ahí estaré.','Buenísimo, cualquier cosa les escribo por acá.']:['Perfecto. ¿Les mando una foto de la libreta?','Dale, cualquier otra duda me avisan.','¡Gracias!']};
+    DB.nuevoMensaje(key,'me',bienvenida,now());
+    if(tipo==='si') S.e.notifs.unshift({t:`Hay match con ${c.corto}`,cuando:'ahora',d:'Se abrió el chat por 7 días.',go:'#/e/chat/'+c.id,nuevo:true});
+    later(3500,()=>{ const ch=S.e.chats[c.id]; if(ch){
+      const t=tipo==='si'?'¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?':'¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.';
+      const m={de:'them',t,h:now()}; ch.msgs.push(m); DB.nuevoMensaje(key,'them',t,m.h);
+      S.e.notifs.unshift({t:`${c.corto} te escribió`,cuando:'ahora',d:'Ayudante de cocina',go:'#/e/chat/'+c.id,nuevo:true}); toast(`${c.corto} te respondió`);} });
+  }
+  tplSel=null;
+  toast(`Respuesta enviada a ${c.corto}. Tu tasa subió a ${S.e.tasa}%.`);
+  if(!S.e.pend.length) S.e.notifs.unshift({t:'Estás al día',cuando:'ahora',d:'Respondiste todas las postulaciones. Ya podés publicar.',go:'#/e/publicar',nuevo:true});
+  go(tipo!=='no'?'#/e/chat/'+c.id:(S.e.pend.length?'#/e/candidatos':'#/e/panel'));
+}
+
+/* ---------- Router ---------- */
+function route(){
+  const h=(location.hash||'#/').replace(/^#/,'');
+  const p=h.split('/').filter(Boolean);
+  if(!p.length) return home();
+  const [a,b,c,d]=p;
+  if(a==='privacidad'||a==='terminos'||a==='ayuda') return legalSite(a);
+  if(a==='login') return login();
+  if(a==='recuperar') return recuperar();
+  if(a==='registro'){ if(!b) return registro(); if(b==='c') return regCand(c||'1'); if(b==='e') return regEmp(c||'1'); if(b==='terminos') return regTerminos(c); }
+  if(a==='c'){
+    switch(b){case 'feed':return cFeed();case 'oferta':return cOferta(c);case 'match':return cMatch(c);case 'postulaciones':return cPost();
+      case 'mensajes':return mensajes('c');case 'chat':return mensajes('c',c);case 'notificaciones':return notifs('c');case 'perfil':return cPerfil();
+      case 'config':return configScreen('c');case 'datos':return cDatos();case 'salir':return salir('c');case 'legal':return legalApp('c',c);}
+  }
+  if(a==='e'){
+    switch(b){case 'panel':return ePanel();case 'publicar':return ePublicar(c);case 'candidatos':return eCandidatos();case 'candidato':return eCandidato(c);
+      case 'responder':return eResponder(c,d||'si');case 'mensajes':return mensajes('e');case 'chat':return mensajes('e',c);case 'notificaciones':return notifs('e');
+      case 'empresa':return eEmpresa();case 'config':return configScreen('e');case 'datos':return eDatos();case 'salir':return salir('e');case 'legal':return legalApp('e',c);}
+  }
+  return home();
+}
+let lastHash='';
+function render(keepScroll){
+  const y=window.scrollY;
+  root.innerHTML=route();
+  const isNew = location.hash!==lastHash; lastHash=location.hash;
+  if(keepScroll) window.scrollTo(0,y);
+  else if(isNew && !pendingScroll) window.scrollTo(0,0);
+  if(pendingScroll){ const el=document.getElementById(pendingScroll); pendingScroll=null; if(el) requestAnimationFrame(()=>el.scrollIntoView({behavior:'smooth'})); }
+  const log=document.querySelector('[data-chatlog]'); if(log){ const last=log.lastElementChild; if(last && keepScroll!==false) last.scrollIntoView({block:'nearest'}); }
+}
+let pendingScroll=null;
+window.addEventListener('hashchange',()=>{ tplSel=null; render(); });
+
+/* ---------- Eventos ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-scroll],[data-go],[data-apply],[data-action],[data-chip],[data-filter],[data-cfilter],[data-plazo],[data-tpl],[data-notif]');
+  if(!t) return;
+  if(t.dataset.scroll){ e.preventDefault(); const id=t.dataset.scroll; if((location.hash||'#/')==='#/'||location.hash===''){ const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); } else { pendingScroll=id; location.hash='#/'; } return; }
+  if(t.dataset.notif){ const [k,i]=t.dataset.notif.split(':'); const n=(k==='e'?S.e.notifs:S.c.notifs)[+i]; if(n) n.nuevo=false; return; }
+  if(t.dataset.go){ e.preventDefault(); if(t.dataset.welcome){ toast(t.dataset.welcome==='e'?'¡Listo! Tu empresa ya está en Match Empleos.':'¡Listo! Tu perfil ya está creado.'); } go(t.dataset.go); return; }
+  if(t.dataset.apply){ apply(t.dataset.apply); return; }
+  if(t.dataset.chip){ const k=t.dataset.chip, v=t.dataset.val; const max=+t.dataset.max||0; let arr=S.reg.chips[k]||[]; if(!arr.includes(v)&&max&&arr.length>=max){ toast('Podés elegir hasta tres rubros.'); return; } arr = arr.includes(v)?arr.filter(x=>x!==v):[...arr,v]; S.reg.chips[k]=arr; savePub(); render(true); return; }
+  if(t.dataset.filter){ postFilter=t.dataset.filter; render(true); return; }
+  if(t.dataset.cfilter){ candFilter=t.dataset.cfilter; render(true); return; }
+  if(t.dataset.plazo){ S.e.plazo=+t.dataset.plazo; render(true); return; }
+  if(t.dataset.tpl){ tplSel=+t.dataset.tpl; render(true); return; }
+  const act=t.dataset.action;
+  if(act==='descartar'){ S.c.idx++; render(true); return; }
+  if(act==='feed-reset'){ S.c.idx=0; render(); return; }
+  if(act==='toast'){ toast(t.dataset.msg); return; }
+  if(act==='leidas'){ (t.dataset.kind==='e'?S.e.notifs:S.c.notifs).forEach(n=>n.nuevo=false); render(true); return; }
+  if(act==='write'){ const ta=document.createElement('textarea'); ta.className='field'; ta.id=t.dataset.target; ta.placeholder='Escribí aquí'; t.replaceWith(ta); ta.focus(); return; }
+  if(act==='logout'){ timers.forEach(clearTimeout); timers.length=0; S=freshState(); go('#/'); return; }
+  if(act==='pub-next'){ savePub(); if(!pubDraft.puesto.trim()){ toast('Escribí el nombre del puesto para continuar.'); document.getElementById('pb-puesto')?.focus(); return; } go('#/e/publicar/2'); return; }
+  if(act==='publicar'){ if(S.e.pend.length) return; const nombre=pubDraft.puesto.trim()||'Nueva búsqueda'; const nb={id:'b'+Date.now(),puesto:nombre,total:0,estado:'Activa',desc:pubDraft.desc}; S.e.busquedas.unshift(nb); DB.guardarBusqueda(nb); S.e.notifs.unshift({t:'Publicaste una búsqueda',d:`${nombre} · te comprometiste a responder en ${S.e.plazo} días.`,go:'#/e/panel',nuevo:true}); pubDraft={puesto:'',desc:''}; S.reg.chips.pjor=[]; S.reg.chips.ptur=[]; toast(`Publicaste “${nombre}”. Respondé en ${S.e.plazo} días.`); go('#/e/panel'); return; }
+  if(act==='enviar-resp'){ const txt=document.getElementById('resp-txt').value.trim(); if(!txt){ toast('Escribí un mensaje antes de enviar.'); return; } enviarResp(t.dataset.id,t.dataset.tipo,txt); return; }
+});
+function savePub(){ const a=document.getElementById('pb-puesto'), b=document.getElementById('pb-desc'); if(a) pubDraft.puesto=a.value; if(b) pubDraft.desc=b.value; }
+document.addEventListener('submit',e=>{
+  const f=e.target; e.preventDefault();
+  if(f.dataset.form==='search'){ toast('Iniciá sesión para ver las búsquedas que coinciden con tu perfil.'); go('#/login'); }
+  if(f.dataset.form==='login'){ const m=(document.getElementById('lg-mail').value||'').toLowerCase(); go(m.includes('empresa')?'#/e/panel':'#/c/feed'); }
+  if(f.dataset.form==='recuperar'){ toast('Te enviamos el enlace. Revisá tu correo.'); go('#/login'); }
+  if(f.dataset.form==='chat'){ const inp=f.querySelector('input'); sendChat(f.dataset.kind,f.dataset.id,inp.value); }
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='rc-cv' && e.target.files[0]){ const s=document.querySelector('[data-cvname]'); if(s) s.textContent='CV cargado: '+e.target.files[0].name; }
+});
+
+function msgsDe(d,key){ return d.mensajes.filter(m=>m.chat_key===key).map(m=>({de:m.de,t:m.texto,h:m.h})); }
+async function hidratar(){
+  document.addEventListener('db-error',()=>toast('No se pudo guardar. Revisá tu conexión.'));
+  const d=await DB.cargar().catch(err=>{ console.error('No se pudo cargar desde Supabase',err); return null; });
+  if(!d) return;
+  const perfC=d.perfiles.find(p=>p.id===ME.candidato), perfE=d.perfiles.find(p=>p.id===ME.empresa);
+  if(perfC) S.c.cupo=perfC.cupo;
+  if(perfE) S.e.tasa=perfE.tasa;
+  // Candidato: postulaciones y chats creados
+  const dbPosts=d.postulaciones.map(r=>({...r.datos.post,estado:r.estado}));
+  const postIds=new Set(dbPosts.map(p=>p.id));
+  S.c.posts=[...dbPosts,...S.c.posts.filter(p=>!postIds.has(p.id))];
+  d.postulaciones.forEach(r=>{ if(r.datos.chat) S.c.chats[r.oferta_id]={...r.datos.chat,msgs:[]}; });
+  // Empresa: búsquedas y candidatos respondidos
+  const dbBus=d.busquedas.map(b=>({id:b.id,puesto:b.puesto,total:b.total,estado:b.estado,desc:b.descripcion}));
+  const busIds=new Set(dbBus.map(b=>b.id));
+  S.e.busquedas=[...dbBus,...S.e.busquedas.filter(b=>!busIds.has(b.id))];
+  d.candidatosEstado.forEach(r=>{
+    S.e.pend=S.e.pend.filter(c=>c.id!==r.id);
+    S.e.resp.unshift({nombre:r.corto,tipo:r.estado});
+    if(r.estado==='si'||r.estado==='mas') S.e.chats[r.id]={con:r.corto,puesto:'Ayudante de cocina',match:r.estado==='si',msgs:[]};
+  });
+  // Mensajes guardados se suman a cada chat (los de ejemplo se conservan)
+  Object.keys(S.c.chats).forEach(k=>{ S.c.chats[k].msgs=[...(S.c.chats[k].msgs||[]),...msgsDe(d,'c:'+k)]; });
+  Object.keys(S.e.chats).forEach(k=>{ S.e.chats[k].msgs=[...(S.e.chats[k].msgs||[]),...msgsDe(d,'e:'+k)]; });
+  render(true);
+}
+
+render();
+hidratar();
+})();
+</script>
+</body>
+</html>
