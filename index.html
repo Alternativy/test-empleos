@@ -125,6 +125,9 @@ html{scroll-behavior:smooth}
 .foot .soc span{display:flex;align-items:center;gap:20px;font-size:16px}
 .foot .soc svg{width:36px;height:36px;flex:none}
 .foot .soc a{display:flex;align-items:center;gap:20px;color:inherit;text-decoration:none}
+.btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+.hint{min-height:18px;font-size:13px;color:var(--t2);margin:6px 0 0;line-height:1.4}
+.field[aria-invalid="true"]{border-color:#B45309}
 .foot-links{display:flex;justify-content:space-between;gap:16px 30px;flex-wrap:wrap;padding:32px 0;border-bottom:2px solid var(--navy)}
 .foot-links a{font-size:24px;font-weight:600;text-decoration:none}
 .foot-links a:hover{text-decoration:underline}
@@ -432,8 +435,102 @@ textarea.prev{display:block;width:100%;background:var(--navy);color:var(--white)
 
 <div id="root"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="db.js"></script>
+<script src="vendor/supabase.js"></script>
+<script>
+/* Capa de datos con Supabase. Debe cargarse después de supabase-js y antes del script principal. */
+
+// Entornos. La anon key es pública (se envía al navegador), pero no pongas claves service_role aquí.
+const ENTORNOS = {
+  staging: {
+    url: 'https://gtnxlkqumppeintdpycn.supabase.co',
+    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0bnhsa3F1bXBwZWludGRweWNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3MzgzNTYsImV4cCI6MjEwNzMxNDM1Nn0.e_ErAYbO2lNrk2fPGRI5PMKNWap-A9Gs4sqF0NNjlDk' // Project Settings > API del proyecto de pruebas
+  },
+  prod: {
+    url: 'PENDIENTE_URL_PROD',
+    key: 'PENDIENTE_KEY_PROD'
+  }
+};
+
+// Dominios donde corre producción. Cualquier otro host (localhost, previews) usa staging.
+const HOSTS_PRODUCCION = ['matchempleos.com.ar', 'www.matchempleos.com.ar'];
+
+const ENTORNO = HOSTS_PRODUCCION.includes(location.hostname) ? 'prod' : 'staging';
+console.info('[db] entorno:', ENTORNO);
+
+const sb = supabase.createClient(ENTORNOS[ENTORNO].url, ENTORNOS[ENTORNO].key);
+
+let ME = { id: null, rol: null, nombre: null, demo: false }; // demo: sesión local, nunca escribe en la base
+
+// Ejecuta una escritura y avisa si falla, sin romper la UI
+function persistir(query, etiqueta){
+  if (ME.demo) return Promise.resolve(null); // modo demo: no se escribe en la base
+  return query.then(({ data, error }) => {
+    if (error) throw error;
+    return data;
+  }).catch(err => {
+    console.error('[db] ' + etiqueta, err);
+    document.dispatchEvent(new CustomEvent('db-error', { detail: etiqueta }));
+    return null;
+  });
+}
+
+// Sin métodos internos del objeto de chat (typing, contador)
+function chatMeta(c){
+  const { msgs, typing, n, ...meta } = c;
+  return meta;
+}
+
+const DB = {
+  cargar(){
+    return Promise.all([
+      sb.from('perfiles').select('*').eq('id', ME.id),
+      sb.from('postulaciones').select('*').eq('candidato_id', ME.id).order('created_at', { ascending: false }),
+      sb.from('busquedas').select('*').eq('empresa_id', ME.id).order('created_at', { ascending: false }),
+      sb.from('candidatos_estado').select('*').eq('empresa_id', ME.id),
+      sb.from('mensajes').select('*').order('id', { ascending: true }),
+    ]).then(res => {
+      const err = res.find(r => r.error);
+      if (err) throw err.error;
+      const [perfiles, postulaciones, busquedas, candidatosEstado, mensajes] = res.map(r => r.data);
+      return { perfiles, postulaciones, busquedas, candidatosEstado, mensajes };
+    });
+  },
+
+  // Create o Update según exista el id
+  guardarPostulacion(post, oid, chat){
+    return persistir(sb.from('postulaciones').upsert({
+      id: post.id, candidato_id: ME.id, oferta_id: oid,
+      estado: post.estado, datos: { post, chat: chat || null }, updated_at: new Date().toISOString()
+    }), 'guardarPostulacion');
+  },
+
+  setCupo(cupo){
+    return persistir(sb.from('perfiles').update({ cupo }).eq('id', ME.id), 'setCupo');
+  },
+
+  guardarBusqueda(b){
+    return persistir(sb.from('busquedas').upsert({
+      id: b.id, empresa_id: ME.id, puesto: b.puesto,
+      descripcion: b.desc || null, total: b.total, estado: b.estado
+    }), 'guardarBusqueda');
+  },
+
+  guardarCandidato(id, corto, estado){
+    return persistir(sb.from('candidatos_estado').upsert({
+      id, empresa_id: ME.id, corto, estado, updated_at: new Date().toISOString()
+    }), 'guardarCandidato');
+  },
+
+  setTasa(tasa){
+    return persistir(sb.from('perfiles').update({ tasa }).eq('id', ME.id), 'setTasa');
+  },
+
+  nuevoMensaje(chatKey, de, texto, h){
+    return persistir(sb.from('mensajes').insert({ chat_key: chatKey, de, texto, h }), 'nuevoMensaje');
+  }
+};
+
+</script>
 <script>
 (function(){
 "use strict";
@@ -599,7 +696,7 @@ function shell(kind, active, inner, opts={}){
   const emp = kind==='e';
   const nav = emp?ENAV:CNAV;
   const links = nav.map(([h,l])=>`<a href="${h}"${h===active?' aria-current="page"':''}><span class="ico"></span>${l}</a>`).join('');
-  const side = `<aside class="side-nav">${emp?WM:WM_INV}${links}<p class="who">${emp?'Café Mercado':'Tomás Ferreyra'}</p></aside>`;
+  const side = `<aside class="side-nav">${emp?WM:WM_INV}${links}<p class="who">${emp?'Café Mercado':miNombre()}</p></aside>`;
   const rim='#E9E9E9';
   const dock = `<div class="dock">${waveSVG('',emp?'#002147':'#36F48C',rim)}<div class="band"><nav class="nav-b" aria-label="Secciones">${links}</nav></div></div>`;
   return `<div class="app has-nav ${emp?'emp':'cand'}">${side}<main class="screen${opts.cls?' '+opts.cls:''}">${inner}</main>${dock}</div>`;
@@ -692,14 +789,14 @@ function login(){
   <form data-form="login" class="stack" style="gap:8px">
     <p class="flabel">Completar:</p>
     <label class="vh" for="lg-mail">Correo</label><input class="field" id="lg-mail" type="email" placeholder="ejemplo@correo.com" autocomplete="email">
-    <label class="vh" for="lg-pass">Contraseña</label><input class="field" id="lg-pass" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <label class="vh" for="lg-pass">Contraseña</label><input class="field" id="lg-pass" type="password" placeholder="Contraseña" autocomplete="current-password"><p class="hint" id="lg-hint" role="status" aria-live="polite"></p>
     <div class="stack" style="margin-top:56px">
       <button class="btn pri" type="submit">Iniciar sesión</button>
       <button class="btn out" type="button" data-go="#/recuperar">¿Has olvidado tu contraseña?</button>
     </div>
   </form>
-  <p class="linkline" style="margin-top:56px">¿Aún no te has registrado?<button data-go="#/registro">Registraté</button></p>
-  <p class="linkline" style="margin-top:14px">Demo:<button data-go="#/c/feed">Entrar como candidato</button><button data-go="#/e/panel">Entrar como empresa</button></p>`);
+  <p class="linkline" style="margin-top:56px">¿Aún no te has registrado?<button data-go="#/registro">Registraté</button></p>${DEMO_HABILITADO?`<p class="linkline" style="margin-top:14px">Demo (sin base de datos):<button data-action="demo" data-kind="c">Entrar como candidato</button><button data-action="demo" data-kind="e">Entrar como empresa</button></p>`:''}
+  `);
 }
 function recuperar(){
   return authShell(`<div class="hdr">${WM}${backBtn('#/login')}</div>
@@ -716,11 +813,11 @@ function registro(){
   <h1 class="t-display" style="margin:28px 0 48px">Registarse en MATCH EMPLEOS</h1>
   <div class="stack" style="gap:8px">
     <p class="flabel">Completar:</p>
-    <label class="vh" for="rg-mail">Correo</label><input class="field" id="rg-mail" type="email" placeholder="ejemplo@correo.com">
-    <label class="vh" for="rg-pass">Contraseña</label><input class="field" id="rg-pass" type="password" placeholder="Contraseña">
+    <label class="vh" for="rg-mail">Correo</label><input class="field" id="rg-mail" type="email" placeholder="ejemplo@correo.com" value="${escAttr(regDraft['rg-mail']||'')}">
+    <label class="vh" for="rg-pass">Contraseña</label><input class="field" id="rg-pass" type="password" placeholder="Contraseña" autocomplete="new-password" value="${escAttr(regDraft['rg-pass']||'')}"><p class="hint" id="rg-hint" role="status" aria-live="polite"></p>
     <div class="stack" style="margin-top:56px">
-      <button class="btn pri" data-go="#/registro/c/1">Busco trabajo</button>
-      <button class="btn out" data-go="#/registro/e/1">Busco gente para mi empresa</button>
+      <button class="btn pri" data-go="#/registro/c/1" data-cred="rg" disabled>Busco trabajo</button>
+      <button class="btn out" data-go="#/registro/e/1" data-cred="rg" disabled>Busco gente para mi empresa</button>
     </div>
   </div>
   <p class="linkline" style="margin-top:56px">¿Ya tenés cuenta?<button data-go="#/login">Iniciá sesión</button></p>`);
@@ -730,7 +827,8 @@ function chipToggles(key, opts, max){
   return `<div class="chips">${opts.map(o=>`<button class="chip" data-chip="${key}" data-val="${esc(o)}"${max?` data-max="${max}"`:''} aria-pressed="${sel.includes(o)}">${esc(o)}</button>`).join('')}</div>`;
 }
 function inputs(list){ return list.map(([id,ph,type])=>`<label class="vh" for="${id}">${ph}</label><input class="field tall" id="${id}" type="${type||'text'}" placeholder="${ph}">`).join(''); }
-function regField(id,label,type){ return `<div class="rf"><label class="flabel" for="${id}">${label}</label><input class="field" id="${id}" type="${type||'text'}" placeholder="completar"></div>`; }
+function escAttr(v){ return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+function regField(id,label,type){ const letras=/^(rc-nom|rc-ape|re-resp)$/.test(id); const digitos=id==='rc-edad'; const t=digitos?'text':(type||'text'); const extra=letras?' data-letras="1"':(digitos?' data-digitos="1" inputmode="numeric" maxlength="2"':''); return `<div class="rf"><label class="flabel" for="${id}">${label}</label><input class="field" id="${id}" type="${t}" placeholder="completar" value="${escAttr(regDraft[id]||'')}"${extra}></div>`; }
 function regTop(back,withLogo){ return withLogo?`<div class="hdr">${WM}${backBtn(back)}</div>`:`<div class="reg-top"><span class="reg-bar"></span>${backBtn(back)}</div>`; }
 function writeHere(id){ return `<button class="btn pri" data-action="write" data-target="${id}">Escribí aquí</button>`; }
 const RUBROS=['Atención al público','Gastronomía','Administración','Logística','Ventas','Diseño','Sistemas','Salud'];
@@ -738,7 +836,7 @@ const TIPO=['Full Time','Part Time','Pasantía','Otro'], MODO=['Presencial','Rem
 function regCand(step){
   const back={1:'#/registro',2:'#/registro/c/1',exp:'#/registro/c/2',3:'#/registro/c/2',4:'#/registro/c/3',5:'#/registro/c/4'}[step]||'#/registro';
   let b='';
-  if(step==='1') b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('rc-nom','Nombre')}${regField('rc-ape','Apellido')}${regField('rc-mail','Email','email')}${regField('rc-pass','Contraseña','password')}</div><button class="btn pri reg-cta" data-go="#/registro/c/2">Continuar</button>`;
+  if(step==='1') b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('rc-nom','Nombre')}${regField('rc-ape','Apellido')}${regField('rc-mail','Email','email')}${regField('rc-pass','Contraseña','password')}</div><p class="hint" id="rc-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="#/registro/c/2" data-cred="rc" disabled>Continuar</button>`;
   if(step==='2') b=`${regTop(back,true)}<h1 class="t-display reg-h">Datos Personales</h1><div class="rstack">${regField('rc-edad','Edad','number')}${regField('rc-ubi','Ubicación/Residencia')}</div><p style="text-align:center;font-size:14px;margin:30px 0 14px;color:var(--t2)">¿Tenés experiencia laboral?</p><div class="row2"><button class="btn pri" data-go="#/registro/c/exp">Si</button><button class="btn pri" data-go="#/registro/c/3">No</button></div><p style="text-align:center;font-size:14px;margin-top:24px;color:var(--t2);line-height:1.6">¡No necesitás experiencia para empezar a encontrar tu Match!</p>`;
   if(step==='exp') b=`${regTop(back)}<h1 class="t-display">Experiencia laboral</h1><p class="t-note reg-sub">Contanos brevemente donde trabajaste, en que puesto y durante cuanto tiempo.</p><div class="rstack">${regField('rx-emp','Empresa')}${regField('rx-puesto','Puesto/Posición')}${regField('rx-dur','Duración en el cargo')}</div><button class="btn pri reg-cta" data-go="#/registro/c/3">Continuar</button>`;
   if(step==='3') b=`${regTop(back)}<h1 class="t-display">¿Qué buscás?</h1><p class="t-note reg-sub">Elegí hasta tres rubros. Con eso te mostramos búsquedas que tengan que ver con vos.</p>${chipToggles('rubros',RUBROS,3)}<div style="margin-top:34px">${regField('rc-puesto','Elegí un puesto/posición')}</div><button class="btn pri reg-cta" data-go="#/registro/c/4">Continuar</button>`;
@@ -750,7 +848,7 @@ function regEmp(step){
   const n=+step||1; const back = n===1?'#/registro':'#/registro/e/'+(n-1); const next = n<5?'#/registro/e/'+(n+1):'#/registro/terminos/e';
   const cta=`<button class="btn pri reg-cta" data-go="${next}">Continuar</button>`;
   let b='';
-  if(n===1) b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('re-resp','Nombre del responsable')}${regField('re-nom','Nombre de la empresa')}${regField('re-mail','Email','email')}${regField('re-pass','Contraseña','password')}</div>${cta}`;
+  if(n===1) b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('re-resp','Nombre del responsable')}${regField('re-nom','Nombre de la empresa')}${regField('re-mail','Email','email')}${regField('re-pass','Contraseña','password')}</div><p class="hint" id="re-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="${next}" data-cred="re" disabled>Continuar</button>`;
   if(n===2) b=`${regTop(back,true)}<h1 class="t-display reg-h">Contanos sobre tu empresa</h1><div class="rstack">${regField('re-rubro','Rubro')}${regField('re-ubi','Ubicación')}${regField('re-tam','Tamaño de la empresa')}</div>${cta}`;
   if(n===3) b=`${regTop(back)}<h1 class="t-display">¿Qué perfil necesitas?</h1><p class="reg-lbl">Elegi un area/sector</p>${chipToggles('esector',['Comercio','Gastronomía','Administración','Logística','Ventas','Diseño','Sistemas','Salud','Otro'])}<div style="margin-top:34px">${regField('re-puesto','Elegí un puesto/posición')}</div>${cta}`;
   if(n===4) b=`${regTop(back)}<h1 class="t-display">Especificá las características del empleo</h1><p class="reg-lbl">Tipo de empleo</p>${chipToggles('etipo',TIPO)}<p class="reg-lbl">Experiencia requerida</p>${chipToggles('eexp',['Sin experiencia','1–2 años','3 años o más','Indistinto'])}<p class="reg-lbl">Modalidad</p>${chipToggles('emodo',MODO)}<p class="reg-lbl">Horario</p>${chipToggles('ehora',HORA)}${cta}`;
@@ -759,7 +857,7 @@ function regEmp(step){
 }
 function regTerminos(kind){
   const d=LEGAL.terminos;
-  return authShell(`<div class="hdr">${WM}${backBtn(kind==='e'?'#/registro/e/5':'#/registro/c/5')}</div><h1 class="t-display" style="margin-bottom:6px">${d.titulo}</h1><div class="app-doc">${d.html}</div><button class="btn pri" style="margin-top:28px" data-go="${kind==='e'?'#/e/panel':'#/c/feed'}" data-welcome="${kind}">Acepto</button>`);
+  return authShell(`<div class="hdr">${WM}${backBtn(kind==='e'?'#/registro/e/5':'#/registro/c/5')}</div><h1 class="t-display" style="margin-bottom:6px">${d.titulo}</h1><div class="app-doc">${d.html}</div><button class="btn pri" style="margin-top:28px" data-action="crear-cuenta" data-kind="${kind}">Crear mi cuenta</button>`);
 }
 
 /* ================= CANDIDATO ================= */
@@ -886,7 +984,7 @@ function cPerfil(){
 function profHead(kind){
   return kind==='e'
    ? `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img src="img/logo-cafe-mercado.png" alt=""><div><h1>Café Mercado</h1><p style="font-size:13px">Gastronomía · 12 empleados · Lomas de Zamora</p></div></div>`
-   : `<div class="prof-head"><img src="img/avatar-tomas.png" alt=""><div><h1>Tomás Ferreyra</h1><p class="t-note">Lomas de Zamora · Busco mi primer trabajo</p></div></div>`;
+   : `<div class="prof-head"><img src="img/avatar-tomas.png" alt=""><div><h1>${miNombre()}</h1><p class="t-note">Lomas de Zamora · Busco mi primer trabajo</p></div></div>`;
 }
 function configScreen(kind){
   const e=kind==='e';
@@ -1033,7 +1131,7 @@ function apply(oid){
   S.c.cupo--; DB.setCupo(S.c.cupo);
   if(o.match){
     const post={id:'p'+Date.now(),oid,puesto:o.puesto,emp:o.emp,estado:'Respondida',pie:'Te contestaron recién',match:true,chat:oid};
-    const msg={de:'them',t:'¡Hola Tomás! Vimos tu perfil y nos interesa. ¿Podés venir el jueves a las 16?',h:now()};
+    const msg={de:'them',t:`¡Hola ${miPrimerNombre()}! Vimos tu perfil y nos interesa. ¿Podés venir el jueves a las 16?`,h:now()};
     S.c.posts.unshift(post);
     S.c.chats[oid]={con:o.emp,puesto:o.puesto,tasa:o.tasa,match:true,msgs:[msg],auto:['Av. Meeks 250, Lomas. Preguntá por Caro en el mostrador.','¡Genial! Nos vemos el jueves.','Perfecto, cualquier cosa escribinos por acá.']};
     DB.guardarPostulacion(post,oid,chatMeta(S.c.chats[oid]));
@@ -1052,7 +1150,7 @@ function apply(oid){
   later(6000,()=>{ post.estado='Vista'; post.pie='La vieron recién'; DB.guardarPostulacion(post,oid,null);
     S.c.notifs.unshift({t:'Tu postulación fue vista',cuando:'ahora',d:`${o.emp} abrió tu perfil. Tiene 7 días para contestarte.`,go:'#/c/postulaciones',nuevo:true}); toast(`${o.emp} vio tu postulación`); });
   later(14000,()=>{ post.estado='Respondida'; post.pie='Te contestaron recién'; post.chat=oid;
-    const msg={de:'them',t:`Hola Tomás, gracias por postularte a ${o.puesto}. Nos gustaría conocerte. ¿Te queda bien pasar el miércoles a las 15?`,h:now()};
+    const msg={de:'them',t:`Hola ${miPrimerNombre()}, gracias por postularte a ${o.puesto}. Nos gustaría conocerte. ¿Te queda bien pasar el miércoles a las 15?`,h:now()};
     S.c.chats[oid]={con:o.emp,puesto:o.puesto,tasa:o.tasa,match:false,msgs:[msg]};
     DB.guardarPostulacion(post,oid,chatMeta(S.c.chats[oid]));
     DB.nuevoMensaje('c:'+oid,msg.de,msg.t,msg.h);
@@ -1110,7 +1208,12 @@ function route(){
   const p=h.split('/').filter(Boolean);
   if(!p.length) return home();
   const [a,b,c,d]=p;
+  const PUBLICAS=['privacidad','terminos','ayuda','login','recuperar','nueva-clave','registro','confirmar'];
+  if(!ME.id && !ME.demo && a && !PUBLICAS.includes(a)) return login();
+  if((ME.id||ME.demo) && ((a==='c'&&ME.rol!=='c')||(a==='e'&&ME.rol!=='e'))){ go(ME.rol==='e'?'#/e/panel':'#/c/feed'); return ''; }
   if(a==='privacidad'||a==='terminos'||a==='ayuda') return legalSite(a);
+  if(a==='confirmar') return confirmar();
+  if(a==='nueva-clave') return nuevaClave();
   if(a==='login') return login();
   if(a==='recuperar') return recuperar();
   if(a==='registro'){ if(!b) return registro(); if(b==='c') return regCand(c||'1'); if(b==='e') return regEmp(c||'1'); if(b==='terminos') return regTerminos(c); }
@@ -1158,17 +1261,21 @@ document.addEventListener('click',e=>{
   if(act==='toast'){ toast(t.dataset.msg); return; }
   if(act==='leidas'){ (t.dataset.kind==='e'?S.e.notifs:S.c.notifs).forEach(n=>n.nuevo=false); render(true); return; }
   if(act==='write'){ const ta=document.createElement('textarea'); ta.className='field'; ta.id=t.dataset.target; ta.placeholder='Escribí aquí'; t.replaceWith(ta); ta.focus(); return; }
-  if(act==='logout'){ timers.forEach(clearTimeout); timers.length=0; S=freshState(); go('#/'); return; }
+  if(act==='logout'){ timers.forEach(clearTimeout); timers.length=0; const eraDemo=ME.demo; ME={id:null,rol:null,demo:false}; S=freshState(); if(!eraDemo) sb.auth.signOut(); go('#/login'); return; }
+  if(act==='demo'){ entrarDemo(t.dataset.kind); return; }
   if(act==='pub-next'){ savePub(); if(!pubDraft.puesto.trim()){ toast('Escribí el nombre del puesto para continuar.'); document.getElementById('pb-puesto')?.focus(); return; } go('#/e/publicar/2'); return; }
   if(act==='publicar'){ if(S.e.pend.length) return; const nombre=pubDraft.puesto.trim()||'Nueva búsqueda'; const nb={id:'b'+Date.now(),puesto:nombre,total:0,estado:'Activa',desc:pubDraft.desc}; S.e.busquedas.unshift(nb); DB.guardarBusqueda(nb); S.e.notifs.unshift({t:'Publicaste una búsqueda',d:`${nombre} · te comprometiste a responder en ${S.e.plazo} días.`,go:'#/e/panel',nuevo:true}); pubDraft={puesto:'',desc:''}; S.reg.chips.pjor=[]; S.reg.chips.ptur=[]; toast(`Publicaste “${nombre}”. Respondé en ${S.e.plazo} días.`); go('#/e/panel'); return; }
+  if(act==='crear-cuenta'){ crearCuenta(t.dataset.kind); return; }
+  if(act==='reenviar'){ reenviarConfirmacion(); return; }
   if(act==='enviar-resp'){ const txt=document.getElementById('resp-txt').value.trim(); if(!txt){ toast('Escribí un mensaje antes de enviar.'); return; } enviarResp(t.dataset.id,t.dataset.tipo,txt); return; }
 });
 function savePub(){ const a=document.getElementById('pb-puesto'), b=document.getElementById('pb-desc'); if(a) pubDraft.puesto=a.value; if(b) pubDraft.desc=b.value; }
 document.addEventListener('submit',e=>{
   const f=e.target; e.preventDefault();
   if(f.dataset.form==='search'){ toast('Iniciá sesión para ver las búsquedas que coinciden con tu perfil.'); go('#/login'); }
-  if(f.dataset.form==='login'){ const m=(document.getElementById('lg-mail').value||'').toLowerCase(); go(m.includes('empresa')?'#/e/panel':'#/c/feed'); }
-  if(f.dataset.form==='recuperar'){ toast('Te enviamos el enlace. Revisá tu correo.'); go('#/login'); }
+  if(f.dataset.form==='login') iniciarSesionForm();
+  if(f.dataset.form==='recuperar') recuperarForm();
+  if(f.dataset.form==='nueva-clave') nuevaClaveForm();
   if(f.dataset.form==='chat'){ const inp=f.querySelector('input'); sendChat(f.dataset.kind,f.dataset.id,inp.value); }
 });
 document.addEventListener('change',e=>{
@@ -1177,12 +1284,11 @@ document.addEventListener('change',e=>{
 
 function msgsDe(d,key){ return d.mensajes.filter(m=>m.chat_key===key).map(m=>({de:m.de,t:m.texto,h:m.h})); }
 async function hidratar(){
-  document.addEventListener('db-error',()=>toast('No se pudo guardar. Revisá tu conexión.'));
   const d=await DB.cargar().catch(err=>{ console.error('No se pudo cargar desde Supabase',err); return null; });
   if(!d) return;
-  const perfC=d.perfiles.find(p=>p.id===ME.candidato), perfE=d.perfiles.find(p=>p.id===ME.empresa);
-  if(perfC) S.c.cupo=perfC.cupo;
-  if(perfE) S.e.tasa=perfE.tasa;
+  const perf=d.perfiles[0];
+  if(perf && ME.rol==='c') S.c.cupo=perf.cupo;
+  if(perf && ME.rol==='e') S.e.tasa=perf.tasa;
   // Candidato: postulaciones y chats creados
   const dbPosts=d.postulaciones.map(r=>({...r.datos.post,estado:r.estado}));
   const postIds=new Set(dbPosts.map(p=>p.id));
@@ -1203,8 +1309,159 @@ async function hidratar(){
   render(true);
 }
 
+/* ---------- Autenticación ---------- */
+let regDraft={};
+const SOLO_LETRAS=/[^\p{Script=Latin}\s]/gu;
+document.addEventListener('input',e=>{
+  const id=e.target.id||'';
+  if(e.target.dataset.letras){
+    const limpio=e.target.value.replace(SOLO_LETRAS,'');
+    if(limpio!==e.target.value){ e.target.value=limpio; toast('Solo se permiten letras en este campo.'); }
+  }
+  if(e.target.dataset.digitos){
+    const limpio=e.target.value.replace(/\D/g,'');
+    if(limpio!==e.target.value){ e.target.value=limpio; toast('La edad se escribe solo con números.'); }
+  }
+  if(/^(rg|rc|re|rx)-/.test(id)) regDraft[id]=e.target.value;
+});
+const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+let loginTocado=false;
+function validarLogin(){
+  const mail=document.getElementById('lg-mail'), pass=document.getElementById('lg-pass'), hint=document.getElementById('lg-hint');
+  if(!mail||!pass||!hint) return {ok:true};
+  let msg='', campo=null;
+  if(!EMAIL_RE.test(mail.value.trim())){ msg='Escribí un correo con formato válido, por ejemplo nombre@correo.com.'; campo=mail; }
+  else if(pass.value.length<8){ msg='La contraseña tiene que tener al menos 8 caracteres.'; campo=pass; }
+  hint.textContent=msg;
+  mail.setAttribute('aria-invalid', String(campo===mail));
+  pass.setAttribute('aria-invalid', String(campo===pass));
+  return {ok:!msg, campo};
+}
+document.addEventListener('input',e=>{ if(loginTocado && (e.target.id==='lg-mail'||e.target.id==='lg-pass')) validarLogin(); });
+async function iniciarSesionForm(){
+  loginTocado=true;
+  const v=validarLogin();
+  if(!v.ok){ v.campo.focus(); return; }
+  const email=document.getElementById('lg-mail').value.trim();
+  const password=document.getElementById('lg-pass').value;
+  const {error}=await sb.auth.signInWithPassword({email,password});
+  if(!error) return;
+  if(/not confirmed/i.test(error.message)){
+    document.getElementById('lg-hint').innerHTML='Todavía no confirmaste tu correo. <button type="button" data-action="reenviar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Reenviar correo de confirmación</button>';
+  } else {
+    console.warn('[auth] login falló:', error.message);
+    document.getElementById('lg-hint').innerHTML='Correo o contraseña incorrectos. <button type="button" data-go="#/recuperar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">¿Olvidaste tu contraseña?</button>';
+  }
+}
+let ultimoCorreo='';
+function perfilDatos(){
+  const campos={};
+  Object.keys(regDraft).forEach(k=>{ if(/^(rc|re|rx)-/.test(k) && !/(pass|mail|cv)$/.test(k) && regDraft[k]) campos[k]=regDraft[k]; });
+  return {campos, chips:{...S.reg.chips}};
+}
+async function reenviarConfirmacion(){
+  const email=(ultimoCorreo||(document.getElementById('lg-mail')?.value||'')).trim();
+  if(!EMAIL_RE.test(email)){ toast('Escribí tu correo primero.'); return; }
+  const {error}=await sb.auth.resend({type:'signup',email});
+  toast(error?'No pudimos reenviar el correo. Probá de nuevo en unos minutos.':'Te reenviamos el correo de confirmación.');
+}
+async function crearCuenta(kind){
+  const p=kind==='e'?'re-':'rc-';
+  const email=(regDraft[p+'mail']||'').trim();
+  const password=regDraft[p+'pass']||'';
+  if(!email||password.length<8){ toast('Revisá el correo y usá una contraseña de al menos 8 caracteres.'); go(kind==='e'?'#/registro/e/1':'#/registro/c/1'); return; }
+  const nombre=kind==='e'?(regDraft['re-nom']||''):[regDraft['rc-nom'],regDraft['rc-ape']].filter(Boolean).join(' ');
+  ultimoCorreo=email;
+  const {data,error}=await sb.auth.signUp({email,password,options:{data:{rol:kind,nombre,display_name:nombre,full_name:nombre,datos:perfilDatos()}}});
+  if(error){ toast(/already registered/i.test(error.message)?'Ya existe una cuenta con ese correo.':'No pudimos crear la cuenta. Probá de nuevo.'); return; }
+  regDraft={}; S.reg={chips:{}};
+  if(data.session) go(kind==='e'?'#/e/panel':'#/c/feed'); else go('#/confirmar');
+}
+async function recuperarForm(){
+  const email=(document.getElementById('rc-mail').value||'').trim();
+  if(!email){ toast('Escribí tu correo.'); return; }
+  await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  toast('Si el correo existe, te enviamos el enlace.');
+  go('#/login');
+}
+async function nuevaClaveForm(){
+  const password=document.getElementById('nc-pass').value||'';
+  if(password.length<8){ toast('La contraseña debe tener al menos 8 caracteres.'); return; }
+  const {error}=await sb.auth.updateUser({password});
+  if(error){ toast('No pudimos cambiar la contraseña. Pedí un enlace nuevo.'); return; }
+  toast('Contraseña actualizada.');
+  go(ME.rol==='e'?'#/e/panel':'#/c/feed');
+}
+function verificarCoincidencia(pfx,email,pwd){
+  if(pfx==='rg') return null;
+  const mailOrig=(regDraft['rg-mail']||'').trim().toLowerCase(), passOrig=regDraft['rg-pass']||'';
+  if(mailOrig && email && email.toLowerCase()!==mailOrig)
+    return {campo:'mail', msg:'El correo no coincide con el que escribiste en la pantalla anterior. Lo pedimos dos veces porque, si no coincide, no vas a poder confirmar tu cuenta.'};
+  if(passOrig && pwd && pwd!==passOrig)
+    return {campo:'pass', msg:'La contraseña no coincide con la que escribiste en la pantalla anterior. La pedimos dos veces para evitar errores de tipeo.'};
+  return null;
+}
+function validarCred(pfx){
+  const mail=document.getElementById(pfx+'-mail'), pass=document.getElementById(pfx+'-pass'), hint=document.getElementById(pfx+'-hint');
+  if(!mail||!pass) return false;
+  const email=mail.value.trim(), pwd=pass.value;
+  let msg='', campo=null;
+  if(email||pwd){
+    if(!EMAIL_RE.test(email)){ msg='Escribí un correo con formato válido, por ejemplo nombre@correo.com.'; campo=mail; }
+    else if(pwd.length<8){ msg='La contraseña tiene que tener al menos 8 caracteres.'; campo=pass; }
+    else { const c=verificarCoincidencia(pfx,email,pwd); if(c){ msg=c.msg; campo=c.campo==='mail'?mail:pass; } }
+  }
+  if(hint) hint.textContent=msg;
+  mail.setAttribute('aria-invalid', String(campo===mail));
+  pass.setAttribute('aria-invalid', String(campo===pass));
+  const ok=!msg && EMAIL_RE.test(email) && pwd.length>=8;
+  document.querySelectorAll('[data-cred="'+pfx+'"]').forEach(b=>{ b.disabled=!ok; });
+  return ok;
+}
+document.addEventListener('input',e=>{ const m=/^(rg|rc|re)-(mail|pass)$/.exec(e.target.id||''); if(m) validarCred(m[1]); });
+function confirmar(){ return authShell(`<div class="hdr">${WM}</div><h1 class="t-display" style="margin:28px 0 24px">Revisá tu correo</h1><p class="t-note">Te enviamos un enlace para confirmar tu cuenta${ultimoCorreo?' a <strong>'+ultimoCorreo+'</strong>':''}. Si no lo ves, revisá la carpeta de spam.</p><div class="stack" style="margin-top:40px"><button class="btn out" data-action="reenviar">Reenviar correo</button><button class="btn pri" data-go="#/login">Ya confirmé, iniciar sesión</button></div>`); }
+function nuevaClave(){ return authShell(`<div class="hdr">${WM}</div><h1 class="t-display" style="margin:16px 0 18px">Nueva contraseña</h1><form data-form="nueva-clave" class="stack" style="margin-top:40px"><label class="vh" for="nc-pass">Nueva contraseña</label><input class="field" id="nc-pass" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password"><button class="btn pri" type="submit" style="margin-top:28px">Guardar contraseña</button></form>`); }
+
+// Demo: sin login y sin escrituras en la base. Para quitarla, poner en false o borrar este bloque.
+const DEMO_HABILITADO = true;
+function miNombre(){ return ME.demo ? 'Tomás Ferreyra' : (ME.nombre||''); }
+function miPrimerNombre(){ return miNombre().split(' ')[0] || ''; }
+function entrarDemo(kind){
+  if(!DEMO_HABILITADO) return;
+  ME={id:null,rol:kind,demo:true};
+  S=freshState();
+  go(kind==='e'?'#/e/panel':'#/c/feed');
+}
+async function setSesion(session){
+  if(!session){ ME={id:null,rol:null}; S=freshState(); return; }
+  ME.id=session.user.id;
+  const {data:perfil}=await sb.from('perfiles').select('rol,nombre').eq('id',ME.id).maybeSingle();
+  ME.rol=perfil?.rol||null;
+  ME.nombre=perfil?.nombre||null;
+  if(!ME.rol){ toast('Tu cuenta no tiene perfil. Escribinos para resolverlo.'); await sb.auth.signOut(); return; }
+  S=freshState();
+  await hidratar();
+}
+document.addEventListener('db-error',()=>toast('No se pudo guardar. Revisá tu conexión.'));
+let ultimoUid=undefined;
 render();
-hidratar();
+sb.auth.onAuthStateChange((evento,session)=>{
+  if(evento==='TOKEN_REFRESHED') return;
+  setTimeout(async()=>{
+    const uid=session?.user?.id??null;
+    if(evento!=='PASSWORD_RECOVERY' && uid===ultimoUid) return;
+    ultimoUid=uid;
+    await setSesion(session);
+    if(evento==='PASSWORD_RECOVERY'){ go('#/nueva-clave'); return; }
+    const llegaDeConfirmar = location.hash==='' || ['#/login','#/registro','#/confirmar'].some(h=>location.hash.startsWith(h));
+    if(evento==='SIGNED_IN' && llegaDeConfirmar){
+      if(location.hash==='') toast('¡Cuenta confirmada! Bienvenido/a a Match Empleos.');
+      go(ME.rol==='e'?'#/e/panel':'#/c/feed');
+    }
+    render();
+  },0);
+});
+
 })();
 </script>
 </body>

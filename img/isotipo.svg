@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 92" role="img" aria-label="Isotipo Match Empleos">
+  <defs>
+    <linearGradient id="gL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0.45" stop-color="#E9E9E9"/><stop offset="1" stop-color="#36F48C"/>
+    </linearGradient>
+    <linearGradient id="gR" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0.45" stop-color="#E9E9E9"/><stop offset="1" stop-color="#36F48C"/>
+    </linearGradient>
+  </defs>
+  <circle cx="17" cy="12" r="11" fill="#E9E9E9"/>
+  <circle cx="83" cy="12" r="11" fill="#E9E9E9"/>
+  <path d="M6 44 Q6 30 18 30 Q26 30 34 38 L50 54 L50 72 Q44 72 36 62 L30 56 L30 80 Q30 90 18 90 Q6 90 6 80 Z" fill="url(#gL)"/>
+  <path d="M94 44 Q94 30 82 30 Q74 30 66 38 L50 54 L50 72 Q56 72 64 62 L70 56 L70 80 Q70 90 82 90 Q94 90 94 80 Z" fill="url(#gR)"/>
+</svg>
