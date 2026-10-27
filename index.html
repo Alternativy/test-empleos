@@ -484,19 +484,33 @@ function chatMeta(c){
 }
 
 const DB = {
-  cargar(){
-    return Promise.all([
-      sb.from('perfiles').select('*').eq('id', ME.id),
-      sb.from('postulaciones').select('*').eq('candidato_id', ME.id).order('created_at', { ascending: false }),
-      sb.from('busquedas').select('*').eq('empresa_id', ME.id).order('created_at', { ascending: false }),
-      sb.from('candidatos_estado').select('*').eq('empresa_id', ME.id),
-      sb.from('mensajes').select('*').order('id', { ascending: true }),
-    ]).then(res => {
-      const err = res.find(r => r.error);
-      if (err) throw err.error;
-      const [perfiles, postulaciones, busquedas, candidatosEstado, mensajes] = res.map(r => r.data);
-      return { perfiles, postulaciones, busquedas, candidatosEstado, mensajes };
-    });
+  async cargar(){
+    if(ME.rol==='e'){
+      const [perfiles,busquedas,candidatosEstado,mensajes]=await Promise.all([
+        sb.from('perfiles').select('*').eq('id',ME.id),
+        sb.from('busquedas').select('*').eq('empresa_id',ME.id).order('created_at',{ascending:false}),
+        sb.from('candidatos_estado').select('*').eq('empresa_id',ME.id),
+        sb.from('mensajes').select('*').order('id',{ascending:true}),
+      ]);
+      const err=[perfiles,busquedas,candidatosEstado,mensajes].find(r=>r.error); if(err) throw err.error;
+      const ids=busquedas.data.map(b=>b.id); let postulaciones=[], candidatos=[];
+      if(ids.length){ const r=await sb.from('postulaciones').select('*').in('oferta_id',ids).order('created_at',{ascending:false}); if(r.error) throw r.error; postulaciones=r.data;
+        const candidateIds=[...new Set(postulaciones.map(p=>p.candidato_id))];
+        if(candidateIds.length){ const pr=await sb.from('perfiles').select('*').in('id',candidateIds).eq('rol','c'); if(pr.error) throw pr.error; candidatos=pr.data; }
+      }
+      return {perfiles:perfiles.data,postulaciones,busquedas:busquedas.data,candidatosEstado:candidatosEstado.data,candidatos,mensajes:mensajes.data};
+    }
+    const [perfiles,postulaciones,busquedas,candidatosEstado,mensajes]=await Promise.all([
+      sb.from('perfiles').select('*').eq('id',ME.id),
+      sb.from('postulaciones').select('*').eq('candidato_id',ME.id).order('created_at',{ascending:false}),
+      sb.from('busquedas').select('*').eq('estado','Activa').order('created_at',{ascending:false}),
+      sb.from('candidatos_estado').select('*').eq('empresa_id',ME.id),
+      sb.from('mensajes').select('*').order('id',{ascending:true}),
+    ]);
+    const err=[perfiles,postulaciones,busquedas,candidatosEstado,mensajes].find(r=>r.error); if(err) throw err.error;
+    const empresaIds=[...new Set(busquedas.data.map(b=>b.empresa_id))]; let empresas=[];
+    if(empresaIds.length){ const er=await sb.from('perfiles').select('*').in('id',empresaIds).eq('rol','e'); if(er.error) throw er.error; empresas=er.data; }
+    return {perfiles:perfiles.data,postulaciones:postulaciones.data,busquedas:busquedas.data,candidatosEstado:candidatosEstado.data,empresas,mensajes:mensajes.data};
   },
 
   // Create o Update según exista el id
