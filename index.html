@@ -155,7 +155,8 @@ html{scroll-behavior:smooth}
 .app{background:var(--bg);color:var(--fg)}
 .screen{width:min(100%,430px);margin-inline:auto;padding:52px 24px 190px;min-height:100%}
 .hdr{display:flex;align-items:center;justify-content:space-between;min-height:24px;margin-bottom:22px;gap:12px}
-.hdr .wm{height:14px;width:auto}
+.wm-link{display:inline-flex;align-items:center;align-self:flex-start;text-decoration:none;flex:none}
+.hdr .wm{height:14px;width:auto;max-width:160px;object-fit:contain;flex:none}
 .hdr .side{font-size:13px;color:var(--fg)}
 .back{background:none;border:0;padding:0;font-size:13px;color:var(--sub);display:inline-flex;gap:8px;align-items:center}
 .back:hover{color:var(--fg)}
@@ -219,17 +220,18 @@ button.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)
 @media (min-width:900px){
   .app.has-nav{display:grid;grid-template-columns:248px minmax(0,1fr)}
   .side-nav{display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;background:var(--wave);padding:36px 20px;z-index:5}
-  .side-nav .wm{height:16px;width:auto;margin:0 0 40px 8px}
-  .side-nav a{display:flex;align-items:center;gap:14px;padding:12px 12px;border-radius:12px;color:var(--wave-fg);text-decoration:none;font-size:16px;opacity:.65}
-  .side-nav a .ico{width:22px;height:22px;border-radius:6px;background:var(--wave-fg)}
-  .side-nav a[aria-current="page"]{opacity:1;font-weight:700;background:color-mix(in srgb,var(--wave-fg) 12%,transparent)}
-  .side-nav a:hover{opacity:1}
+  .side-nav .wm-link{margin:0 0 40px 8px;padding:0;opacity:1;border-radius:4px}
+  .side-nav .wm{height:16px;width:auto;max-width:170px;object-fit:contain;margin:0}
+  .side-nav a:not(.wm-link){display:flex;align-items:center;gap:14px;padding:12px 12px;border-radius:12px;color:var(--wave-fg);text-decoration:none;font-size:16px;opacity:.65}
+  .side-nav a:not(.wm-link) .ico{width:22px;height:22px;border-radius:6px;background:var(--wave-fg)}
+  .side-nav a:not(.wm-link)[aria-current="page"]{opacity:1;font-weight:700;background:color-mix(in srgb,var(--wave-fg) 12%,transparent)}
+  .side-nav a:not(.wm-link):hover{opacity:1}
   .side-nav .who{margin-top:auto;font-size:13px;color:var(--wave-fg);opacity:.8;padding:0 12px}
   .has-nav .dock .band{display:none}
   .has-nav .dock{left:248px}
   .has-nav .dock svg{height:120px}
   .has-nav .screen{width:min(100%,1080px);padding:56px 48px 170px}
-  .has-nav .hdr .wm{display:none}
+  .has-nav .hdr .wm,.has-nav .hdr .wm-link{display:none}
   .auth .screen{width:min(100%,480px);padding-top:80px}
   .dock svg{height:150px}
   .wide2{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:40px;align-items:start}
@@ -332,7 +334,6 @@ button.rowline:hover{color:var(--green)}
 .app-doc .lead{color:var(--fg);font-weight:600}
 .app-doc .parte{display:inline-block;margin-top:22px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:var(--green);color:var(--navy)}
 .emp .app-doc .parte{background:var(--navy);color:var(--green)}
-
 
 /* Ajustes según las 39 pantallas del Figma */
 .reg-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
@@ -457,9 +458,11 @@ const HOSTS_PRODUCCION = ['matchempleos.com.ar', 'www.matchempleos.com.ar'];
 const ENTORNO = HOSTS_PRODUCCION.includes(location.hostname) ? 'prod' : 'staging';
 console.info('[db] entorno:', ENTORNO);
 
+// Debe leerse antes de crear el cliente: Supabase limpia el hash al procesarlo
+const VINO_DE_CORREO = /[#&]type=(signup|email)/.test(location.hash);
 const sb = supabase.createClient(ENTORNOS[ENTORNO].url, ENTORNOS[ENTORNO].key);
 
-let ME = { id: null, rol: null, nombre: null, demo: false }; // demo: sesión local, nunca escribe en la base
+let ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null, demo: false }; // demo: sesión local, nunca escribe en la base
 
 // Ejecuta una escritura y avisa si falla, sin romper la UI
 function persistir(query, etiqueta){
@@ -538,8 +541,8 @@ const DB = {
 /* ---------- Iconos y piezas de marca ---------- */
 const ISO = '<img class="iso" src="img/isotipo.svg" alt="">';
 const LOCKUP = `<a class="lockup" href="#/" aria-label="Match Empleos, inicio">${ISO}<span class="words"><img src="img/logo-match.png" alt=""><img src="img/logo-empleos.png" alt=""></span></a>`;
-const WM = '<img class="wm" src="img/logo-match-empleos.png" alt="Match Empleos">';
-const WM_INV = '<img class="wm" src="img/logo-match-empleos-inv.png" alt="Match Empleos">';
+const WM = '<a class="wm-link" href="#/" aria-label="Match Empleos, inicio"><img class="wm" src="img/logo-match-empleos.png" alt="Match Empleos"></a>';
+const WM_INV = '<a class="wm-link" href="#/" aria-label="Match Empleos, inicio"><img class="wm" src="img/logo-match-empleos-inv.png" alt="Match Empleos"></a>';
 const IG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>';
 const XI = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L1.9 3h6.3l4.4 5.9L17.8 3Zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5Z"/></svg>';
 const WA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11.6a8.2 8.2 0 0 1-12.1 7.2L3.5 20l1.2-4.2A8.2 8.2 0 1 1 20 11.6Z"/><path d="M9 8.3c.3-.6.6-.6.9-.6h.6c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .4-.1.6l-.5.6c-.1.2-.2.3 0 .6.4.7 1 1.4 1.7 1.9.6.4 1 .5 1.3.4.2-.1.6-.7.8-.9.2-.2.4-.2.6-.1l1.8.9c.3.1.4.2.4.4 0 .5-.2 1.2-.8 1.6-.6.4-1.5.6-2.6.2-1.3-.5-3-1.5-4.3-3.2-1.1-1.4-1.5-2.7-1.5-3.6 0-.7.3-1.1.6-1.6Z"/></svg>';
@@ -665,7 +668,7 @@ function freshState(){ return {
       malena:{con:'Malena T.',puesto:'Ayudante de cocina',match:true,msgs:[{de:'me',t:'Hola Malena, nos interesó tu perfil. ¿Podés venir el jueves a las 16?',h:'Hoy'},{de:'them',t:'Perfecto, el jueves a las 16 estoy',h:'hace 1 h'}]},
       lucia:{con:'Lucía M.',puesto:'Cajero fin de semana',match:true,msgs:[{de:'them',t:'¡Hola! Gracias por responder. ¿Qué día puedo pasar?',h:'hace 3 días'},{de:'me',t:'Te esperamos el martes',h:'hace 3 días'}]}
     },
-    resp:[{nombre:'Malena T.',tipo:'si'},{nombre:'Lucía M.',tipo:'si'},{nombre:'Joaquín D.',tipo:'no'},{nombre:'Brenda S.',tipo:'no'}],
+    resp:[{nombre:'Malena T.',tipo:'si',chat:'malena'},{nombre:'Lucía M.',tipo:'si',chat:'lucia'},{nombre:'Joaquín D.',tipo:'no'},{nombre:'Brenda S.',tipo:'no'}],
     notifs:[
       {t:'La postulación más vieja vence en 2 días',d:'Tomás F. se postuló a Ayudante de cocina hace 5 días.',go:'#/e/candidato/tomas',nuevo:true},
       {t:'Malena T. te escribió',d:'Ayudante de cocina: «Perfecto, el jueves a las 16 estoy»',go:'#/e/chat/malena',nuevo:true},
@@ -810,7 +813,7 @@ function recuperar(){
 }
 function registro(){
   return authShell(`<div class="hdr">${WM}${backBtn('#/')}</div>
-  <h1 class="t-display" style="margin:28px 0 48px">Registarse en MATCH EMPLEOS</h1>
+  <h1 class="t-display" style="margin:28px 0 48px">Registrarse en MATCH EMPLEOS</h1>
   <div class="stack" style="gap:8px">
     <p class="flabel">Completar:</p>
     <label class="vh" for="rg-mail">Correo</label><input class="field" id="rg-mail" type="email" placeholder="ejemplo@correo.com" value="${escAttr(regDraft['rg-mail']||'')}">
@@ -830,7 +833,10 @@ function inputs(list){ return list.map(([id,ph,type])=>`<label class="vh" for="$
 function escAttr(v){ return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
 function regField(id,label,type){ const letras=/^(rc-nom|rc-ape|re-resp)$/.test(id); const digitos=id==='rc-edad'; const t=digitos?'text':(type||'text'); const extra=letras?' data-letras="1"':(digitos?' data-digitos="1" inputmode="numeric" maxlength="2"':''); return `<div class="rf"><label class="flabel" for="${id}">${label}</label><input class="field" id="${id}" type="${t}" placeholder="completar" value="${escAttr(regDraft[id]||'')}"${extra}></div>`; }
 function regTop(back,withLogo){ return withLogo?`<div class="hdr">${WM}${backBtn(back)}</div>`:`<div class="reg-top"><span class="reg-bar"></span>${backBtn(back)}</div>`; }
-function writeHere(id){ return `<button class="btn pri" data-action="write" data-target="${id}">Escribí aquí</button>`; }
+function writeHere(id){
+  if(regDraft[id]) return `<textarea class="field" id="${id}" placeholder="Escribí aquí">${esc(regDraft[id])}</textarea>`;
+  return `<button class="btn pri" data-action="write" data-target="${id}">Escribí aquí</button>`;
+}
 const RUBROS=['Atención al público','Gastronomía','Administración','Logística','Ventas','Diseño','Sistemas','Salud'];
 const TIPO=['Full Time','Part Time','Pasantía','Otro'], MODO=['Presencial','Remoto','Híbrido'], HORA=['Mañana','Tarde','Noche','Rotativo'];
 function regCand(step){
@@ -841,7 +847,7 @@ function regCand(step){
   if(step==='exp') b=`${regTop(back)}<h1 class="t-display">Experiencia laboral</h1><p class="t-note reg-sub">Contanos brevemente donde trabajaste, en que puesto y durante cuanto tiempo.</p><div class="rstack">${regField('rx-emp','Empresa')}${regField('rx-puesto','Puesto/Posición')}${regField('rx-dur','Duración en el cargo')}</div><button class="btn pri reg-cta" data-go="#/registro/c/3">Continuar</button>`;
   if(step==='3') b=`${regTop(back)}<h1 class="t-display">¿Qué buscás?</h1><p class="t-note reg-sub">Elegí hasta tres rubros. Con eso te mostramos búsquedas que tengan que ver con vos.</p>${chipToggles('rubros',RUBROS,3)}<div style="margin-top:34px">${regField('rc-puesto','Elegí un puesto/posición')}</div><button class="btn pri reg-cta" data-go="#/registro/c/4">Continuar</button>`;
   if(step==='4') b=`${regTop(back)}<h1 class="t-display">¿Cómo te gustaría trabajar?</h1><p class="reg-lbl">Tipo de empleo</p>${chipToggles('tipo',TIPO)}<p class="reg-lbl">Modalidad</p>${chipToggles('modo',MODO)}<p class="reg-lbl">Horario</p>${chipToggles('hora',HORA)}<button class="btn pri reg-cta" data-go="#/registro/c/5">Continuar</button>`;
-  if(step==='5') b=`${regTop(back)}<h1 class="t-display">Completá tu perfil</h1><p class="t-note reg-sub">Terminá de relatarnos tus capacidades.</p><h2 class="t-display">Adjuntá tu curriculum</h2><p class="t-note reg-sub" style="margin-top:6px">Subí el archivo en formato PDF</p><label class="btn pri" for="rc-cv" style="cursor:pointer"><span data-cvname>Subir tu CV</span></label><input id="rc-cv" type="file" accept=".pdf" hidden><h2 class="t-display" style="margin-top:30px">Contanos más sobre vos</h2><p class="t-note reg-sub" style="line-height:1.6">Escribí brevemente cuales son tus habilidades u oficios, tus estudios, que cosas te interesan o algún otro dato que te parezca necesario compartirlo.</p>${writeHere('rc-sobre')}<button class="btn pri" style="margin-top:24px" data-go="#/registro/terminos/c">Continuar</button>`;
+  if(step==='5') b=`${regTop(back)}<h1 class="t-display">Completá tu perfil</h1><p class="t-note reg-sub">Terminá de relatarnos tus capacidades.</p><h2 class="t-display">Adjuntá tu curriculum</h2><p class="t-note reg-sub" style="margin-top:6px">Subí el archivo en formato PDF</p><label class="btn pri" for="rc-cv" style="cursor:pointer"><span data-cvname>${regDraft['rc-cv-name']?'CV cargado: '+esc(regDraft['rc-cv-name']):'Subir tu CV'}</span></label><input id="rc-cv" type="file" accept=".pdf" hidden><h2 class="t-display" style="margin-top:30px">Contanos más sobre vos</h2><p class="t-note reg-sub" style="line-height:1.6">Escribí brevemente cuales son tus habilidades u oficios, tus estudios, que cosas te interesan o algún otro dato que te parezca necesario compartirlo.</p>${writeHere('rc-sobre')}<button class="btn pri" style="margin-top:24px" data-go="#/registro/terminos/c">Continuar</button>`;
   return authShell(b);
 }
 function regEmp(step){
@@ -875,7 +881,7 @@ function offerCard(o){
 }
 function cupoTxt(){ return S.c.cupo>0?`Te quedan ${S.c.cupo} postulaciones esta semana`:'Usaste tus 5 postulaciones de esta semana. Se libera tu cupo el lunes.'; }
 function applied(id){ return S.c.posts.some(p=>p.oid===id); }
-function offerDetail(o, withBack){
+function offerDetail(o, withBack, showActions=true){
   const ya=applied(o.id);
   return `${withBack?`<div class="hdr">${backBtn('#/c/feed')}<span class="side">Guardar</span></div>`:''}
   <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px"><span class="sq" style="width:40px;height:40px;border-radius:10px"></span><div><p style="font-weight:500">${esc(o.emp)}</p><p class="t-note">${esc(o.meta)}</p></div></div>
@@ -885,8 +891,7 @@ function offerDetail(o, withBack){
     <div class="row2"><div><p class="bignum">${o.tasa}%</p><p class="t-note">de las postulaciones</p></div><div><p class="bignum">${o.dias} días</p><p class="t-note">tarda en promedio</p></div></div>
     <p style="font-size:13px;margin-top:12px">Si no te contesta en 7 días, su tasa baja y vos recibís un aviso.</p></div>
   <h2 class="t-sec">¿De qué se trata?</h2><p style="color:var(--t2);line-height:1.55">${esc(o.desc)}</p>
-  <button class="btn pri" style="margin-top:20px" data-apply="${o.id}" ${ya||S.c.cupo<=0?'disabled':''}>${ya?'Ya te postulaste':'Me interesa'}</button>
-  <p class="cupo">${cupoTxt()}</p>`;
+  ${showActions?`<button class="btn pri" style="margin-top:20px" data-apply="${o.id}" ${ya||S.c.cupo<=0?'disabled':''}>${ya?'Ya te postulaste':'Me interesa'}</button><p class="cupo">${cupoTxt()}</p>`:''}`;
 }
 function cFeed(){
   const o=S.c.ofertas[S.c.idx];
@@ -899,17 +904,17 @@ function cFeed(){
   inner += `<div class="wide2"><div>${offerCard(o)}
     <div class="row2" style="margin-top:14px"><button class="btn out" data-action="descartar">Descartar</button><button class="btn pri" data-apply="${o.id}" ${ya||S.c.cupo<=0?'disabled':''}>${ya?'Postulado':'Me interesa'}</button></div>
     <p class="cupo">${cupoTxt()}</p></div>
-    <div class="only-d">${offerDetail(o,false).replace(/<button class="btn pri"[^>]*data-apply[^>]*>[^<]*<\/button>\s*<p class="cupo">[^<]*<\/p>/,'')}</div></div>`;
+    <div class="only-d">${offerDetail(o,false,false)}</div></div>`;
   return shell('c','#/c/feed',inner);
 }
-function cOferta(id){ const o=offerById(id); if(!o) return cFeed(); return shell('c','#/c/feed',`<div style="max-width:560px">${offerDetail(o,true)}</div>`); }
+function cOferta(id){ const o=offerById(id); if(!o) return cFeed(); return shell('c','#/c/feed',`<div style="max-width:560px">${offerDetail(o,true,true)}</div>`); }
 function cMatch(id){
   const o=offerById(id)||S.c.ofertas[0];
   return `<div class="app auth cand"><div class="match-top">${'<svg viewBox="0 0 390 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H390V24C300 24 240 40 170 70C90 104 30 150 0 180Z" fill="#E9E9E9"/><path d="M0 0H390V4C310 4 250 22 180 52C100 86 30 132 0 160Z" fill="#36F48C"/></svg>'}</div>
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
     <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
-    <div class="match-pair"><img src="img/avatar-tomas.png" alt="Tomás"><i></i><img src="${o.logo||'img/logo-cafe-mercado.png'}" alt="${esc(o.emp)}"></div>
+    <div class="match-pair"><img src="${fotoSrc('img/avatar-tomas.png')}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img src="${o.logo||'img/logo-cafe-mercado.png'}" alt="${esc(o.emp)}"></div>
     <p class="note-match" style="max-width:342px">Tenés el chat abierto por 7 días. Después la búsqueda se cierra sola.</p>
   </div>
   <div class="stack" style="margin-top:60px"><button class="btn pri" data-go="#/c/chat/${o.id}">Escribirle ahora</button><button class="btn out" data-go="#/c/feed">Seguir viendo búsquedas</button></div>
@@ -959,7 +964,6 @@ function mensajes(kind, id){
   const sub = kind==='e'?'Conversaciones abiertas':'Lo que te respondieron las empresas';
   const head = `<div class="hdr"><h1 style="font-size:18px;font-weight:600">Mensajes</h1><span class="side">${n} conversaci${n===1?'ón':'ones'}</span></div><p class="sec-lbl">${sub}</p>`;
   if(id && chats[id]){
-    const c=chats[id];
     const inner = `<div class="only-m">${chatHead(kind,id,active)}${chatBody(kind,id)}</div>
     <div class="only-d">${head}<div class="split"><div class="conv-list">${items}</div><div class="chat-panel">${chatHead(kind,id,active).replace('class="chat-head"','class="chat-head" style="margin:-18px -18px 16px;padding:14px 18px;border-radius:16px 16px 0 0"')}${chatBody(kind,id)}</div></div></div>`;
     return shell(kind,active,inner);
@@ -975,16 +979,17 @@ function notifs(kind){
 }
 function cPerfil(){
   const env=S.c.posts.length, resp=S.c.posts.filter(p=>p.estado==='Respondida').length, mt=S.c.posts.filter(p=>p.match).length;
-  const inner=`<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="img/avatar-tomas.png" alt="Tomás Ferreyra" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">Tomás Ferreyra</h1><p class="t-note">Lomas de Zamora · Busco mi primer trabajo</p></div></div>
+  const inner=`<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="${fotoSrc('img/avatar-tomas.png')}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()||'<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
   <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:14px"><b style="font-weight:600">Tu perfil está al 70%</b><b style="color:var(--green);font-weight:600">70%</b></div><div class="progress"><i style="width:70%"></i></div><p class="t-note" style="margin-top:14px">Sumá una foto y tus estudios para completarlo.</p></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">${[[env,'enviadas'],[resp,'respuestas'],[mt,'matches']].map(([n,l])=>`<div class="card"><p class="bignum">${n}</p><p class="t-note" style="margin-top:6px">${l}</p></div>`).join('')}</div>
   <div style="margin-top:14px">${[['Datos personales','#/c/datos'],['Configuración','#/c/config']].map(([l,h])=>`<button class="rowline" data-go="${h}"><span>${l}</span><span class="v">›</span></button>`).join('')}</div></div>`;
   return shell('c','#/c/perfil',inner);
 }
 function profHead(kind){
-  return kind==='e'
-   ? `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img src="img/logo-cafe-mercado.png" alt=""><div><h1>Café Mercado</h1><p style="font-size:13px">Gastronomía · 12 empleados · Lomas de Zamora</p></div></div>`
-   : `<div class="prof-head"><img src="img/avatar-tomas.png" alt=""><div><h1>${miNombre()}</h1><p class="t-note">Lomas de Zamora · Busco mi primer trabajo</p></div></div>`;
+  if(kind==='e'){
+    return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img src="${fotoSrc('img/logo-cafe-mercado.png')}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre('e'))}</h1><p style="font-size:13px">${subtituloEmpresa()||'<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
+  }
+  return `<div class="prof-head"><img src="${fotoSrc('img/avatar-tomas.png')}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
 }
 function configScreen(kind){
   const e=kind==='e';
@@ -993,16 +998,34 @@ function configScreen(kind){
   return shell(kind,e?'#/e/empresa':'#/c/perfil',inner);
 }
 function cDatos(){
-  const rows=[['Edad','20'],['Ubicación','Lomas de Zamora'],['Experiencia','Sin experiencia'],['Tipo de empleo','Part Time'],['Modalidad','Presencial'],['Horario','Mañana']];
-  const inner=`<div style="max-width:720px">${hdr(backBtn('#/c/config'))}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img class="avatar" src="img/avatar-tomas.png" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">Tomás Ferreyra</h1><p class="t-note">Lomas de Zamora · Busco mi primer trabajo</p></div></div>
-  ${rows.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${v}</span></div>`).join('')}
-  <p class="t-sec">Mis rubros</p><div class="chips"><span class="chip fill">Gastronomía</span><span class="chip fill">Ventas</span><span class="chip fill">Atención al público</span></div>
-  <p class="t-sec">Tu CV</p><button class="btn pri" data-action="toast" data-msg="CV_Tomas_Ferreyra.pdf · cargado hace 3 días">Curriculum Vitae</button>
-  <p class="t-sec">Descripción</p><p style="color:var(--t2);line-height:1.6">Soy Tomas Ferreyra, busco mis primeras experiencias. Tengo conocimientos sobre gastronomía, especificamente en barismo y pastelería. Me gusta aprender nuevas cosas e intento conocer y dialogar con entornos dinámicos.</p></div>`;
+  const EJEMPLO=[['Edad','20'],['Ubicación','Lomas de Zamora'],['Experiencia','Sin experiencia'],['Tipo de empleo','Part Time'],['Modalidad','Presencial'],['Horario','Mañana']];
+  const campos=ME.demo?{}:(ME.datos?.campos||{});
+  const chips=ME.demo?{}:(ME.datos?.chips||{});
+  const exp=[campos['rx-puesto'],campos['rx-emp'],campos['rx-dur']].filter(x=>x&&String(x).trim()).join(' · ');
+  const filas = ME.demo ? EJEMPLO : [
+    ['Correo', ME.email],
+    ['Edad', campos['rc-edad']],
+    ['Ubicación', campos['rc-ubi']],
+    ['Puesto buscado', campos['rc-puesto']],
+    ['Experiencia', exp],
+    ['Tipo de empleo', chips.tipo],
+    ['Modalidad', chips.modo],
+    ['Jornada', chips.pjor],
+    ['Turno', chips.ptur],
+    ['Horario', chips.hora],
+    ['Rubros', chips.rubros]
+  ];
+  const fmt = v => {
+    const txt = Array.isArray(v) ? v.join(', ') : (v==null ? '' : String(v));
+    return txt.trim() ? esc(txt) : '<span style="color:var(--t3)">Sin completar</span>';
+  };
+  const subt = ME.demo ? 'Lomas de Zamora · Busco mi primer trabajo' : (campos['rc-ubi'] ? esc(campos['rc-ubi']) : '');
+  const inner=`<div style="max-width:720px">${hdr(backBtn('#/c/config'))}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img class="avatar" src="${fotoSrc('img/avatar-tomas.png')}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
+  ${filas.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join('')}</div>`;
   return shell('c','#/c/perfil',inner);
 }
 function salir(kind){
-  const inner=`<div style="max-width:560px">${profHead(kind)}<h2 style="font-size:20px;font-weight:500;margin-bottom:6px">¿Querés cerrar sesión?</h2><p style="line-height:1.6;margin-bottom:28px;${kind==='e'?'':'color:var(--t2)'}">Lamentamos que te vayas. Si cerrás sesión, podrás volver a ingresar cuando quieras con tus datos de acceso.<br>Tu perfil, tus Matches y tus preferencias permanecerán guardados.</p><button class="btn pri" data-action="logout">Cerrar sesión</button></div>`;
+  const inner=`<div style="max-width:560px">${profHead(kind)}<h2 style="font-size:20px;font-weight:500;margin-bottom:6px">¿Querés cerrar sesión?</h2><p style="line-height:1.6;margin-bottom:28px;${kind==='e'?'':'color:var(--t2)'}">Si cerrás sesión, podrás volver a ingresar cuando quieras con tus datos de acceso.<br>Tu perfil, tus Matches y tus preferencias permanecerán guardados.</p><button class="btn pri" data-action="logout">Cerrar sesión</button></div>`;
   return shell(kind,kind==='e'?'#/e/empresa':'#/c/perfil',inner);
 }
 function legalApp(kind,doc){
@@ -1016,7 +1039,7 @@ function ePanel(){
   const p=S.e.pend.length; const vieja=S.e.pend[0];
   const pendCard = p?`<a class="card" href="#/e/candidatos" style="display:block;text-decoration:none"><h2 style="font-size:20px;font-weight:500;line-height:1.3;margin-bottom:10px">Te faltan responder ${p} postulaci${p===1?'ón':'ones'}</h2><p class="t-note">La más vieja lleva ${vieja.hace} días esperando. Te quedan ${vieja.quedan} para contestarla sin que baje tu tasa.</p></a>`
     :`<div class="card"><h2 style="font-size:20px;font-weight:500;margin-bottom:8px">Estás al día</h2><p class="t-note">Respondiste todas las postulaciones. Ya podés publicar una búsqueda nueva.</p></div>`;
-  const inner=`<div class="hdr">${'<img class="wm only-m" src="img/logo-match-empleos-inv.png" alt="Match Empleos" style="height:14px">'}<span class="side">Café Mercado</span></div>
+  const inner=`<div class="hdr">${WM_INV}<span class="side">Café Mercado</span></div>
   <h1 class="t-title only-d" style="margin-bottom:20px">Búsquedas</h1>
   <div class="grid2" style="gap:12px">${pendCard}
   <div><div class="row2"><div class="card"><p class="bignum">${S.e.tasa}%</p><p class="t-note" style="margin-top:6px">tu tasa de respuesta</p></div><div class="card"><p class="bignum">${S.e.demora} días</p><p class="t-note" style="margin-top:6px">tu demora promedio</p></div></div>
@@ -1033,7 +1056,7 @@ function ePublicar(step){
     const inner=`<div style="max-width:620px">${hdr(backBtn('#/e/panel'))}<div class="top-bar"><i style="width:50%"></i></div>
     <h1 class="t-title" style="margin-bottom:10px">Nueva búsqueda</h1>
     ${p?`<div class="warn" style="margin:8px 0 18px"><span>Tenés <b>${p} postulaci${p===1?'ón':'ones'} sin responder</b>. Para publicar una búsqueda nueva primero tenés que contestarlas.</span><button class="btn pri sm" style="background:var(--green);color:var(--navy)" data-go="#/e/candidatos">Responder ahora</button></div>`:''}
-    <div class="stack"><label class="vh" for="pb-puesto">Puesto</label><input class="field tall" id="pb-puesto" placeholder="Puesto (por ejemplo: Mozo/a de salón)" value="${esc(pubDraft.puesto)}"></div>
+    <div class="stack"><label class="vh" for="pb-puesto">Puesto</label><input class="field tall" id="pb-puesto" placeholder="Puesto (por ejemplo: Mozo/a de salón)" value="${escAttr(pubDraft.puesto)}"></div>
     <p class="t-sec">Jornada</p>${chipToggles('pjor',['Full Time','Part Time','Fin de semana','Pasantía'])}
     <p class="t-sec">Turno</p>${chipToggles('ptur',['Mañana','Tarde','Noche'])}
     <p class="t-sec">¿De qué se trata?</p><label class="vh" for="pb-desc">Descripción</label><textarea class="field" id="pb-desc" placeholder="Contá las tareas y qué buscás en la persona">${esc(pubDraft.desc)}</textarea>
@@ -1052,7 +1075,7 @@ function ePublicar(step){
 }
 let candFilter='pend';
 function eCandidatos(){
-  const list=S.e.pend; const tot=S.e.busquedas.find(b=>b.id==='b1').total;
+  const list=S.e.pend; const b1=S.e.busquedas.find(b=>b.id==='b1')||S.e.busquedas[0]; const tot=b1?b1.total:list.length;
   const chips=[['pend',`Sin responder (${list.length})`],['resp','Respondidas'],['match','Con match']].map(([k,l])=>`<button class="chip" data-cfilter="${k}" aria-pressed="${candFilter===k}">${l}</button>`).join('');
   let body='';
   if(candFilter==='pend'){
@@ -1101,7 +1124,7 @@ function eResponder(id,tipo){
 }
 function eEmpresa(){
   const inner=`<div style="max-width:720px"><h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img class="avatar" src="img/logo-cafe-mercado.png" alt="" style="background:#fff"><div><h2 style="font-size:20px;font-weight:500">Café Mercado</h2><p style="font-size:13px">Gastronomía · 12 empleados · Lomas de Zamora</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img class="avatar" src="${fotoSrc('img/logo-cafe-mercado.png')}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">Café Mercado</h2><p style="font-size:13px">Gastronomía · 12 empleados · Lomas de Zamora</p></div></div>
   <div class="card"><div class="row2"><div><p class="bignum">${S.e.tasa}%</p><p class="t-note">de respuesta</p></div><div><p class="bignum">${S.e.demora} días</p><p class="t-note">de demora</p></div></div><div class="progress" style="margin:14px 0"><i style="width:${S.e.tasa}%"></i></div><p class="t-note">Con 90% o más entrás en el grupo de empresas destacadas y tus búsquedas aparecen primero.</p></div>
   <h2 class="t-sec">Historial de respuesta</h2>
   ${[['Septiembre',S.e.tasa],['Agosto',92],['Julio',78]].map(([m,v])=>`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>${m}</span><span>${v}%</span></div><div class="progress"><i style="width:${v}%;background:var(--navy)"></i></div></div>`).join('')}
@@ -1110,11 +1133,19 @@ function eEmpresa(){
   return shell('e','#/e/empresa',inner);
 }
 function eDatos(){
-  const rows=[['Rubro','Gastronomía'],['Ubicación','Lomas de Zamora'],['Tamaño','12 empleados']];
+  const campos=ME.demo?{}:(ME.datos?.campos||{});
+  const chips=ME.demo?{}:(ME.datos?.chips||{});
+  const filas=ME.demo
+    ? [['Rubro','Gastronomía'],['Ubicación','Lomas de Zamora'],['Tamaño','12 empleados']]
+    : [['Responsable',campos['re-resp']],['Puesto a cubrir',campos['re-puesto']],['Rubro',campos['re-rubro']],['Tamaño',campos['re-tam']],['Ubicación',campos['re-ubi']],['Sector',chips.esector],['Tipo de empleo',chips.etipo],['Experiencia requerida',chips.eexp],['Modalidad',chips.emodo],['Horario',chips.ehora]];
+  const fmt=v=>{ const t=Array.isArray(v)?v.join(', '):(v==null?'':String(v)); return t.trim()?esc(t):'<span style="color:var(--t3)">Sin completar</span>'; };
+  const descr=ME.demo
+    ? 'Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.<br>No es necesario contar con experiencia previa: valoramos principalmente la responsabilidad, las ganas de aprender, el compromiso y la buena predisposición.'
+    : (campos['re-desc']?esc(campos['re-desc']).replace(/\n/g,'<br>'):'');
   const inner=`<div style="max-width:720px">${hdr(backBtn('#/e/empresa'))}<h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="img/logo-cafe-mercado.png" alt="" style="background:#fff"><div><h2 style="font-size:20px;font-weight:500">Café Mercado</h2><p style="font-size:13px">Gastronomía · 12 empleados · Lomas de Zamora</p></div></div>
-  ${rows.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${v}</span></div>`).join('')}
-  <h2 class="t-sec">Descripción</h2><p style="line-height:1.6">Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.<br>No es necesario contar con experiencia previa: valoramos principalmente la responsabilidad, las ganas de aprender, el compromiso y la buena predisposición.</p></div>`;
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="${fotoSrc('img/logo-cafe-mercado.png')}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre('e'))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
+  ${filas.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join('')}
+  ${descr?`<h2 class="t-sec">Descripción</h2><p style="line-height:1.6">${descr}</p>`:''}</div>`;
   return shell('e','#/e/empresa',inner);
 }
 
@@ -1233,6 +1264,9 @@ let lastHash='';
 function render(keepScroll){
   const y=window.scrollY;
   root.innerHTML=route();
+  ['rg','rc','re'].forEach(pfx=>{
+    if(document.getElementById(pfx+'-mail') && (regDraft[pfx+'-mail']||regDraft[pfx+'-pass'])) validarCred(pfx);
+  });
   const isNew = location.hash!==lastHash; lastHash=location.hash;
   if(keepScroll) window.scrollTo(0,y);
   else if(isNew && !pendingScroll) window.scrollTo(0,0);
@@ -1260,12 +1294,13 @@ document.addEventListener('click',e=>{
   if(act==='feed-reset'){ S.c.idx=0; render(); return; }
   if(act==='toast'){ toast(t.dataset.msg); return; }
   if(act==='leidas'){ (t.dataset.kind==='e'?S.e.notifs:S.c.notifs).forEach(n=>n.nuevo=false); render(true); return; }
-  if(act==='write'){ const ta=document.createElement('textarea'); ta.className='field'; ta.id=t.dataset.target; ta.placeholder='Escribí aquí'; t.replaceWith(ta); ta.focus(); return; }
-  if(act==='logout'){ timers.forEach(clearTimeout); timers.length=0; const eraDemo=ME.demo; ME={id:null,rol:null,demo:false}; S=freshState(); if(!eraDemo) sb.auth.signOut(); go('#/login'); return; }
+  if(act==='write'){ const ta=document.createElement('textarea'); ta.className='field'; ta.id=t.dataset.target; ta.placeholder='Escribí aquí'; ta.value=regDraft[t.dataset.target]||''; t.replaceWith(ta); ta.focus(); return; }
+  if(act==='logout'){ timers.forEach(clearTimeout); timers.length=0; const eraDemo=ME.demo; ME={id:null,rol:null,nombre:null,demo:false}; S=freshState(); if(!eraDemo) sb.auth.signOut(); go('#/login'); return; }
   if(act==='demo'){ entrarDemo(t.dataset.kind); return; }
   if(act==='pub-next'){ savePub(); if(!pubDraft.puesto.trim()){ toast('Escribí el nombre del puesto para continuar.'); document.getElementById('pb-puesto')?.focus(); return; } go('#/e/publicar/2'); return; }
-  if(act==='publicar'){ if(S.e.pend.length) return; const nombre=pubDraft.puesto.trim()||'Nueva búsqueda'; const nb={id:'b'+Date.now(),puesto:nombre,total:0,estado:'Activa',desc:pubDraft.desc}; S.e.busquedas.unshift(nb); DB.guardarBusqueda(nb); S.e.notifs.unshift({t:'Publicaste una búsqueda',d:`${nombre} · te comprometiste a responder en ${S.e.plazo} días.`,go:'#/e/panel',nuevo:true}); pubDraft={puesto:'',desc:''}; S.reg.chips.pjor=[]; S.reg.chips.ptur=[]; toast(`Publicaste “${nombre}”. Respondé en ${S.e.plazo} días.`); go('#/e/panel'); return; }
+  if(act==='publicar'){ if(S.e.pend.length) return; const nombre=pubDraft.puesto.trim()||'Nueva búsqueda'; const nb={id:'b'+Date.now(),puesto:nombre,total:0,estado:'Activa',desc:pubDraft.desc}; S.e.busquedas.unshift(nb); DB.guardarBusqueda(nb); S.e.notifs.unshift({t:'Publicaste una búsqueda',d:`${nombre} · te comprometiste a responder en ${S.e.plazo} días.`,go:'#/e/panel',nuevo:true}); pubDraft={puesto:'',rubro:[],modo:[],desc:''}; S.reg.chips.pjor=[]; S.reg.chips.ptur=[]; toast(`Publicaste “${nombre}”. Respondé en ${S.e.plazo} días.`); go('#/e/panel'); return; }
   if(act==='crear-cuenta'){ crearCuenta(t.dataset.kind); return; }
+  if(act==='foto'){ abrirSelectorFoto(); return; }
   if(act==='reenviar'){ reenviarConfirmacion(); return; }
   if(act==='enviar-resp'){ const txt=document.getElementById('resp-txt').value.trim(); if(!txt){ toast('Escribí un mensaje antes de enviar.'); return; } enviarResp(t.dataset.id,t.dataset.tipo,txt); return; }
 });
@@ -1279,31 +1314,40 @@ document.addEventListener('submit',e=>{
   if(f.dataset.form==='chat'){ const inp=f.querySelector('input'); sendChat(f.dataset.kind,f.dataset.id,inp.value); }
 });
 document.addEventListener('change',e=>{
-  if(e.target.id==='rc-cv' && e.target.files[0]){ const s=document.querySelector('[data-cvname]'); if(s) s.textContent='CV cargado: '+e.target.files[0].name; }
+  if(e.target.id==='rc-cv' && e.target.files[0]){
+    regDraft['rc-cv-name']=e.target.files[0].name;
+    const s=document.querySelector('[data-cvname]'); if(s) s.textContent='CV cargado: '+e.target.files[0].name;
+  }
 });
 
 function msgsDe(d,key){ return d.mensajes.filter(m=>m.chat_key===key).map(m=>({de:m.de,t:m.texto,h:m.h})); }
 async function hidratar(){
   const d=await DB.cargar().catch(err=>{ console.error('No se pudo cargar desde Supabase',err); return null; });
   if(!d) return;
+  const base=freshState();
   const perf=d.perfiles[0];
   if(perf && ME.rol==='c') S.c.cupo=perf.cupo;
   if(perf && ME.rol==='e') S.e.tasa=perf.tasa;
   // Candidato: postulaciones y chats creados
   const dbPosts=d.postulaciones.map(r=>({...r.datos.post,estado:r.estado}));
   const postIds=new Set(dbPosts.map(p=>p.id));
-  S.c.posts=[...dbPosts,...S.c.posts.filter(p=>!postIds.has(p.id))];
+  S.c.posts=[...dbPosts,...base.c.posts.filter(p=>!postIds.has(p.id))];
+  S.c.chats={...base.c.chats};
   d.postulaciones.forEach(r=>{ if(r.datos.chat) S.c.chats[r.oferta_id]={...r.datos.chat,msgs:[]}; });
   // Empresa: búsquedas y candidatos respondidos
   const dbBus=d.busquedas.map(b=>({id:b.id,puesto:b.puesto,total:b.total,estado:b.estado,desc:b.descripcion}));
   const busIds=new Set(dbBus.map(b=>b.id));
-  S.e.busquedas=[...dbBus,...S.e.busquedas.filter(b=>!busIds.has(b.id))];
+  S.e.busquedas=[...dbBus,...base.e.busquedas.filter(b=>!busIds.has(b.id))];
+  S.e.pend=[...base.e.pend];
+  S.e.resp=[...base.e.resp];
+  S.e.chats={...base.e.chats};
   d.candidatosEstado.forEach(r=>{
     S.e.pend=S.e.pend.filter(c=>c.id!==r.id);
-    S.e.resp.unshift({nombre:r.corto,tipo:r.estado});
-    if(r.estado==='si'||r.estado==='mas') S.e.chats[r.id]={con:r.corto,puesto:'Ayudante de cocina',match:r.estado==='si',msgs:[]};
+    const hasChat=r.estado==='si'||r.estado==='mas';
+    S.e.resp.unshift({nombre:r.corto,tipo:r.estado,chat:hasChat?r.id:undefined});
+    if(hasChat) S.e.chats[r.id]={con:r.corto,puesto:'Ayudante de cocina',match:r.estado==='si',msgs:[]};
   });
-  // Mensajes guardados se suman a cada chat (los de ejemplo se conservan)
+  // Mensajes guardados se suman a cada chat (los de ejemplo base se conservan sin duplicarse)
   Object.keys(S.c.chats).forEach(k=>{ S.c.chats[k].msgs=[...(S.c.chats[k].msgs||[]),...msgsDe(d,'c:'+k)]; });
   Object.keys(S.e.chats).forEach(k=>{ S.e.chats[k].msgs=[...(S.e.chats[k].msgs||[]),...msgsDe(d,'e:'+k)]; });
   render(true);
@@ -1323,6 +1367,7 @@ document.addEventListener('input',e=>{
     if(limpio!==e.target.value){ e.target.value=limpio; toast('La edad se escribe solo con números.'); }
   }
   if(/^(rg|rc|re|rx)-/.test(id)) regDraft[id]=e.target.value;
+  if(id==='pb-puesto'||id==='pb-desc') savePub();
 });
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 let loginTocado=false;
@@ -1344,8 +1389,13 @@ async function iniciarSesionForm(){
   if(!v.ok){ v.campo.focus(); return; }
   const email=document.getElementById('lg-mail').value.trim();
   const password=document.getElementById('lg-pass').value;
-  const {error}=await sb.auth.signInWithPassword({email,password});
-  if(!error) return;
+  ultimoCorreo=email;
+  const {data,error}=await sb.auth.signInWithPassword({email,password});
+  if(!error){
+    await setSesion(data.session);
+    go(ME.rol==='e'?'#/e/panel':'#/c/feed');
+    return;
+  }
   if(/not confirmed/i.test(error.message)){
     document.getElementById('lg-hint').innerHTML='Todavía no confirmaste tu correo. <button type="button" data-action="reenviar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Reenviar correo de confirmación</button>';
   } else {
@@ -1354,9 +1404,36 @@ async function iniciarSesionForm(){
   }
 }
 let ultimoCorreo='';
+let inputFoto=null;
+function abrirSelectorFoto(){
+  if(ME.demo){ toast('En modo demo no se guardan cambios. Iniciá sesión para cambiar tu foto.'); return; }
+  if(!ME.id) return;
+  if(!inputFoto){
+    inputFoto=document.createElement('input');
+    inputFoto.type='file';
+    inputFoto.accept=formatoFotoOK.join(',');
+    inputFoto.addEventListener('change',()=>{ const f=inputFoto.files[0]; inputFoto.value=''; if(f) subirFoto(f); });
+  }
+  inputFoto.click();
+}
+async function subirFoto(file){
+  if(!formatoFotoOK.includes(file.type)){ toast('La foto tiene que ser JPG, PNG o WEBP.'); return; }
+  if(file.size>2*1024*1024){ toast('La foto no puede pesar más de 2 MB.'); return; }
+  toast('Subiendo foto…');
+  const ruta=`${ME.id}/avatar`;
+  const subida=await persistir(sb.storage.from('avatars').upload(ruta,file,{upsert:true,contentType:file.type,cacheControl:'3600'}),'subirFoto');
+  if(subida===null) return;
+  const {data:pub}=sb.storage.from('avatars').getPublicUrl(ruta);
+  const url=`${pub.publicUrl}?v=${Date.now()}`;
+  const guardado=await persistir(sb.from('perfiles').update({avatar_url:url}).eq('id',ME.id),'guardarFoto');
+  if(guardado===null) return;
+  ME.avatarUrl=url;
+  render(true);
+  toast('Foto actualizada.');
+}
 function perfilDatos(){
   const campos={};
-  Object.keys(regDraft).forEach(k=>{ if(/^(rc|re|rx)-/.test(k) && !/(pass|mail|cv)$/.test(k) && regDraft[k]) campos[k]=regDraft[k]; });
+  Object.keys(regDraft).forEach(k=>{ if(/^(rc|re|rx)-/.test(k) && !/(pass|mail|cv|cv-name)$/.test(k) && regDraft[k]) campos[k]=regDraft[k]; });
   return {campos, chips:{...S.reg.chips}};
 }
 async function reenviarConfirmacion(){
@@ -1379,7 +1456,7 @@ async function crearCuenta(kind){
 }
 async function recuperarForm(){
   const email=(document.getElementById('rc-mail').value||'').trim();
-  if(!email){ toast('Escribí tu correo.'); return; }
+  if(!EMAIL_RE.test(email)){ toast('Escribí un correo con formato válido.'); return; }
   await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
   toast('Si el correo existe, te enviamos el enlace.');
   go('#/login');
@@ -1419,25 +1496,41 @@ function validarCred(pfx){
   return ok;
 }
 document.addEventListener('input',e=>{ const m=/^(rg|rc|re)-(mail|pass)$/.exec(e.target.id||''); if(m) validarCred(m[1]); });
-function confirmar(){ return authShell(`<div class="hdr">${WM}</div><h1 class="t-display" style="margin:28px 0 24px">Revisá tu correo</h1><p class="t-note">Te enviamos un enlace para confirmar tu cuenta${ultimoCorreo?' a <strong>'+ultimoCorreo+'</strong>':''}. Si no lo ves, revisá la carpeta de spam.</p><div class="stack" style="margin-top:40px"><button class="btn out" data-action="reenviar">Reenviar correo</button><button class="btn pri" data-go="#/login">Ya confirmé, iniciar sesión</button></div>`); }
+function confirmar(){ return authShell(`<div class="hdr">${WM}</div><h1 class="t-display" style="margin:28px 0 24px">Revisá tu correo</h1><p class="t-note">Te enviamos un enlace para confirmar tu cuenta${ultimoCorreo?' a <strong>'+esc(ultimoCorreo)+'</strong>':''}. Si no lo ves, revisá la carpeta de spam.</p><div class="stack" style="margin-top:40px"><button class="btn out" data-action="reenviar">Reenviar correo</button><button class="btn pri" data-go="#/login">Ya confirmé, iniciar sesión</button></div>`); }
 function nuevaClave(){ return authShell(`<div class="hdr">${WM}</div><h1 class="t-display" style="margin:16px 0 18px">Nueva contraseña</h1><form data-form="nueva-clave" class="stack" style="margin-top:40px"><label class="vh" for="nc-pass">Nueva contraseña</label><input class="field" id="nc-pass" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password"><button class="btn pri" type="submit" style="margin-top:28px">Guardar contraseña</button></form>`); }
 
 // Demo: sin login y sin escrituras en la base. Para quitarla, poner en false o borrar este bloque.
 const DEMO_HABILITADO = true;
-function miNombre(){ return ME.demo ? 'Tomás Ferreyra' : (ME.nombre||''); }
+function miNombre(kind){ if(ME.demo) return kind==='e'?'Café Mercado':'Tomás Ferreyra'; return ME.nombre||''; }
+function fotoSrc(defecto){ return ME.demo ? defecto : (ME.avatarUrl||defecto); }
+function subtituloEmpresa(){
+  if(ME.demo) return 'Gastronomía · 12 empleados · Lomas de Zamora';
+  const c=ME.datos?.campos||{};
+  return [c['re-rubro'],c['re-tam'],c['re-ubi']].filter(x=>x&&String(x).trim()).map(x=>esc(x)).join(' · ');
+}
+function subtituloCandidato(){
+  if(ME.demo) return 'Lomas de Zamora · Busco mi primer trabajo';
+  const u=(ME.datos?.campos||{})['rc-ubi'];
+  return u?esc(u):'';
+}
+const formatoFotoOK=['image/jpeg','image/png','image/webp'];
 function miPrimerNombre(){ return miNombre().split(' ')[0] || ''; }
 function entrarDemo(kind){
   if(!DEMO_HABILITADO) return;
-  ME={id:null,rol:kind,demo:true};
+  ME={id:null,rol:kind,nombre:null,demo:true};
   S=freshState();
   go(kind==='e'?'#/e/panel':'#/c/feed');
 }
 async function setSesion(session){
-  if(!session){ ME={id:null,rol:null}; S=freshState(); return; }
+  if(!session){ ME={id:null,rol:null,nombre:null,email:null,datos:{},avatarUrl:null,demo:false}; S=freshState(); return; }
   ME.id=session.user.id;
-  const {data:perfil}=await sb.from('perfiles').select('rol,nombre').eq('id',ME.id).maybeSingle();
+  ME.demo=false;
+  const {data:perfil}=await sb.from('perfiles').select('rol,nombre,datos,avatar_url').eq('id',ME.id).maybeSingle();
   ME.rol=perfil?.rol||null;
   ME.nombre=perfil?.nombre||null;
+  ME.datos=perfil?.datos||{};
+  ME.avatarUrl=perfil?.avatar_url||null;
+  ME.email=session.user.email||'';
   if(!ME.rol){ toast('Tu cuenta no tiene perfil. Escribinos para resolverlo.'); await sb.auth.signOut(); return; }
   S=freshState();
   await hidratar();
@@ -1449,13 +1542,12 @@ sb.auth.onAuthStateChange((evento,session)=>{
   if(evento==='TOKEN_REFRESHED') return;
   setTimeout(async()=>{
     const uid=session?.user?.id??null;
-    if(evento!=='PASSWORD_RECOVERY' && uid===ultimoUid) return;
     ultimoUid=uid;
     await setSesion(session);
     if(evento==='PASSWORD_RECOVERY'){ go('#/nueva-clave'); return; }
-    const llegaDeConfirmar = location.hash==='' || ['#/login','#/registro','#/confirmar'].some(h=>location.hash.startsWith(h));
-    if(evento==='SIGNED_IN' && llegaDeConfirmar){
-      if(location.hash==='') toast('¡Cuenta confirmada! Bienvenido/a a Match Empleos.');
+    const enPantallaDeAcceso = ['#/login','#/registro','#/confirmar'].some(h=>location.hash.startsWith(h));
+    if(evento==='SIGNED_IN' && (VINO_DE_CORREO || enPantallaDeAcceso)){
+      if(VINO_DE_CORREO) toast('¡Cuenta confirmada! Bienvenido/a a Match Empleos.');
       go(ME.rol==='e'?'#/e/panel':'#/c/feed');
     }
     render();
