@@ -842,7 +842,7 @@ const TIPO=['Full Time','Part Time','Pasantía','Otro'], MODO=['Presencial','Rem
 function regCand(step){
   const back={1:'#/registro',2:'#/registro/c/1',exp:'#/registro/c/2',3:'#/registro/c/2',4:'#/registro/c/3',5:'#/registro/c/4'}[step]||'#/registro';
   let b='';
-  if(step==='1') b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('rc-nom','Nombre')}${regField('rc-ape','Apellido')}${regField('rc-mail','Email','email')}${regField('rc-pass','Contraseña','password')}</div><p class="hint" id="rc-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="#/registro/c/2" data-cred="rc" disabled>Continuar</button>`;
+  if(step==='1') b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('rc-nom','Nombre')}${regField('rc-ape','Apellido')}${regField('rc-mail','Email','email')}${regField('rc-pass','Contraseña','password')}</div><p class="hint" id="rc-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="#/registro/c/2" data-cred="rc">Continuar</button>`;
   if(step==='2') b=`${regTop(back,true)}<h1 class="t-display reg-h">Datos Personales</h1><div class="rstack">${regField('rc-edad','Edad','number')}${regField('rc-ubi','Ubicación/Residencia')}</div><p style="text-align:center;font-size:14px;margin:30px 0 14px;color:var(--t2)">¿Tenés experiencia laboral?</p><div class="row2"><button class="btn pri" data-go="#/registro/c/exp">Si</button><button class="btn pri" data-go="#/registro/c/3">No</button></div><p style="text-align:center;font-size:14px;margin-top:24px;color:var(--t2);line-height:1.6">¡No necesitás experiencia para empezar a encontrar tu Match!</p>`;
   if(step==='exp') b=`${regTop(back)}<h1 class="t-display">Experiencia laboral</h1><p class="t-note reg-sub">Contanos brevemente donde trabajaste, en que puesto y durante cuanto tiempo.</p><div class="rstack">${regField('rx-emp','Empresa')}${regField('rx-puesto','Puesto/Posición')}${regField('rx-dur','Duración en el cargo')}</div><button class="btn pri reg-cta" data-go="#/registro/c/3">Continuar</button>`;
   if(step==='3') b=`${regTop(back)}<h1 class="t-display">¿Qué buscás?</h1><p class="t-note reg-sub">Elegí hasta tres rubros. Con eso te mostramos búsquedas que tengan que ver con vos.</p>${chipToggles('rubros',RUBROS,3)}<div style="margin-top:34px">${regField('rc-puesto','Elegí un puesto/posición')}</div><button class="btn pri reg-cta" data-go="#/registro/c/4">Continuar</button>`;
@@ -854,7 +854,7 @@ function regEmp(step){
   const n=+step||1; const back = n===1?'#/registro':'#/registro/e/'+(n-1); const next = n<5?'#/registro/e/'+(n+1):'#/registro/terminos/e';
   const cta=`<button class="btn pri reg-cta" data-go="${next}">Continuar</button>`;
   let b='';
-  if(n===1) b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('re-resp','Nombre del responsable')}${regField('re-nom','Nombre de la empresa')}${regField('re-mail','Email','email')}${regField('re-pass','Contraseña','password')}</div><p class="hint" id="re-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="${next}" data-cred="re" disabled>Continuar</button>`;
+  if(n===1) b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('re-resp','Nombre del responsable')}${regField('re-nom','Nombre de la empresa')}${regField('re-mail','Email','email')}${regField('re-pass','Contraseña','password')}</div><p class="hint" id="re-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="${next}" data-cred="re">Continuar</button>`;
   if(n===2) b=`${regTop(back,true)}<h1 class="t-display reg-h">Contanos sobre tu empresa</h1><div class="rstack">${regField('re-rubro','Rubro')}${regField('re-ubi','Ubicación')}${regField('re-tam','Tamaño de la empresa')}</div>${cta}`;
   if(n===3) b=`${regTop(back)}<h1 class="t-display">¿Qué perfil necesitas?</h1><p class="reg-lbl">Elegi un area/sector</p>${chipToggles('esector',['Comercio','Gastronomía','Administración','Logística','Ventas','Diseño','Sistemas','Salud','Otro'])}<div style="margin-top:34px">${regField('re-puesto','Elegí un puesto/posición')}</div>${cta}`;
   if(n===4) b=`${regTop(back)}<h1 class="t-display">Especificá las características del empleo</h1><p class="reg-lbl">Tipo de empleo</p>${chipToggles('etipo',TIPO)}<p class="reg-lbl">Experiencia requerida</p>${chipToggles('eexp',['Sin experiencia','1–2 años','3 años o más','Indistinto'])}<p class="reg-lbl">Modalidad</p>${chipToggles('emodo',MODO)}<p class="reg-lbl">Horario</p>${chipToggles('ehora',HORA)}${cta}`;
@@ -1286,7 +1286,7 @@ document.addEventListener('click',e=>{
   if(!t) return;
   if(t.dataset.scroll){ e.preventDefault(); const id=t.dataset.scroll; if((location.hash||'#/')==='#/'||location.hash===''){ const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); } else { pendingScroll=id; location.hash='#/'; } return; }
   if(t.dataset.notif){ const [k,i]=t.dataset.notif.split(':'); const n=(k==='e'?S.e.notifs:S.c.notifs)[+i]; if(n) n.nuevo=false; return; }
-  if(t.dataset.go){ e.preventDefault(); if(t.dataset.welcome){ toast(t.dataset.welcome==='e'?'¡Listo! Tu empresa ya está en Match Empleos.':'¡Listo! Tu perfil ya está creado.'); } go(t.dataset.go); return; }
+  if(t.dataset.go){ e.preventDefault(); if((t.dataset.cred==='rc'||t.dataset.cred==='re') && !validarCred(t.dataset.cred,true)) return; if(t.dataset.welcome){ toast(t.dataset.welcome==='e'?'¡Listo! Tu empresa ya está en Match Empleos.':'¡Listo! Tu perfil ya está creado.'); } go(t.dataset.go); return; }
   if(t.dataset.apply){ apply(t.dataset.apply); return; }
   if(t.dataset.chip){ const k=t.dataset.chip, v=t.dataset.val; const max=+t.dataset.max||0; let arr=S.reg.chips[k]||[]; if(!arr.includes(v)&&max&&arr.length>=max){ toast('Podés elegir hasta tres rubros.'); return; } arr = arr.includes(v)?arr.filter(x=>x!==v):[...arr,v]; S.reg.chips[k]=arr; savePub(); render(true); return; }
   if(t.dataset.filter){ postFilter=t.dataset.filter; render(true); return; }
@@ -1482,7 +1482,7 @@ function verificarCoincidencia(pfx,email,pwd){
     return {campo:'pass', msg:'La contraseña no coincide con la que escribiste en la pantalla anterior. La pedimos dos veces para evitar errores de tipeo.'};
   return null;
 }
-function validarCred(pfx){
+function validarCred(pfx,checkCoincidencia=false){
   const mail=document.getElementById(pfx+'-mail'), pass=document.getElementById(pfx+'-pass'), hint=document.getElementById(pfx+'-hint');
   if(!mail||!pass) return false;
   const email=mail.value.trim(), pwd=pass.value;
@@ -1490,16 +1490,16 @@ function validarCred(pfx){
   if(email||pwd){
     if(!EMAIL_RE.test(email)){ msg='Escribí un correo con formato válido, por ejemplo nombre@correo.com.'; campo=mail; }
     else if(pwd.length<8){ msg='La contraseña tiene que tener al menos 8 caracteres.'; campo=pass; }
-    else { const c=verificarCoincidencia(pfx,email,pwd); if(c){ msg=c.msg; campo=c.campo==='mail'?mail:pass; } }
+    else if(checkCoincidencia){ const c=verificarCoincidencia(pfx,email,pwd); if(c){ msg=c.msg; campo=c.campo==='mail'?mail:pass; } }
   }
   if(hint) hint.textContent=msg;
   mail.setAttribute('aria-invalid', String(campo===mail));
   pass.setAttribute('aria-invalid', String(campo===pass));
   const ok=!msg && EMAIL_RE.test(email) && pwd.length>=8;
-  document.querySelectorAll('[data-cred="'+pfx+'"]').forEach(b=>{ b.disabled=!ok; });
+  if(pfx==='rg') document.querySelectorAll('[data-cred="'+pfx+'"]').forEach(b=>{ b.disabled=!ok; });
   return ok;
 }
-document.addEventListener('input',e=>{ const m=/^(rg|rc|re)-(mail|pass)$/.exec(e.target.id||''); if(m) validarCred(m[1]); });
+document.addEventListener('input',e=>{ const m=/^(rg|rc|re)-(mail|pass)$/.exec(e.target.id||''); if(m) validarCred(m[1],false); });
 function confirmar(){ return authShell(`<div class="hdr">${WM}</div><h1 class="t-display" style="margin:28px 0 24px">Revisá tu correo</h1><p class="t-note">Te enviamos un enlace para confirmar tu cuenta${ultimoCorreo?' a <strong>'+esc(ultimoCorreo)+'</strong>':''}. Si no lo ves, revisá la carpeta de spam.</p><div class="stack" style="margin-top:40px"><button class="btn out" data-action="reenviar">Reenviar correo</button><button class="btn pri" data-go="#/login">Ya confirmé, iniciar sesión</button></div>`); }
 function nuevaClave(){ return authShell(`<div class="hdr">${WM}</div><h1 class="t-display" style="margin:16px 0 18px">Nueva contraseña</h1><form data-form="nueva-clave" class="stack" style="margin-top:40px"><label class="vh" for="nc-pass">Nueva contraseña</label><input class="field" id="nc-pass" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password"><button class="btn pri" type="submit" style="margin-top:28px">Guardar contraseña</button></form>`); }
 
