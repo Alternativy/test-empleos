@@ -537,6 +537,8 @@ const DB = {
       id, empresa_id: ME.id, corto, estado, updated_at: new Date().toISOString()
     }), 'guardarCandidato');
   },
+  cargarPostulacion(id){return persistir(sb.from('postulaciones').select('*').eq('id',id).maybeSingle(),'cargarPostulacion');},
+  actualizarPostulacion(row){return persistir(sb.from('postulaciones').update({estado:row.estado,datos:row.datos,updated_at:new Date().toISOString()}).eq('id',row.id),'actualizarPostulacion');},
 
   setTasa(tasa){
     return persistir(sb.from('perfiles').update({ tasa }).eq('id', ME.id), 'setTasa');
@@ -1174,8 +1176,9 @@ function softRender(){
   render(true);
   if(id){ const el=document.getElementById(id); if(el){ if(val!==null) el.value=val; el.focus(); } }
 }
-function apply(oid){
+async function apply(oid){
   const o=offerById(oid); if(!o||applied(oid)||S.c.cupo<=0) return;
+  if(!ME.demo&&o.real){S.c.cupo--;DB.setCupo(S.c.cupo);const post={id:'p'+crypto.randomUUID(),oid,puesto:o.puesto,emp:o.emp,estado:'Enviada',pie:'Enviada recién'};S.c.posts.unshift(post);S.c.idx++;await DB.guardarPostulacion(post,oid,null);toast(`Te postulaste a ${o.puesto}. ${S.c.cupo>0?`Te quedan ${S.c.cupo}.`:'Usaste tu cupo semanal.'}`);render();return;}
   S.c.cupo--; DB.setCupo(S.c.cupo);
   if(o.match){
     const post={id:'p'+Date.now(),oid,puesto:o.puesto,emp:o.emp,estado:'Respondida',pie:'Te contestaron recién',match:true,chat:oid};
@@ -1210,46 +1213,17 @@ const AUTO={
   c:['¡Genial! Te esperamos. Cualquier duda escribinos por acá.','Perfecto, lo anotamos. Traé el DNI el día de la entrevista.','Gracias por responder rápido. Te confirmamos mañana.'],
   e:['¡Dale! Muchas gracias por la oportunidad.','Perfecto, ahí estaré. ¿Tengo que llevar algo?','Buenísimo, cualquier cosa les escribo por acá.']
 };
-function sendChat(kind,id,text){
+async function sendChat(kind,id,text){
   const chats=kind==='e'?S.e.chats:S.c.chats; const c=chats[id]; if(!c||!text.trim()) return;
-  const key=(kind==='e'?'e:':'c:')+id;
-  const body=text.trim();
-  c.msgs.push({de:'me',t:body,h:now()});
-  DB.nuevoMensaje(key,'me',body,now());
-  c.n=(c.n||0)+1;
-  render(true);
-  timers.push(setTimeout(()=>{ c.typing=true; softRender(); },700));
-  timers.push(setTimeout(()=>{ c.typing=false;
-    const m={de:'them',t:(c.auto||AUTO[kind])[(c.n-1)%3],h:now()};
-    c.msgs.push(m); DB.nuevoMensaje(key,'them',m.t,m.h); softRender(); },2400));
+  const key=c.key||(kind==='e'?'e:':'c:')+id;const body=text.trim(),h=now();c.msgs.push({de:'me',t:body,h});c.n=(c.n||0)+1;const saved=await DB.nuevoMensaje(key,'me',body,h);if(saved?.id)c.msgs[c.msgs.length-1].dbId=saved.id;render(true);if(ME.demo){timers.push(setTimeout(()=>{c.typing=true;softRender();},700));timers.push(setTimeout(()=>{c.typing=false;const m={de:'them',t:(c.auto||AUTO[kind])[(c.n-1)%3],h:now()};c.msgs.push(m);DB.nuevoMensaje(key,'them',m.t,m.h);softRender();},2400));}
 }
 
-function enviarResp(id,tipo,text){
-  const i=S.e.pend.findIndex(x=>x.id===id); if(i<0) return;
-  const c=S.e.pend.splice(i,1)[0];
-  S.e.tasa=Math.min(100,S.e.tasa+2); if(S.e.demora>2 && S.e.pend.length%2===0) S.e.demora--;
-  DB.guardarCandidato(c.id,c.corto,tipo);
-  DB.setTasa(S.e.tasa);
-  const rec={nombre:c.corto,tipo}; S.e.resp.unshift(rec);
-  if(tipo==='si'||tipo==='mas'){
-    rec.chat=c.id;
-    const key='e:'+c.id;
-    const bienvenida=text.replace(/^«|»$/g,'');
-    S.e.chats[c.id]={con:c.corto,puesto:'Ayudante de cocina',match:tipo==='si',msgs:[{de:'me',t:bienvenida,h:now()}],
-      auto:tipo==='si'?['¡Dale! Muchas gracias por la oportunidad. ¿Llevo algo?','Perfecto, ahí estaré.','Buenísimo, cualquier cosa les escribo por acá.']:['Perfecto. ¿Les mando una foto de la libreta?','Dale, cualquier otra duda me avisan.','¡Gracias!']};
-    DB.nuevoMensaje(key,'me',bienvenida,now());
-    if(tipo==='si') S.e.notifs.unshift({t:`Hay match con ${c.corto}`,cuando:'ahora',d:'Se abrió el chat por 7 días.',go:'#/e/chat/'+c.id,nuevo:true});
-    later(3500,()=>{ const ch=S.e.chats[c.id]; if(ch){
-      const t=tipo==='si'?'¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?':'¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.';
-      const m={de:'them',t,h:now()}; ch.msgs.push(m); DB.nuevoMensaje(key,'them',t,m.h);
-      S.e.notifs.unshift({t:`${c.corto} te escribió`,cuando:'ahora',d:ePuestoActual(),go:'#/e/chat/'+c.id,nuevo:true}); toast(`${c.corto} te respondió`);} });
-  }
-  tplSel=null;
-  toast(`Respuesta enviada a ${c.corto}. Tu tasa subió a ${S.e.tasa}%.`);
-  if(!S.e.pend.length) S.e.notifs.unshift({t:'Estás al día',cuando:'ahora',d:'Respondiste todas las postulaciones. Ya podés publicar.',go:'#/e/publicar',nuevo:true});
-  go(tipo!=='no'?'#/e/chat/'+c.id:(S.e.pend.length?'#/e/candidatos':'#/e/panel'));
+async function enviarResp(id,tipo,text){
+  const i=S.e.pend.findIndex(x=>x.id===id);if(i<0)return;const c=S.e.pend.splice(i,1)[0];S.e.tasa=Math.min(100,S.e.tasa+2);if(S.e.demora>2&&S.e.pend.length%2===0)S.e.demora--;DB.guardarCandidato(c.id,c.corto,tipo);DB.setTasa(S.e.tasa);const rec={nombre:c.corto,tipo};S.e.resp.unshift(rec);
+  if(tipo==='si'||tipo==='mas'){rec.chat=c.id;const key='chat:'+c.id;const bienvenida=text.replace(/^«|»$/g,'');S.e.chats[c.id]={con:c.corto,puesto:ePuestoActual(),key,match:tipo==='si',msgs:[{de:'me',t:bienvenida,h:now()}]};DB.nuevoMensaje(key,'me',bienvenida,now());const postRow=await DB.cargarPostulacion(c.id);if(postRow){postRow.estado='Respondida';postRow.datos={...(postRow.datos||{}),post:{...(postRow.datos?.post||{}),estado:'Respondida',chat:c.id},chat:{...(S.e.chats[c.id]||{}),key}};await DB.actualizarPostulacion(postRow);}if(tipo==='si')S.e.notifs.unshift({t:`Hay match con ${c.corto}`,cuando:'ahora',d:'Se abrió el chat por 7 días.',go:'#/e/chat/'+c.id,nuevo:true});
+    if(ME.demo)later(3500,()=>{const ch=S.e.chats[c.id];if(ch){const t=tipo==='si'?'¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?':'¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.';const m={de:'them',t,h:now()};ch.msgs.push(m);DB.nuevoMensaje(key,'them',t,m.h);S.e.notifs.unshift({t:`${c.corto} te escribió`,cuando:'ahora',d:ePuestoActual(),go:'#/e/chat/'+c.id,nuevo:true});toast(`${c.corto} te respondió`);}});
+  }tplSel=null;toast(`Respuesta enviada a ${c.corto}. Tu tasa subió a ${S.e.tasa}%.`);if(!S.e.pend.length)S.e.notifs.unshift({t:'Estás al día',cuando:'ahora',d:'Respondiste todas las postulaciones. Ya podés publicar.',go:'#/e/publicar',nuevo:true});go(tipo!=='no'?'#/e/chat/'+c.id:(S.e.pend.length?'#/e/candidatos':'#/e/panel'));
 }
-
 /* ---------- Router ---------- */
 function route(){
   const h=(location.hash||'#/').replace(/^#/,'');
@@ -1341,7 +1315,9 @@ document.addEventListener('change',e=>{
   }
 });
 
-function msgsDe(d,key){ return d.mensajes.filter(m=>m.chat_key===key).map(m=>({de:m.de,t:m.texto,h:m.h})); }
+function msgsDe(d,key){ return d.mensajes.filter(m=>m.chat_key===key).map(m=>({dbId:m.id,de:m.de,t:m.texto,h:m.h})); }
+let mensajesChannel=null;
+function suscribirMensajesRealtime(){if(mensajesChannel||ME.demo||!ME.id)return;mensajesChannel=sb.channel('mensajes-'+ME.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'mensajes'},payload=>{const m=payload.new;const c=[S.c.chats,S.e.chats].map(x=>Object.values(x).find(v=>v?.key===m.chat_key)).find(Boolean);if(!c)return;if(c.msgs.some(x=>x.dbId===m.id))return;const same=c.msgs.find(x=>!x.dbId&&x.de===m.de&&x.t===m.texto&&x.h===m.h);if(same){same.dbId=m.id;return;}c.msgs.push({dbId:m.id,de:m.de,t:m.texto,h:m.h});softRender();}).subscribe((status,err)=>{if(err)console.warn('[realtime] mensajes',status,err);});}
 async function hidratar(){
   const d=await DB.cargar().catch(err=>{ console.error('No se pudo cargar desde Supabase',err); return null; });
   if(!d) return;
@@ -1354,7 +1330,7 @@ async function hidratar(){
   const postIds=new Set(dbPosts.map(p=>p.id));
   S.c.posts=[...dbPosts,...base.c.posts.filter(p=>!postIds.has(p.id))];
   S.c.chats={...base.c.chats};
-  d.postulaciones.forEach(r=>{ if(r.datos.chat) S.c.chats[r.oferta_id]={...r.datos.chat,msgs:[]}; });
+  d.postulaciones.forEach(r=>{ if(r.datos.chat) S.c.chats[r.oferta_id]={...r.datos.chat,key:r.datos.chat.key||('chat:'+r.id),msgs:[]}; });
   // Empresa: búsquedas y candidatos respondidos
   // En una empresa real no se mezclan las búsquedas/notificaciones de ejemplo.
   if(ME.rol==='e') S.e.notifs=[];
@@ -1371,12 +1347,12 @@ async function hidratar(){
   S.e.pend=postulantes.filter(p=>!estados.has(p.id)&&p.estado!=='Respondida'); S.e.resp=[]; S.e.chats={};
   d.candidatosEstado.forEach(r=>{ const p=postulantes.find(x=>x.id===r.id); const nombre=p?.corto||r.corto; const hasChat=r.estado==='si'||r.estado==='mas'; S.e.resp.unshift({nombre,tipo:r.estado,chat:hasChat?r.id:undefined}); if(hasChat) S.e.chats[r.id]={con:nombre,puesto:ePuestoActual(),match:r.estado==='si',msgs:[]}; });
   const empresaMap=new Map((d.empresas||[]).map(p=>[p.id,p]));
-  const ofertasReales=d.busquedas.map(b=>{ const ep=empresaMap.get(b.empresa_id); const ec=ep?.datos?.campos||{}; const ecx=ep?.datos?.chips||{}; return {id:b.id,emp:ep?.nombre||'Empresa',meta:[ec['re-rubro'],ec['re-tam']].filter(Boolean).join(' · '),puesto:b.puesto,chips:[ec['re-ubi'],ecx.etipo,ecx.emodo,ecx.ehora].flat().filter(Boolean),fchips:[ec['re-ubi'],ecx.etipo,ecx.emodo].flat().filter(Boolean),tasa:ep?.tasa||94,dias:ep?.demora||3,logo:ep?.avatar_url||'',desc:b.descripcion||ec['re-desc']||''}; });
+  const ofertasReales=d.busquedas.map(b=>{ const ep=empresaMap.get(b.empresa_id); const ec=ep?.datos?.campos||{}; const ecx=ep?.datos?.chips||{}; return {id:b.id,emp:ep?.nombre||'Empresa',meta:[ec['re-rubro'],ec['re-tam']].filter(Boolean).join(' · '),puesto:b.puesto,chips:[ec['re-ubi'],ecx.etipo,ecx.emodo,ecx.ehora].flat().filter(Boolean),fchips:[ec['re-ubi'],ecx.etipo,ecx.emodo].flat().filter(Boolean),tasa:ep?.tasa||94,dias:ep?.demora||3,logo:ep?.avatar_url||'',desc:b.descripcion||ec['re-desc']||'',real:true}; });
   if(ME.rol==='c' && ofertasReales.length){ const ids=new Set(S.c.ofertas.map(o=>o.id)); S.c.ofertas=[...ofertasReales.filter(o=>!ids.has(o.id)),...S.c.ofertas]; }
   // Mensajes guardados se suman a cada chat (los de ejemplo base se conservan sin duplicarse)
   Object.keys(S.c.chats).forEach(k=>{ S.c.chats[k].msgs=[...(S.c.chats[k].msgs||[]),...msgsDe(d,'c:'+k)]; });
   Object.keys(S.e.chats).forEach(k=>{ S.e.chats[k].msgs=[...(S.e.chats[k].msgs||[]),...msgsDe(d,'e:'+k)]; });
-  render(true);
+  render(true);suscribirMensajesRealtime();
 }
 
 /* ---------- Autenticación ---------- */
