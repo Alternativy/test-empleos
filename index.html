@@ -638,7 +638,7 @@ ayuda: { titulo:'Centro de Ayuda', html:`
 function freshState(){ return {
   c:{ cupo:3, idx:0,
     ofertas:[
-      {id:'cafe',emp:'Café Mercado',meta:'Gastronomía · 12 empleados',puesto:'Ayudante de cocina',chips:['Lomas de Zamora','Medio tiempo','Sin experiencia','Turno tarde'],fchips:['Lomas de Zamora','Part Time','Sin experiencia'],tasa:94,dias:3,foto:'img/oferta-cafe.jpg',logo:'img/logo-cafe-mercado.png',match:true,
+      {id:'cafe',emp:'Café Mercado',meta:'Gastronomía · 12 empleados',puesto:ePuestoActual(),chips:['Lomas de Zamora','Medio tiempo','Sin experiencia','Turno tarde'],fchips:['Lomas de Zamora','Part Time','Sin experiencia'],tasa:94,dias:3,foto:'img/oferta-cafe.jpg',logo:'img/logo-cafe-mercado.png',match:true,
        desc:'Buscamos a alguien para sumarse a la cocina por la tarde. No hace falta experiencia: te enseñamos. Sí pedimos ganas, puntualidad y trabajo en equipo.'},
       {id:'libreria',emp:'Librería Laprida',meta:'Comercio · 6 empleados',puesto:'Atención al público',chips:['Lomas de Zamora','Part Time','Sin experiencia','Turno mañana'],fchips:['Lomas de Zamora','Part Time','Sin experiencia'],tasa:91,dias:4,
        desc:'Atención en mostrador y armado de pedidos escolares. Buscamos alguien amable y ordenado. Te capacitamos en el sistema de ventas.'},
@@ -1053,7 +1053,7 @@ function ePanel(){
   const pendCard = p?`<a class="card" href="#/e/candidatos" style="display:block;text-decoration:none"><h2 style="font-size:20px;font-weight:500;line-height:1.3;margin-bottom:10px">Te faltan responder ${p} postulaci${p===1?'ón':'ones'}</h2><p class="t-note">La más vieja lleva ${vieja.hace} días esperando. Te quedan ${vieja.quedan} para contestarla sin que baje tu tasa.</p></a>`
     :`<div class="card"><h2 style="font-size:20px;font-weight:500;margin-bottom:8px">Estás al día</h2><p class="t-note">Respondiste todas las postulaciones. Ya podés publicar una búsqueda nueva.</p></div>`;
   const camposEmpresa=ME.demo?{}:(ME.datos?.campos||{});
-  const busquedasEmpresa=ME.demo?S.e.busquedas:[{id:'registro',puesto:camposEmpresa['re-puesto']||'Búsqueda de empleo',total:0,estado:'Activa'}];
+  const busquedasEmpresa=ME.demo?S.e.busquedas:(S.e.busquedas.length?S.e.busquedas:[{id:'registro',puesto:camposEmpresa['re-puesto']||'Búsqueda de empleo',total:0,estado:'Activa'}]);
   const inner=`<div class="hdr">${WM_INV}<span class="side">${esc(miNombre('e'))}</span></div>
   <h1 class="t-title only-d" style="margin-bottom:20px">Búsquedas</h1>
   <div class="grid2" style="gap:12px">${pendCard}
@@ -1089,8 +1089,9 @@ function ePublicar(step){
   return shell('e','#/e/panel',inner);
 }
 let candFilter='pend';
+function ePuestoActual(){ const b=S.e.busquedas[0]; return b?.puesto || (ME.datos?.campos||{})['re-puesto'] || 'Búsqueda de empleo'; }
 function eCandidatos(){
-  const list=S.e.pend; const b1=S.e.busquedas.find(b=>b.id==='b1')||S.e.busquedas[0]; const tot=b1?b1.total:list.length;
+  const b=S.e.busquedas[0]; const list=S.e.pend.filter(c=>!b || !c.oferta_id || c.oferta_id===b.id); const tot=b?.total??list.length;
   const chips=[['pend',`Sin responder (${list.length})`],['resp','Respondidas'],['match','Con match']].map(([k,l])=>`<button class="chip" data-cfilter="${k}" aria-pressed="${candFilter===k}">${l}</button>`).join('');
   let body='';
   if(candFilter==='pend'){
@@ -1101,7 +1102,7 @@ function eCandidatos(){
     const r=S.e.resp.filter(x=>candFilter==='resp'||x.tipo==='si');
     body=r.map(x=>`<div class="ccard"><a href="${x.chat?'#/e/chat/'+x.chat:'#/e/candidatos'}"><span class="avatar" style="width:40px;height:40px;border-radius:10px;background:var(--navy2)"></span><div style="flex:1"><h3>${esc(x.nombre)}</h3><p class="t-note">${x.tipo==='si'?'Lo quiero conocer · hay match':x.tipo==='mas'?'Le pediste más información':'Por ahora no'}</p></div></a></div>`).join('')||'<div class="empty">Todavía no hay candidatos en este filtro.</div>';
   }
-  const inner=`<button class="back big" data-go="#/e/panel">‹&nbsp; Ayudante de cocina</button><p style="font-size:13px;margin:4px 0 14px">${tot} postulaciones · ${list.length} sin responder</p>
+  const inner=`<button class="back big" data-go="#/e/panel">‹&nbsp; ${esc(ePuestoActual())}</button><p style="font-size:13px;margin:4px 0 14px">${tot} postulaciones · ${list.length} sin responder</p>
   <div class="chips" style="margin-bottom:16px">${chips}</div><div class="stack grid2">${body}</div>`;
   return shell('e','#/e/candidatos',inner);
 }
@@ -1129,7 +1130,7 @@ function eResponder(id,tipo){
   const sel = tplSel===null ? (tipo==='no'?1:0) : tplSel;
   const first=c.nombre.split(' ')[0];
   const fill=s=>s.replace('{n}',first);
-  const inner=`<div style="max-width:620px">${hdr(backBtn('#/e/candidato/'+id,'Cancelar'),`${esc(c.corto)} · Ayudante de cocina`)}
+  const inner=`<div style="max-width:620px">${hdr(backBtn('#/e/candidato/'+id,'Cancelar'),`${esc(c.corto)} · ${esc(ePuestoActual())}`)}
   <h1 class="t-title" style="margin-bottom:10px">Contestale a ${esc(first)}</h1><p style="margin-bottom:18px;line-height:1.5">Elegí una respuesta. Podés editarla antes de enviarla.</p>
   <div class="stack">${TPL.map(([t,d],i)=>`<button class="tpl" data-tpl="${i}" aria-pressed="${i===sel}"><b>${t}</b><span>${d}</span></button>`).join('')}</div>
   <label class="vh" for="resp-txt">Vista previa del mensaje</label><textarea class="prev" id="resp-txt" style="margin-top:12px">«${esc(fill(TPL[sel][3]))}»</textarea>
@@ -1241,7 +1242,7 @@ function enviarResp(id,tipo,text){
     later(3500,()=>{ const ch=S.e.chats[c.id]; if(ch){
       const t=tipo==='si'?'¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?':'¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.';
       const m={de:'them',t,h:now()}; ch.msgs.push(m); DB.nuevoMensaje(key,'them',t,m.h);
-      S.e.notifs.unshift({t:`${c.corto} te escribió`,cuando:'ahora',d:'Ayudante de cocina',go:'#/e/chat/'+c.id,nuevo:true}); toast(`${c.corto} te respondió`);} });
+      S.e.notifs.unshift({t:`${c.corto} te escribió`,cuando:'ahora',d:ePuestoActual(),go:'#/e/chat/'+c.id,nuevo:true}); toast(`${c.corto} te respondió`);} });
   }
   tplSel=null;
   toast(`Respuesta enviada a ${c.corto}. Tu tasa subió a ${S.e.tasa}%.`);
@@ -1358,15 +1359,18 @@ async function hidratar(){
   const dbBus=d.busquedas.map(b=>({id:b.id,puesto:b.puesto,total:b.total,estado:b.estado,desc:b.descripcion}));
   const busIds=new Set(dbBus.map(b=>b.id));
   S.e.busquedas=[...dbBus,...base.e.busquedas.filter(b=>!busIds.has(b.id))];
-  S.e.pend=[...base.e.pend];
-  S.e.resp=[...base.e.resp];
-  S.e.chats={...base.e.chats};
-  d.candidatosEstado.forEach(r=>{
-    S.e.pend=S.e.pend.filter(c=>c.id!==r.id);
-    const hasChat=r.estado==='si'||r.estado==='mas';
-    S.e.resp.unshift({nombre:r.corto,tipo:r.estado,chat:hasChat?r.id:undefined});
-    if(hasChat) S.e.chats[r.id]={con:r.corto,puesto:'Ayudante de cocina',match:r.estado==='si',msgs:[]};
+  const estados=new Map(d.candidatosEstado.map(r=>[r.id,r]));
+  const perfilesPorId=new Map((d.candidatos||[]).map(p=>[p.id,p]));
+  const postulantes=d.postulaciones.map(r=>{
+    const perfil=perfilesPorId.get(r.candidato_id); const datos=perfil?.datos?.campos||{}; const chips=perfil?.datos?.chips||{}; const nombre=perfil?.nombre||'Postulante';
+    const dias=Math.max(0,Math.floor((Date.now()-new Date(r.created_at||Date.now()).getTime())/86400000));
+    return {id:r.id,candidato_id:r.candidato_id,oferta_id:r.oferta_id,nombre,corto:nombre.trim().split(/\s+/).slice(0,2).join(' '),edad:datos['rc-edad']||'',zona:datos['rc-ubi']||'',linea:[datos['rc-puesto'],datos['rc-ubi']].filter(Boolean).join(' · ')||'Postulante',busca:datos['rc-puesto']||'Busca trabajo',hace:dias,quedan:Math.max(0,S.e.plazo-dias),avatar:perfil?.avatar_url||'',porque:datos['rc-sobre']||'Se postuló a esta búsqueda según su perfil.',sabe:[...(chips.rubros||[]),...(datos['rx-puesto']?[datos['rx-puesto']]:[])].slice(0,4),estudios:datos['rc-estudios']||'Perfil en Match Empleos',estado:r.estado};
   });
+  S.e.pend=postulantes.filter(p=>!estados.has(p.id)&&p.estado!=='Respondida'); S.e.resp=[]; S.e.chats={};
+  d.candidatosEstado.forEach(r=>{ const p=postulantes.find(x=>x.id===r.id); const nombre=p?.corto||r.corto; const hasChat=r.estado==='si'||r.estado==='mas'; S.e.resp.unshift({nombre,tipo:r.estado,chat:hasChat?r.id:undefined}); if(hasChat) S.e.chats[r.id]={con:nombre,puesto:ePuestoActual(),match:r.estado==='si',msgs:[]}; });
+  const empresaMap=new Map((d.empresas||[]).map(p=>[p.id,p]));
+  const ofertasReales=d.busquedas.map(b=>{ const ep=empresaMap.get(b.empresa_id); const ec=ep?.datos?.campos||{}; const ecx=ep?.datos?.chips||{}; return {id:b.id,emp:ep?.nombre||'Empresa',meta:[ec['re-rubro'],ec['re-tam']].filter(Boolean).join(' · '),puesto:b.puesto,chips:[ec['re-ubi'],ecx.etipo,ecx.emodo,ecx.ehora].flat().filter(Boolean),fchips:[ec['re-ubi'],ecx.etipo,ecx.emodo].flat().filter(Boolean),tasa:ep?.tasa||94,dias:ep?.demora||3,logo:ep?.avatar_url||'',desc:b.descripcion||ec['re-desc']||''}; });
+  if(ME.rol==='c' && ofertasReales.length){ const ids=new Set(S.c.ofertas.map(o=>o.id)); S.c.ofertas=[...ofertasReales.filter(o=>!ids.has(o.id)),...S.c.ofertas]; }
   // Mensajes guardados se suman a cada chat (los de ejemplo base se conservan sin duplicarse)
   Object.keys(S.c.chats).forEach(k=>{ S.c.chats[k].msgs=[...(S.c.chats[k].msgs||[]),...msgsDe(d,'c:'+k)]; });
   Object.keys(S.e.chats).forEach(k=>{ S.e.chats[k].msgs=[...(S.e.chats[k].msgs||[]),...msgsDe(d,'e:'+k)]; });
@@ -1541,19 +1545,18 @@ function entrarDemo(kind){
   S=freshState();
   go(kind==='e'?'#/e/panel':'#/c/feed');
 }
+async function asegurarBusquedaEmpresa(){
+  if(ME.rol!=='e'||!ME.id) return; const puesto=(ME.datos?.campos||{})['re-puesto']?.trim(); if(!puesto) return;
+  const {data:existente}=await sb.from('busquedas').select('id').eq('empresa_id',ME.id).limit(1); if(existente?.length) return;
+  await DB.guardarBusqueda({id:'registro-'+ME.id,puesto,total:0,estado:'Activa',desc:(ME.datos?.campos||{})['re-desc']||''});
+}
 async function setSesion(session){
   if(!session){ ME={id:null,rol:null,nombre:null,email:null,datos:{},avatarUrl:null,demo:false}; S=freshState(); return; }
-  ME.id=session.user.id;
-  ME.demo=false;
+  ME.id=session.user.id; ME.demo=false;
   const {data:perfil}=await sb.from('perfiles').select('rol,nombre,datos,avatar_url').eq('id',ME.id).maybeSingle();
-  ME.rol=perfil?.rol||null;
-  ME.nombre=perfil?.nombre||null;
-  ME.datos=perfil?.datos||{};
-  ME.avatarUrl=perfil?.avatar_url||null;
-  ME.email=session.user.email||'';
+  ME.rol=perfil?.rol||null; ME.nombre=perfil?.nombre||null; ME.datos=perfil?.datos||{}; ME.avatarUrl=perfil?.avatar_url||null; ME.email=session.user.email||'';
   if(!ME.rol){ toast('Tu cuenta no tiene perfil. Escribinos para resolverlo.'); await sb.auth.signOut(); return; }
-  S=freshState();
-  await hidratar();
+  if(ME.rol==='e') await asegurarBusquedaEmpresa(); S=freshState(); await hidratar();
 }
 document.addEventListener('db-error',()=>toast('No se pudo guardar. Revisá tu conexión.'));
 let ultimoUid=undefined;
