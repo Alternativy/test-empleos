@@ -174,6 +174,10 @@ html{scroll-behavior:smooth}
 .btn.pri:hover{filter:brightness(1.05)}
 .btn.out:hover{background:color-mix(in srgb,var(--fg) 6%,transparent)}
 .btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.btn.cargando{cursor:progress}
+.btn.cargando::before{content:"";width:16px;height:16px;margin-right:10px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:girar .7s linear infinite;flex:none}
+@keyframes girar{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.btn.cargando::before{animation-duration:2.4s}}
 .btn.sm{min-height:44px;font-size:14px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .field{width:100%;height:24px;border-radius:20px;border:0;background:var(--gray);color:var(--navy);padding:0 18px;font:inherit;font-size:14px}
@@ -246,6 +250,7 @@ button.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)
 .offer .ph{width:100%;aspect-ratio:340/206;object-fit:cover;border-radius:16px 16px 0 0}
 .offer .bd{padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px}
 .offer .co{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500}
+.offer .co img{width:28px;height:28px;border-radius:7px;object-fit:cover;background:#fff;flex:none}
 .offer h2{font-size:28px;font-weight:600;line-height:1.15}
 .strip{display:flex;gap:12px;align-items:center;background:var(--navy);border-radius:12px;padding:14px;font-size:13px;line-height:1.45}
 .cupo{font-size:13px;color:var(--t3);text-align:center;margin-top:14px}
@@ -498,7 +503,8 @@ const DB = {
         const candidateIds=[...new Set(postulaciones.map(p=>p.candidato_id))];
         if(candidateIds.length){ const pr=await sb.from('perfiles').select('*').in('id',candidateIds).eq('rol','c'); if(pr.error) throw pr.error; candidatos=pr.data; }
       }
-      return {perfiles:perfiles.data,postulaciones,busquedas:busquedas.data,candidatosEstado:candidatosEstado.data,candidatos,mensajes:mensajes.data};
+      const chatsR=await sb.from('chats').select('id,postulacion_id,candidato_id,empresa_id,candidato:perfiles!candidato_id(id,nombre,avatar_url,datos)'); if(chatsR.error) throw chatsR.error;
+      return {perfiles:perfiles.data,postulaciones,busquedas:busquedas.data,candidatosEstado:candidatosEstado.data,candidatos,mensajes:mensajes.data,chats:chatsR.data};
     }
     const [perfiles,postulaciones,busquedas,candidatosEstado,mensajes]=await Promise.all([
       sb.from('perfiles').select('*').eq('id',ME.id),
@@ -510,7 +516,8 @@ const DB = {
     const err=[perfiles,postulaciones,busquedas,candidatosEstado,mensajes].find(r=>r.error); if(err) throw err.error;
     const empresaIds=[...new Set(busquedas.data.map(b=>b.empresa_id))]; let empresas=[];
     if(empresaIds.length){ const er=await sb.from('perfiles').select('*').in('id',empresaIds).eq('rol','e'); if(er.error) throw er.error; empresas=er.data; }
-    return {perfiles:perfiles.data,postulaciones:postulaciones.data,busquedas:busquedas.data,candidatosEstado:candidatosEstado.data,empresas,mensajes:mensajes.data};
+    const chatsR=await sb.from('chats').select('id,postulacion_id,candidato_id,empresa_id,empresa:perfiles!empresa_id(id,nombre,avatar_url,datos)'); if(chatsR.error) throw chatsR.error;
+    return {perfiles:perfiles.data,postulaciones:postulaciones.data,busquedas:busquedas.data,candidatosEstado:candidatosEstado.data,empresas,mensajes:mensajes.data,chats:chatsR.data};
   },
 
   // Create o Update según exista el id
@@ -545,6 +552,7 @@ const DB = {
   },
 
   nuevoMensaje(chatKey, de, texto, h){
+    if(chatKey.startsWith('chat:')) return persistir(sb.from('mensajes').insert({ chat_id: chatKey.slice(5), autor_id: ME.id, texto, h }), 'nuevoMensaje');
     return persistir(sb.from('mensajes').insert({ chat_key: chatKey, de, texto, h }), 'nuevoMensaje');
   }
 };
@@ -601,7 +609,7 @@ terminos: { titulo:'Términos y Condiciones', html:`
 <p>Match Empleos se usa solo para buscar, publicar y conectar oportunidades laborales. No está permitido:</p>
 <ul><li>Publicar información falsa o engañosa.</li><li>Acosar, discriminar o perjudicar a otros usuarios.</li><li>Usar datos de otros usuarios para fines ajenos a la búsqueda laboral.</li><li>Intentar acceder a cuentas sin autorización o realizar actividades ilegales.</li></ul>
 <h2>4. El sistema de Match</h2>
-<p>Hay Match cuando el postulante se interesa por una búsqueda y la empresa se interesa por ese postulante. El Match abre un chat por 7 días. No constituye una contratación: la decisión final corresponde al postulante y a la empresa.</p>
+<p>Hay Match cuando el postulante se interesa por una búsqueda y la empresa se interesa por ese postulante. El Match abre un chat para coordinar los próximos pasos. No constituye una contratación: la decisión final corresponde al postulante y a la empresa.</p>
 <span class="parte">Si buscás trabajo</span>
 <h2>5. Postulaciones</h2>
 <ul><li>Tenés 5 postulaciones por semana. El cupo se libera cada lunes.</li><li>Cada postulación muestra su estado: Enviada, Vista o Respondida.</li><li>Podés descartar las búsquedas que no te interesan sin dar explicaciones.</li><li>Aun si la respuesta es un no, tenés derecho a recibirla.</li></ul>
@@ -625,7 +633,7 @@ ayuda: { titulo:'Centro de Ayuda', html:`
 <h3>¿Necesito tener experiencia?</h3><p>No. Match Empleos está pensado para quienes buscan su primer trabajo.</p>
 <h3>¿Por qué tengo un límite de postulaciones?</h3><p>Tenés 5 por semana para que cada postulación cuente. Las empresas saben que elegiste su búsqueda a propósito.</p>
 <h3>¿Cómo sé si me van a contestar?</h3><p>Cada búsqueda muestra la tasa de respuesta de la empresa y cuántos días tarda en promedio. En Mis postulaciones ves si tu postulación fue enviada, vista o respondida.</p>
-<h3>¿Qué pasa después de hacer Match?</h3><p>Se abre un chat con la empresa por 7 días para coordinar los próximos pasos. Un Match no significa que conseguiste el trabajo.</p>
+<h3>¿Qué pasa después de hacer Match?</h3><p>Se abre un chat con la empresa para coordinar los próximos pasos. Un Match no significa que conseguiste el trabajo.</p>
 <span class="parte">Si buscás gente para tu empresa</span>
 <h3>¿Cómo publico una búsqueda?</h3><p>Desde Búsquedas, tocá “Publicar una búsqueda”, completá el puesto y elegí tu plazo de respuesta.</p>
 <h3>¿Por qué no puedo publicar?</h3><p>Porque tenés postulaciones sin responder. Respondelas desde Candidatos y vas a poder publicar de nuevo.</p>
@@ -887,7 +895,7 @@ function offerCard(o){
   return `<article class="offer">
     ${o.foto?`<img class="ph" src="${o.foto}" alt="Preparación de café en ${esc(o.emp)}">`:''}
     <div class="bd">
-      <div class="co"><span class="sq"></span>${esc(o.emp)}</div>
+      <div class="co">${o.logo?`<img src="${esc(o.logo)}" alt="">`:'<span class="sq"></span>'}${esc(o.emp)}</div>
       <h2>${esc(o.puesto)}</h2>
       <div class="chips">${o.fchips.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>
       <div class="strip"><span class="dot"></span><span>Contesta el ${o.tasa}% de las postulaciones, en ${o.dias} días promedio</span></div>
@@ -930,7 +938,7 @@ function cMatch(id){
     <h1>¡Hay match!</h1>
     <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
     <div class="match-pair"><img src="${fotoSrc('img/avatar-tomas.png')}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img src="${o.logo||'img/logo-cafe-mercado.png'}" alt="${esc(o.emp)}"></div>
-    <p class="note-match" style="max-width:342px">Tenés el chat abierto por 7 días. Después la búsqueda se cierra sola.</p>
+    <p class="note-match" style="max-width:342px">Ya podés coordinar los próximos pasos en el chat.</p>
   </div>
   <div class="stack" style="margin-top:60px"><button class="btn pri" data-go="#/c/chat/${o.id}">Escribirle ahora</button><button class="btn out" data-go="#/c/feed">Seguir viendo búsquedas</button></div>
   </main><div class="dock plain">${waveSVG('','#36F48C','#E9E9E9')}<div class="band"></div></div></div>`;
@@ -951,6 +959,7 @@ function cPost(){
   return shell('c','#/c/postulaciones',inner);
 }
 function avatarOf(kind,k){
+  const ch=(kind==='e'?S.e.chats:S.c.chats)[k]; if(ch?.avatar) return `<img class="avatar" src="${esc(ch.avatar)}" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">`;
   if(kind==='e') return k==='tomas'?'<img class="avatar" src="img/avatar-tomas.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">':'<span class="avatar" style="width:44px;height:44px;border-radius:12px;background:var(--navy2)"></span>';
   return k==='cafe'?'<img class="avatar" src="img/logo-cafe-mercado.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">':'<span class="sq" style="width:44px;height:44px;border-radius:12px"></span>';
 }
@@ -962,7 +971,7 @@ function convItems(kind, active){
 function chatHead(kind,id,back){
   const c=(kind==='e'?S.e.chats:S.c.chats)[id];
   const sub = kind==='e'? esc(c.puesto) : `${esc(c.puesto)}${c.tasa?' · responde el '+c.tasa+'%':''}`;
-  return `<div class="chat-head"><button class="back" data-go="${back}" aria-label="Volver">‹</button>${avatarOf(kind,id).replace(/44px/g,'36px')}<div><b>${esc(c.con)}</b><p class="t-note">${sub}</p></div></div>`;
+  return `<div class="chat-head"><button class="back" data-go="${back}" aria-label="Volver">‹</button>${avatarOf(kind,id).replace(/44px/g,'36px')}<div><b>${c.perfilUrl?`<a href="${c.perfilUrl}" style="color:inherit">${esc(c.con)}</a>`:esc(c.con)}</b><p class="t-note">${sub}</p></div></div>`;
 }
 function chatBody(kind, id){
   const chats = kind==='e'?S.e.chats:S.c.chats; const c=chats[id];
@@ -1108,9 +1117,19 @@ function eCandidatos(){
   <div class="chips" style="margin-bottom:16px">${chips}</div><div class="stack grid2">${body}</div>`;
   return shell('e','#/e/candidatos',inner);
 }
+function eCandidatoPerfil(t){
+  const tiene=!!S.e.chats[t.id];
+  const inner=`<div style="max-width:720px">${hdr(backBtn(tiene?'#/e/chat/'+t.id:'#/e/candidatos'))}
+  <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">${t.avatar?`<img class="avatar" src="${esc(t.avatar)}" alt="" style="background:#fff">`:'<span class="avatar ph"></span>'}<div><h1 style="font-size:20px;font-weight:600">${esc(t.nombre)}${t.edad?', '+t.edad:''}</h1><p style="font-size:13px">${esc(t.zona||'')}${t.busca?' · '+esc(t.busca):''}</p></div></div>
+  <h2 class="t-sec">Por qué se postuló</h2><p style="line-height:1.6">${esc(t.porque||'')}</p>
+  <h2 class="t-sec">Lo que sabe hacer</h2><div class="chips">${(t.sabe||[]).map(s=>`<span class="chip fill">${esc(s)}</span>`).join('')}</div>
+  <h2 class="t-sec">Estudios</h2><p style="line-height:1.6">${esc(t.estudios||'')}</p>
+  ${tiene?`<div class="stack" style="margin-top:22px"><button class="btn pri" data-go="#/e/chat/${t.id}">Escribirle</button></div>`:''}</div>`;
+  return shell('e','#/e/candidatos',inner);
+}
 function eCandidato(id){
   const c=S.e.pend.find(x=>x.id===id);
-  if(!c) return eCandidatos();
+  if(!c){ const t=(S.e.todos||[]).find(x=>x.id===id); return t?eCandidatoPerfil(t):eCandidatos(); }
   const idx=S.e.pend.indexOf(c)+1;
   const inner=`<div style="max-width:720px">${hdr(backBtn('#/e/candidatos'),`${idx} de ${S.e.pend.length} sin responder`)}
   <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">${c.avatar?`<img class="avatar" src="${c.avatar}" alt="" style="background:#fff">`:'<span class="avatar ph"></span>'}<div><h1 style="font-size:20px;font-weight:600">${esc(c.nombre)}, ${c.edad}</h1><p style="font-size:13px">${esc(c.zona)} · ${esc(c.busca)}</p></div></div>
@@ -1219,10 +1238,21 @@ async function sendChat(kind,id,text){
 }
 
 async function enviarResp(id,tipo,text){
-  const i=S.e.pend.findIndex(x=>x.id===id);if(i<0)return;const c=S.e.pend.splice(i,1)[0];S.e.tasa=Math.min(100,S.e.tasa+2);if(S.e.demora>2&&S.e.pend.length%2===0)S.e.demora--;DB.guardarCandidato(c.id,c.corto,tipo);DB.setTasa(S.e.tasa);const rec={nombre:c.corto,tipo};S.e.resp.unshift(rec);
-  if(tipo==='si'||tipo==='mas'){rec.chat=c.id;const key='chat:'+c.id;const bienvenida=text.replace(/^«|»$/g,'');S.e.chats[c.id]={con:c.corto,puesto:ePuestoActual(),key,match:tipo==='si',msgs:[{de:'me',t:bienvenida,h:now()}]};DB.nuevoMensaje(key,'me',bienvenida,now());const postRow=await DB.cargarPostulacion(c.id);if(postRow){postRow.estado='Respondida';postRow.datos={...(postRow.datos||{}),post:{...(postRow.datos?.post||{}),estado:'Respondida',chat:c.id},chat:{...(S.e.chats[c.id]||{}),key}};await DB.actualizarPostulacion(postRow);}if(tipo==='si')S.e.notifs.unshift({t:`Hay match con ${c.corto}`,cuando:'ahora',d:'Se abrió el chat por 7 días.',go:'#/e/chat/'+c.id,nuevo:true});
-    if(ME.demo)later(3500,()=>{const ch=S.e.chats[c.id];if(ch){const t=tipo==='si'?'¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?':'¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.';const m={de:'them',t,h:now()};ch.msgs.push(m);DB.nuevoMensaje(key,'them',t,m.h);S.e.notifs.unshift({t:`${c.corto} te escribió`,cuando:'ahora',d:ePuestoActual(),go:'#/e/chat/'+c.id,nuevo:true});toast(`${c.corto} te respondió`);}});
-  }tplSel=null;toast(`Respuesta enviada a ${c.corto}. Tu tasa subió a ${S.e.tasa}%.`);if(!S.e.pend.length)S.e.notifs.unshift({t:'Estás al día',cuando:'ahora',d:'Respondiste todas las postulaciones. Ya podés publicar.',go:'#/e/publicar',nuevo:true});go(tipo!=='no'?'#/e/chat/'+c.id:(S.e.pend.length?'#/e/candidatos':'#/e/panel'));
+  const i=S.e.pend.findIndex(x=>x.id===id);if(i<0)return;const c=S.e.pend.splice(i,1)[0];S.e.tasa=Math.min(100,S.e.tasa+2);if(S.e.demora>2&&S.e.pend.length%2===0)S.e.demora--;
+  const guardadoCand=DB.guardarCandidato(c.id,c.corto,tipo);DB.setTasa(S.e.tasa);
+  const rec={nombre:c.corto,tipo};S.e.resp.unshift(rec);
+  // El chat real lo crea el servidor al marcar 'si'. 'mas' no abre chat (solo en demo se mantiene).
+  const abreChat=tipo==='si'||(ME.demo&&tipo==='mas');
+  if(abreChat){
+    rec.chat=c.id;const key='chat:'+c.id;const bienvenida=text.replace(/^«|»$/g,'');
+    S.e.chats[c.id]={con:c.corto,puesto:ePuestoActual(),key,match:tipo==='si',avatar:c.avatar||'',perfilUrl:'#/e/candidato/'+c.id,msgs:[{de:'me',t:bienvenida,h:now()}]};
+    await guardadoCand;
+    DB.nuevoMensaje(key,'me',bienvenida,now());
+  } else await guardadoCand;
+  if(tipo==='si'||tipo==='mas'){const postRow=await DB.cargarPostulacion(c.id);if(postRow){postRow.estado='Respondida';postRow.datos={...(postRow.datos||{}),post:{...(postRow.datos?.post||{}),estado:'Respondida'}};await DB.actualizarPostulacion(postRow);}}
+  if(tipo==='si')S.e.notifs.unshift({t:`Hay match con ${c.corto}`,cuando:'ahora',d:'Se abrió el chat para coordinar los próximos pasos.',go:'#/e/chat/'+c.id,nuevo:true});
+  if(ME.demo&&abreChat)later(3500,()=>{const ch=S.e.chats[c.id];if(ch){const t=tipo==='si'?'¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?':'¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.';const m={de:'them',t,h:now()};ch.msgs.push(m);DB.nuevoMensaje('chat:'+c.id,'them',t,m.h);S.e.notifs.unshift({t:`${c.corto} te escribió`,cuando:'ahora',d:ePuestoActual(),go:'#/e/chat/'+c.id,nuevo:true});toast(`${c.corto} te respondió`);}});
+  tplSel=null;toast(`Respuesta enviada a ${c.corto}. Tu tasa subió a ${S.e.tasa}%.`);if(!S.e.pend.length)S.e.notifs.unshift({t:'Estás al día',cuando:'ahora',d:'Respondiste todas las postulaciones. Ya podés publicar.',go:'#/e/publicar',nuevo:true});go(abreChat?'#/e/chat/'+c.id:(S.e.pend.length?'#/e/candidatos':'#/e/panel'));
 }
 /* ---------- Router ---------- */
 function route(){
@@ -1315,9 +1345,10 @@ document.addEventListener('change',e=>{
   }
 });
 
+function msgsDeChat(d,chatId){ return (d.mensajes||[]).filter(m=>m.chat_id===chatId).map(m=>({dbId:m.id,de:m.autor_id===ME.id?'me':'them',t:m.texto,h:m.h})); }
 function msgsDe(d,key){ return d.mensajes.filter(m=>m.chat_key===key).map(m=>({dbId:m.id,de:m.de,t:m.texto,h:m.h})); }
 let mensajesChannel=null;
-function suscribirMensajesRealtime(){if(mensajesChannel||ME.demo||!ME.id)return;mensajesChannel=sb.channel('mensajes-'+ME.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'mensajes'},payload=>{const m=payload.new;const c=[S.c.chats,S.e.chats].map(x=>Object.values(x).find(v=>v?.key===m.chat_key)).find(Boolean);if(!c)return;if(c.msgs.some(x=>x.dbId===m.id))return;const same=c.msgs.find(x=>!x.dbId&&x.de===m.de&&x.t===m.texto&&x.h===m.h);if(same){same.dbId=m.id;return;}c.msgs.push({dbId:m.id,de:m.de,t:m.texto,h:m.h});softRender();}).subscribe((status,err)=>{if(err)console.warn('[realtime] mensajes',status,err);});}
+function suscribirMensajesRealtime(){if(mensajesChannel||ME.demo||!ME.id)return;mensajesChannel=sb.channel('mensajes-'+ME.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'mensajes'},payload=>{const m=payload.new;const k=m.chat_id?'chat:'+m.chat_id:m.chat_key;const de=m.chat_id?(m.autor_id===ME.id?'me':'them'):m.de;const c=[S.c.chats,S.e.chats].map(x=>Object.values(x).find(v=>v?.key===k)).find(Boolean);if(!c)return;if(c.msgs.some(x=>x.dbId===m.id))return;const same=c.msgs.find(x=>!x.dbId&&x.de===de&&x.t===m.texto&&x.h===m.h);if(same){same.dbId=m.id;return;}c.msgs.push({dbId:m.id,de,t:m.texto,h:m.h});softRender();}).on('postgres_changes',{event:'INSERT',schema:'public',table:'chats'},()=>{hidratar();}).subscribe((status,err)=>{if(err)console.warn('[realtime] mensajes',status,err);});}
 async function hidratar(){
   const d=await DB.cargar().catch(err=>{ console.error('No se pudo cargar desde Supabase',err); return null; });
   if(!d) return;
@@ -1330,7 +1361,11 @@ async function hidratar(){
   const postIds=new Set(dbPosts.map(p=>p.id));
   S.c.posts=ME.rol==='c' ? dbPosts : [...dbPosts,...base.c.posts.filter(p=>!postIds.has(p.id))];
   S.c.chats=ME.rol==='c' ? {} : {...base.c.chats};
-  d.postulaciones.forEach(r=>{ if(r.datos.chat) S.c.chats[r.oferta_id]={...r.datos.chat,key:r.datos.chat.key||('chat:'+r.id),msgs:[]}; });
+  if(ME.rol==='c') (d.chats||[]).forEach(ch=>{
+    const r=d.postulaciones.find(p=>p.id===ch.postulacion_id); const post=dbPosts.find(p=>p.id===ch.postulacion_id); const ep=ch.empresa||{};
+    S.c.chats[ch.id]={con:ep.nombre||'Empresa',puesto:post?.puesto||'',match:true,key:'chat:'+ch.id,avatar:ep.avatar_url||'',perfilUrl:'#/c/oferta/'+(r?.oferta_id||''),msgs:msgsDeChat(d,ch.id)};
+    if(post) post.chat=ch.id;
+  });
   if(ME.rol==='c') S.c.notifs=base.c.notifs.filter(n=>!/(Farmacia Sur|Supermercado Norte)/i.test((n.t||'')+' '+(n.d||'')));
   // Empresa: búsquedas y candidatos respondidos
   // En una empresa real no se mezclan las búsquedas/notificaciones de ejemplo.
@@ -1345,8 +1380,8 @@ async function hidratar(){
     const dias=Math.max(0,Math.floor((Date.now()-new Date(r.created_at||Date.now()).getTime())/86400000));
     return {id:r.id,candidato_id:r.candidato_id,oferta_id:r.oferta_id,nombre,corto:nombre.trim().split(/\s+/).slice(0,2).join(' '),edad:datos['rc-edad']||'',zona:datos['rc-ubi']||'',linea:[datos['rc-puesto'],datos['rc-ubi']].filter(Boolean).join(' · ')||'Postulante',busca:datos['rc-puesto']||'Busca trabajo',hace:dias,quedan:Math.max(0,S.e.plazo-dias),avatar:perfil?.avatar_url||'',porque:datos['rc-sobre']||'Se postuló a esta búsqueda según su perfil.',sabe:[...(chips.rubros||[]),...(datos['rx-puesto']?[datos['rx-puesto']]:[])].slice(0,4),estudios:datos['rc-estudios']||'Perfil en Match Empleos',estado:r.estado};
   });
-  S.e.pend=postulantes.filter(p=>!estados.has(p.id)&&p.estado!=='Respondida'); S.e.resp=[]; S.e.chats={};
-  d.candidatosEstado.forEach(r=>{ const p=postulantes.find(x=>x.id===r.id); const nombre=p?.corto||r.corto; const hasChat=r.estado==='si'||r.estado==='mas'; S.e.resp.unshift({nombre,tipo:r.estado,chat:hasChat?r.id:undefined}); if(hasChat) S.e.chats[r.id]={con:nombre,puesto:ePuestoActual(),match:r.estado==='si',msgs:[]}; });
+  S.e.todos=postulantes; S.e.pend=postulantes.filter(p=>!estados.has(p.id)&&p.estado!=='Respondida'); S.e.resp=[]; S.e.chats={};
+  d.candidatosEstado.forEach(r=>{ const p=postulantes.find(x=>x.id===r.id); const nombre=p?.corto||r.corto; const hasChat=r.estado==='si'; S.e.resp.unshift({nombre,tipo:r.estado,chat:hasChat?r.id:undefined}); if(hasChat) S.e.chats[r.id]={con:nombre,puesto:ePuestoActual(),match:true,key:'chat:'+r.id,avatar:p?.avatar||'',perfilUrl:'#/e/candidato/'+r.id,msgs:msgsDeChat(d,r.id)}; });
   const empresaMap=new Map((d.empresas||[]).map(p=>[p.id,p]));
   const ofertasReales=d.busquedas.map(b=>{ const ep=empresaMap.get(b.empresa_id); const ec=ep?.datos?.campos||{}; const ecx=ep?.datos?.chips||{}; return {id:b.id,emp:ep?.nombre||'Empresa',meta:[ec['re-rubro'],ec['re-tam']].filter(Boolean).join(' · '),puesto:b.puesto,chips:[ec['re-ubi'],ecx.etipo,ecx.emodo,ecx.ehora].flat().filter(Boolean),fchips:[ec['re-ubi'],ecx.etipo,ecx.emodo].flat().filter(Boolean),tasa:ep?.tasa||94,dias:ep?.demora||3,logo:ep?.avatar_url||'',desc:b.descripcion||ec['re-desc']||'',real:true}; });
   if(ME.rol==='c' && ofertasReales.length){ const ids=new Set(S.c.ofertas.map(o=>o.id)); S.c.ofertas=[...ofertasReales.filter(o=>!ids.has(o.id)),...S.c.ofertas]; }
@@ -1393,17 +1428,23 @@ async function iniciarSesionForm(){
   const email=document.getElementById('lg-mail').value.trim();
   const password=document.getElementById('lg-pass').value;
   ultimoCorreo=email;
-  const {data,error}=await sb.auth.signInWithPassword({email,password});
-  if(!error){
-    await setSesion(data.session);
-    go(ME.rol==='e'?'#/e/panel':'#/c/feed');
-    return;
-  }
-  if(/not confirmed/i.test(error.message)){
-    document.getElementById('lg-hint').innerHTML='Todavía no confirmaste tu correo. <button type="button" data-action="reenviar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Reenviar correo de confirmación</button>';
-  } else {
-    console.warn('[auth] login falló:', error.message);
-    document.getElementById('lg-hint').innerHTML='Correo o contraseña incorrectos. <button type="button" data-go="#/recuperar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">¿Olvidaste tu contraseña?</button>';
+  const btn=document.querySelector('[data-form="login"] button[type="submit"]');
+  if(btn){ btn.classList.add('cargando'); btn.disabled=true; btn.setAttribute('aria-busy','true'); }
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email,password});
+    if(!error){
+      await setSesion(data.session);
+      go(ME.rol==='e'?'#/e/panel':'#/c/feed');
+      return;
+    }
+    if(/not confirmed/i.test(error.message)){
+      document.getElementById('lg-hint').innerHTML='Todavía no confirmaste tu correo. <button type="button" data-action="reenviar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Reenviar correo de confirmación</button>';
+    } else {
+      console.warn('[auth] login falló:', error.message);
+      document.getElementById('lg-hint').innerHTML='Correo o contraseña incorrectos. <button type="button" data-go="#/recuperar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">¿Olvidaste tu contraseña?</button>';
+    }
+  } finally {
+    if(btn && btn.isConnected){ btn.classList.remove('cargando'); btn.disabled=false; btn.removeAttribute('aria-busy'); }
   }
 }
 let ultimoCorreo='';
