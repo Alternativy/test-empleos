@@ -1268,6 +1268,10 @@ function render(keepScroll){
     if(document.getElementById(pfx+'-mail') && (regDraft[pfx+'-mail']||regDraft[pfx+'-pass'])) validarCred(pfx);
   });
   const isNew = location.hash!==lastHash; lastHash=location.hash;
+  if(isNew && /^#\/c\/match(?:\/|$)/.test(location.hash)){
+    const matchSound = new Audio('sfx/match-sound-fx.mp3');
+    matchSound.play().catch(err=>console.warn('[audio] No se pudo reproducir el sonido de match:', err));
+  }
   if(keepScroll) window.scrollTo(0,y);
   else if(isNew && !pendingScroll) window.scrollTo(0,0);
   if(pendingScroll){ const el=document.getElementById(pendingScroll); pendingScroll=null; if(el) requestAnimationFrame(()=>el.scrollIntoView({behavior:'smooth'})); }
