@@ -699,7 +699,7 @@ function shell(kind, active, inner, opts={}){
   const emp = kind==='e';
   const nav = emp?ENAV:CNAV;
   const links = nav.map(([h,l])=>`<a href="${h}"${h===active?' aria-current="page"':''}><span class="ico"></span>${l}</a>`).join('');
-  const side = `<aside class="side-nav">${emp?WM:WM_INV}${links}<p class="who">${emp?'Café Mercado':miNombre()}</p></aside>`;
+  const side = `<aside class="side-nav">${emp?WM:WM_INV}${links}<p class="who">${emp?miNombre('e'):miNombre()}</p></aside>`;
   const rim='#E9E9E9';
   const dock = `<div class="dock">${waveSVG('',emp?'#002147':'#36F48C',rim)}<div class="band"><nav class="nav-b" aria-label="Secciones">${links}</nav></div></div>`;
   return `<div class="app has-nav ${emp?'emp':'cand'}">${side}<main class="screen${opts.cls?' '+opts.cls:''}">${inner}</main>${dock}</div>`;
@@ -727,7 +727,6 @@ function siteFooter(){
 function home(){
   return `<div class="site">
   <header class="top"><div class="wrap">${LOCKUP}
-    <form class="search" role="search" data-form="search"><label class="vh" for="q">Buscar empleos</label><input id="q" type="search" placeholder="" autocomplete="off"><button type="submit" aria-label="Buscar">${SEARCH}</button></form>
     <nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>
   </div></header>
 
