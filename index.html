@@ -1123,11 +1123,12 @@ function eResponder(id,tipo){
   return shell('e','#/e/candidatos',inner);
 }
 function eEmpresa(){
+  const mesActual=new Intl.DateTimeFormat('es-AR',{month:'long'}).format(new Date()).replace(/^./,c=>c.toUpperCase());
   const inner=`<div style="max-width:720px"><h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img class="avatar" src="${fotoSrc('img/logo-cafe-mercado.png')}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">Café Mercado</h2><p style="font-size:13px">Gastronomía · 12 empleados · Lomas de Zamora</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img class="avatar" src="${fotoSrc('img/logo-cafe-mercado.png')}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre('e'))}</h2><p style="font-size:13px">${subtituloEmpresa()||'<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
   <div class="card"><div class="row2"><div><p class="bignum">${S.e.tasa}%</p><p class="t-note">de respuesta</p></div><div><p class="bignum">${S.e.demora} días</p><p class="t-note">de demora</p></div></div><div class="progress" style="margin:14px 0"><i style="width:${S.e.tasa}%"></i></div><p class="t-note">Con 90% o más entrás en el grupo de empresas destacadas y tus búsquedas aparecen primero.</p></div>
   <h2 class="t-sec">Historial de respuesta</h2>
-  ${[['Septiembre',S.e.tasa],['Agosto',92],['Julio',78]].map(([m,v])=>`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>${m}</span><span>${v}%</span></div><div class="progress"><i style="width:${v}%;background:var(--navy)"></i></div></div>`).join('')}
+  ${[[mesActual,S.e.tasa]].map(([m,v])=>`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>${m}</span><span>${v}%</span></div><div class="progress"><i style="width:${v}%;background:var(--navy)"></i></div></div>`).join('')}
   <button class="rowline" data-go="#/e/datos"><span>Datos empresariales</span><span class="v">›</span></button>
   <button class="rowline" data-go="#/e/config"><span>Configuración</span><span class="v">›</span></button></div>`;
   return shell('e','#/e/empresa',inner);
