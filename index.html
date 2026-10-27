@@ -1356,9 +1356,11 @@ async function hidratar(){
   S.c.chats={...base.c.chats};
   d.postulaciones.forEach(r=>{ if(r.datos.chat) S.c.chats[r.oferta_id]={...r.datos.chat,msgs:[]}; });
   // Empresa: búsquedas y candidatos respondidos
+  // En una empresa real no se mezclan las búsquedas/notificaciones de ejemplo.
+  if(ME.rol==='e') S.e.notifs=[];
   const dbBus=d.busquedas.map(b=>({id:b.id,puesto:b.puesto,total:d.postulaciones.filter(p=>p.oferta_id===b.id).length,estado:b.estado,desc:b.descripcion}));
   const busIds=new Set(dbBus.map(b=>b.id));
-  S.e.busquedas=[...dbBus,...base.e.busquedas.filter(b=>!busIds.has(b.id))];
+  S.e.busquedas=ME.rol==='e' ? dbBus : [...dbBus,...base.e.busquedas.filter(b=>!busIds.has(b.id))];
   const estados=new Map(d.candidatosEstado.map(r=>[r.id,r]));
   const perfilesPorId=new Map((d.candidatos||[]).map(p=>[p.id,p]));
   const postulantes=d.postulaciones.map(r=>{
