@@ -1038,7 +1038,7 @@ function ePanel(){
   const p=S.e.pend.length; const vieja=S.e.pend[0];
   const pendCard = p?`<a class="card" href="#/e/candidatos" style="display:block;text-decoration:none"><h2 style="font-size:20px;font-weight:500;line-height:1.3;margin-bottom:10px">Te faltan responder ${p} postulaci${p===1?'ón':'ones'}</h2><p class="t-note">La más vieja lleva ${vieja.hace} días esperando. Te quedan ${vieja.quedan} para contestarla sin que baje tu tasa.</p></a>`
     :`<div class="card"><h2 style="font-size:20px;font-weight:500;margin-bottom:8px">Estás al día</h2><p class="t-note">Respondiste todas las postulaciones. Ya podés publicar una búsqueda nueva.</p></div>`;
-  const inner=`<div class="hdr">${WM_INV}<span class="side">Café Mercado</span></div>
+  const inner=`<div class="hdr">${WM_INV}<span class="side">${esc(miNombre('e'))}</span></div>
   <h1 class="t-title only-d" style="margin-bottom:20px">Búsquedas</h1>
   <div class="grid2" style="gap:12px">${pendCard}
   <div><div class="row2"><div class="card"><p class="bignum">${S.e.tasa}%</p><p class="t-note" style="margin-top:6px">tu tasa de respuesta</p></div><div class="card"><p class="bignum">${S.e.demora} días</p><p class="t-note" style="margin-top:6px">tu demora promedio</p></div></div>
