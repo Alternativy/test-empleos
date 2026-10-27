@@ -1089,7 +1089,7 @@ function ePublicar(step){
   return shell('e','#/e/panel',inner);
 }
 let candFilter='pend';
-function ePuestoActual(){ const b=S.e.busquedas[0]; return b?.puesto || (ME.datos?.campos||{})['re-puesto'] || 'Búsqueda de empleo'; }
+function ePuestoActual(){ return ME.demo ? 'Ayudante de cocina' : ((ME.datos?.campos||{})['re-puesto'] || 'Búsqueda de empleo'); }
 function eCandidatos(){
   const b=S.e.busquedas[0]; const list=S.e.pend.filter(c=>!b || !c.oferta_id || c.oferta_id===b.id); const tot=b?.total??list.length;
   const chips=[['pend',`Sin responder (${list.length})`],['resp','Respondidas'],['match','Con match']].map(([k,l])=>`<button class="chip" data-cfilter="${k}" aria-pressed="${candFilter===k}">${l}</button>`).join('');
