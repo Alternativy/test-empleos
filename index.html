@@ -282,7 +282,8 @@ button.rowline:hover{color:var(--green)}
 .badge-act{background:var(--green);color:var(--navy);font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px}
 .badge-off{border:1px solid var(--line);color:var(--t2);font-size:12px;padding:4px 10px;border-radius:20px}
 .avatar{width:56px;height:56px;border-radius:14px;object-fit:cover;background:var(--navy2);flex:none}
-.emp .avatar.ph{background:var(--navy)}
+.avatar.ph{background:var(--line)}
+.emp .avatar.ph{background:var(--green-deep)}
 .avatar.lg{width:92px;height:92px;border-radius:24px}
 .tag-sm{font-size:12px;color:var(--green);font-weight:600}
 
@@ -292,9 +293,12 @@ button.rowline:hover{color:var(--green)}
 .emp .note-match{background:var(--navy);color:var(--t2)}
 .bub{max-width:82%;padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.4}
 .bub small{display:block;font-size:11px;opacity:.65;margin-top:4px}
-.bub.them{background:var(--navy2);color:var(--white);border-bottom-left-radius:4px;align-self:flex-start}
-.emp .bub.them{background:var(--navy);color:var(--white)}
-.bub.me{background:var(--green);color:var(--navy);border-bottom-right-radius:4px;align-self:flex-end}
+.fila{display:flex;width:100%}
+.fila.them{justify-content:flex-start}
+.fila.me{justify-content:flex-end}
+.bub.them{background:var(--navy2);color:var(--white);border:1px solid var(--line);border-bottom-left-radius:4px}
+.emp .bub.them{background:var(--navy);color:var(--white);border:0}
+.bub.me{background:var(--green);color:var(--navy);border-bottom-right-radius:4px}
 .emp .bub.me{background:var(--white);color:var(--navy)}
 .typing{font-size:12px;color:var(--t2);font-style:italic}
 .emp .typing{color:var(--navy)}
@@ -937,7 +941,7 @@ function cMatch(id){
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
     <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
-    <div class="match-pair"><img src="${fotoSrc('img/avatar-tomas.png')}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img src="${o.logo||'img/logo-cafe-mercado.png'}" alt="${esc(o.emp)}"></div>
+    <div class="match-pair"><img src="${fotoSrc('img/avatar-tomas.png')}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img src="${o.logo||(ME.demo?'img/logo-cafe-mercado.png':phSrc())}" alt="${esc(o.emp)}"></div>
     <p class="note-match" style="max-width:342px">Ya podés coordinar los próximos pasos en el chat.</p>
   </div>
   <div class="stack" style="margin-top:60px"><button class="btn pri" data-go="#/c/chat/${o.id}">Escribirle ahora</button><button class="btn out" data-go="#/c/feed">Seguir viendo búsquedas</button></div>
@@ -960,6 +964,7 @@ function cPost(){
 }
 function avatarOf(kind,k){
   const ch=(kind==='e'?S.e.chats:S.c.chats)[k]; if(ch?.avatar) return `<img class="avatar" src="${esc(ch.avatar)}" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">`;
+  if(!ME.demo) return avPh('width:44px;height:44px;border-radius:12px');
   if(kind==='e') return k==='tomas'?'<img class="avatar" src="img/avatar-tomas.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">':'<span class="avatar" style="width:44px;height:44px;border-radius:12px;background:var(--navy2)"></span>';
   return k==='cafe'?'<img class="avatar" src="img/logo-cafe-mercado.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">':'<span class="sq" style="width:44px;height:44px;border-radius:12px"></span>';
 }
@@ -977,7 +982,7 @@ function chatBody(kind, id){
   const chats = kind==='e'?S.e.chats:S.c.chats; const c=chats[id];
   if(!c) return '<p class="t-note">Elegí una conversación.</p>';
   const note = c.match?'Esta conversación nació de un match. Los dos dijeron que sí.':(kind==='e'?`Le pediste más información a ${esc(c.con.split(' ')[0])}.`:`Respondieron tu postulación a ${esc(c.puesto)}.`);
-  return `<div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map(m=>`<div class="bub ${m.de}">${esc(m.t)}</div>`).join('')}${c.typing?`<p class="typing">${esc(c.con.split(' ')[0])} está escribiendo…</p>`:''}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
+  return `<div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map(m=>`<div class="fila ${m.de}"><div class="bub ${m.de}">${esc(m.t)}</div></div>`).join('')}${c.typing?`<p class="typing">${esc(c.con.split(' ')[0])} está escribiendo…</p>`:''}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
   <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>`;
 }
 function mensajes(kind, id){
@@ -1106,12 +1111,12 @@ function eCandidatos(){
   const chips=[['pend',`Sin responder (${list.length})`],['resp','Respondidas'],['match','Con match']].map(([k,l])=>`<button class="chip" data-cfilter="${k}" aria-pressed="${candFilter===k}">${l}</button>`).join('');
   let body='';
   if(candFilter==='pend'){
-    body=list.map(c=>`<div class="ccard"><a href="#/e/candidato/${c.id}">${c.avatar?`<img class="avatar" src="${c.avatar}" alt="" style="width:40px;height:40px;border-radius:10px;background:#fff">`:'<span class="avatar" style="width:40px;height:40px;border-radius:10px;background:var(--navy2)"></span>'}<div class="grow" style="flex:1;min-width:0"><h3>${esc(c.corto)}, ${c.edad}</h3><p class="t-note" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.linea)}</p></div><span class="vence">Vence en ${c.quedan} días</span></a>
+    body=list.map(c=>`<div class="ccard"><a href="#/e/candidato/${c.id}">${c.avatar?`<img class="avatar" src="${c.avatar}" alt="" style="width:40px;height:40px;border-radius:10px;background:#fff">`:avPh('width:40px;height:40px;border-radius:10px')}<div class="grow" style="flex:1;min-width:0"><h3>${esc(c.corto)}, ${c.edad}</h3><p class="t-note" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.linea)}</p></div><span class="vence">Vence en ${c.quedan} días</span></a>
       <div class="row2"><button class="btn cno" data-go="#/e/responder/${c.id}/no">No avanza</button><button class="btn cyes" data-go="#/e/responder/${c.id}/si">Me interesa</button></div></div>`).join('')
       || `<div class="empty"><p style="font-weight:600">Respondiste a todos</p><p>Tu tasa de respuesta sube y ya podés publicar una búsqueda nueva.</p><button class="btn out sm" data-go="#/e/publicar">Publicar una búsqueda</button></div>`;
   } else {
     const r=S.e.resp.filter(x=>candFilter==='resp'||x.tipo==='si');
-    body=r.map(x=>`<div class="ccard"><a href="${x.chat?'#/e/chat/'+x.chat:'#/e/candidatos'}"><span class="avatar" style="width:40px;height:40px;border-radius:10px;background:var(--navy2)"></span><div style="flex:1"><h3>${esc(x.nombre)}</h3><p class="t-note">${x.tipo==='si'?'Lo quiero conocer · hay match':x.tipo==='mas'?'Le pediste más información':'Por ahora no'}</p></div></a></div>`).join('')||'<div class="empty">Todavía no hay candidatos en este filtro.</div>';
+    body=r.map(x=>`<div class="ccard"><a href="${x.chat?'#/e/chat/'+x.chat:'#/e/candidatos'}">${avPh('width:40px;height:40px;border-radius:10px')}<div style="flex:1"><h3>${esc(x.nombre)}</h3><p class="t-note">${x.tipo==='si'?'Lo quiero conocer · hay match':x.tipo==='mas'?'Le pediste más información':'Por ahora no'}</p></div></a></div>`).join('')||'<div class="empty">Todavía no hay candidatos en este filtro.</div>';
   }
   const inner=`<button class="back big" data-go="#/e/panel">‹&nbsp; ${esc(ePuestoActual())}</button><p style="font-size:13px;margin:4px 0 14px">${tot} postulaciones · ${list.length} sin responder</p>
   <div class="chips" style="margin-bottom:16px">${chips}</div><div class="stack grid2">${body}</div>`;
@@ -1238,9 +1243,9 @@ async function sendChat(kind,id,text){
 }
 
 async function enviarResp(id,tipo,text){
-  const i=S.e.pend.findIndex(x=>x.id===id);if(i<0)return;const c=S.e.pend.splice(i,1)[0];S.e.tasa=Math.min(100,S.e.tasa+2);if(S.e.demora>2&&S.e.pend.length%2===0)S.e.demora--;
-  const guardadoCand=DB.guardarCandidato(c.id,c.corto,tipo);DB.setTasa(S.e.tasa);
-  const rec={nombre:c.corto,tipo};S.e.resp.unshift(rec);
+  const i=S.e.pend.findIndex(x=>x.id===id);if(i<0)return;const c=S.e.pend.splice(i,1)[0];if(S.e.demora>2&&S.e.pend.length%2===0)S.e.demora--;
+  const guardadoCand=DB.guardarCandidato(c.id,c.corto,tipo);
+  const rec={nombre:c.corto,tipo};S.e.resp.unshift(rec);S.e.tasa=calcTasa();DB.setTasa(S.e.tasa);
   // El chat real lo crea el servidor al marcar 'si'. 'mas' no abre chat (solo en demo se mantiene).
   const abreChat=tipo==='si'||(ME.demo&&tipo==='mas');
   if(abreChat){
@@ -1252,7 +1257,7 @@ async function enviarResp(id,tipo,text){
   if(tipo==='si'||tipo==='mas'){const postRow=await DB.cargarPostulacion(c.id);if(postRow){postRow.estado='Respondida';postRow.datos={...(postRow.datos||{}),post:{...(postRow.datos?.post||{}),estado:'Respondida'}};await DB.actualizarPostulacion(postRow);}}
   if(tipo==='si')S.e.notifs.unshift({t:`Hay match con ${c.corto}`,cuando:'ahora',d:'Se abrió el chat para coordinar los próximos pasos.',go:'#/e/chat/'+c.id,nuevo:true});
   if(ME.demo&&abreChat)later(3500,()=>{const ch=S.e.chats[c.id];if(ch){const t=tipo==='si'?'¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?':'¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.';const m={de:'them',t,h:now()};ch.msgs.push(m);DB.nuevoMensaje('chat:'+c.id,'them',t,m.h);S.e.notifs.unshift({t:`${c.corto} te escribió`,cuando:'ahora',d:ePuestoActual(),go:'#/e/chat/'+c.id,nuevo:true});toast(`${c.corto} te respondió`);}});
-  tplSel=null;toast(`Respuesta enviada a ${c.corto}. Tu tasa subió a ${S.e.tasa}%.`);if(!S.e.pend.length)S.e.notifs.unshift({t:'Estás al día',cuando:'ahora',d:'Respondiste todas las postulaciones. Ya podés publicar.',go:'#/e/publicar',nuevo:true});go(abreChat?'#/e/chat/'+c.id:(S.e.pend.length?'#/e/candidatos':'#/e/panel'));
+  tplSel=null;toast(`Respuesta enviada a ${c.corto}. Tu tasa de respuesta es ahora ${S.e.tasa}%.`);if(!S.e.pend.length)S.e.notifs.unshift({t:'Estás al día',cuando:'ahora',d:'Respondiste todas las postulaciones. Ya podés publicar.',go:'#/e/publicar',nuevo:true});go(abreChat?'#/e/chat/'+c.id:(S.e.pend.length?'#/e/candidatos':'#/e/panel'));
 }
 /* ---------- Router ---------- */
 function route(){
@@ -1345,6 +1350,9 @@ document.addEventListener('change',e=>{
   }
 });
 
+// Tasa de respuesta = postulaciones respondidas / total de postulaciones recibidas.
+// Sin postulaciones todavía se muestra 100 % para no mostrar un número vacío.
+function calcTasa(){ const r=S.e.resp.length, p=S.e.pend.length; return r+p ? Math.round(100*r/(r+p)) : 100; }
 function msgsDeChat(d,chatId){ return (d.mensajes||[]).filter(m=>m.chat_id===chatId).map(m=>({dbId:m.id,de:m.autor_id===ME.id?'me':'them',t:m.texto,h:m.h})); }
 function msgsDe(d,key){ return d.mensajes.filter(m=>m.chat_key===key).map(m=>({dbId:m.id,de:m.de,t:m.texto,h:m.h})); }
 let mensajesChannel=null;
@@ -1388,6 +1396,7 @@ async function hidratar(){
   // Mensajes guardados se suman a cada chat (los de ejemplo base se conservan sin duplicarse)
   Object.keys(S.c.chats).forEach(k=>{ S.c.chats[k].msgs=[...(S.c.chats[k].msgs||[]),...msgsDe(d,'c:'+k)]; });
   Object.keys(S.e.chats).forEach(k=>{ S.e.chats[k].msgs=[...(S.e.chats[k].msgs||[]),...msgsDe(d,'e:'+k)]; });
+  if(ME.rol==='e'){ S.e.tasa=calcTasa(); if(perf && perf.tasa!==S.e.tasa) DB.setTasa(S.e.tasa); }
   render(true);suscribirMensajesRealtime();
 }
 
@@ -1546,7 +1555,14 @@ function nuevaClave(){ return authShell(`<div class="hdr">${WM}</div><h1 class="
 // Demo: sin login y sin escrituras en la base. Para quitarla, poner en false o borrar este bloque.
 const DEMO_HABILITADO = true;
 function miNombre(kind){ if(ME.demo) return kind==='e'?'Café Mercado':'Tomás Ferreyra'; return ME.nombre||''; }
-function fotoSrc(defecto){ return ME.demo ? defecto : (ME.avatarUrl||defecto); }
+function phSrc(){
+  const fill = ME.rol==='e' ? '#0F7A45' : '#16406F';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${fill}"/><circle cx="50" cy="40" r="18" fill="#FFFFFF" fill-opacity=".35"/><path d="M20 100Q20 64 50 64Q80 64 80 100Z" fill="#FFFFFF" fill-opacity=".35"/></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+// Demo conserva sus imágenes de ejemplo; en cuentas reales sin foto se muestra el placeholder
+function fotoSrc(defecto){ if(ME.demo) return defecto; return ME.avatarUrl || phSrc(); }
+function avPh(size){ return ME.demo ? `<span class="avatar" style="${size};background:var(--navy2)"></span>` : `<img class="avatar" src="${phSrc()}" alt="" style="${size}">`; }
 function subtituloEmpresa(){
   if(ME.demo) return 'Gastronomía · 12 empleados · Lomas de Zamora';
   const c=ME.datos?.campos||{};
