@@ -1328,9 +1328,10 @@ async function hidratar(){
   // Candidato: postulaciones y chats creados
   const dbPosts=d.postulaciones.map(r=>({...r.datos.post,estado:r.estado}));
   const postIds=new Set(dbPosts.map(p=>p.id));
-  S.c.posts=[...dbPosts,...base.c.posts.filter(p=>!postIds.has(p.id))];
-  S.c.chats={...base.c.chats};
+  S.c.posts=ME.rol==='c' ? dbPosts : [...dbPosts,...base.c.posts.filter(p=>!postIds.has(p.id))];
+  S.c.chats=ME.rol==='c' ? {} : {...base.c.chats};
   d.postulaciones.forEach(r=>{ if(r.datos.chat) S.c.chats[r.oferta_id]={...r.datos.chat,key:r.datos.chat.key||('chat:'+r.id),msgs:[]}; });
+  if(ME.rol==='c') S.c.notifs=base.c.notifs.filter(n=>!/(Farmacia Sur|Supermercado Norte)/i.test((n.t||'')+' '+(n.d||'')));
   // Empresa: búsquedas y candidatos respondidos
   // En una empresa real no se mezclan las búsquedas/notificaciones de ejemplo.
   if(ME.rol==='e') S.e.notifs=[];
