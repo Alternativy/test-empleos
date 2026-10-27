@@ -1120,16 +1120,16 @@ function eCandidato(id){
   return shell('e','#/e/candidatos',inner);
 }
 const TPL=[
-  ['Lo quiero conocer','Se abre el chat y coordinan una entrevista.','si','Hola {n}, somos Café Mercado. Nos interesó tu perfil para el puesto de Ayudante de cocina. ¿Podés venir el jueves a las 16?'],
-  ['Por ahora no','Le avisamos con respeto y queda disponible para otra búsqueda.','no','Hola {n}, gracias por postularte a Ayudante de cocina en Café Mercado. Por ahora seguimos con otros perfiles, pero tu perfil queda disponible para próximas búsquedas. ¡Mucha suerte!'],
-  ['Quiero saber un poco más','Le mandamos dos preguntas antes de decidir.','mas','Hola {n}, gracias por postularte a Ayudante de cocina. Antes de decidir queremos saber dos cosas: ¿qué días de la semana podés trabajar? ¿Tenés libreta sanitaria?']
+  ['Lo quiero conocer','Se abre el chat y coordinan una entrevista.','si','Hola {n}, somos {empresa}. Nos interesó tu perfil para el puesto de {puesto}. ¿Podés venir el jueves a las 16?'],
+  ['Por ahora no','Le avisamos con respeto y queda disponible para otra búsqueda.','no','Hola {n}, gracias por postularte a {puesto} en {empresa}. Por ahora seguimos con otros perfiles, pero tu perfil queda disponible para próximas búsquedas. ¡Mucha suerte!'],
+  ['Quiero saber un poco más','Le mandamos dos preguntas antes de decidir.','mas','Hola {n}, gracias por postularte a {puesto}. Antes de decidir queremos saber dos cosas: ¿qué días de la semana podés trabajar? ¿Tenés libreta sanitaria?']
 ];
 let tplSel=null;
 function eResponder(id,tipo){
   const c=S.e.pend.find(x=>x.id===id); if(!c) return eCandidatos();
   const sel = tplSel===null ? (tipo==='no'?1:0) : tplSel;
   const first=c.nombre.split(' ')[0];
-  const fill=s=>s.replace('{n}',first);
+  const fill=s=>s.replace('{n}',first).replaceAll('{puesto}',ePuestoActual()).replaceAll('{empresa}',miNombre('e'));
   const inner=`<div style="max-width:620px">${hdr(backBtn('#/e/candidato/'+id,'Cancelar'),`${esc(c.corto)} · ${esc(ePuestoActual())}`)}
   <h1 class="t-title" style="margin-bottom:10px">Contestale a ${esc(first)}</h1><p style="margin-bottom:18px;line-height:1.5">Elegí una respuesta. Podés editarla antes de enviarla.</p>
   <div class="stack">${TPL.map(([t,d],i)=>`<button class="tpl" data-tpl="${i}" aria-pressed="${i===sel}"><b>${t}</b><span>${d}</span></button>`).join('')}</div>
@@ -1356,7 +1356,7 @@ async function hidratar(){
   S.c.chats={...base.c.chats};
   d.postulaciones.forEach(r=>{ if(r.datos.chat) S.c.chats[r.oferta_id]={...r.datos.chat,msgs:[]}; });
   // Empresa: búsquedas y candidatos respondidos
-  const dbBus=d.busquedas.map(b=>({id:b.id,puesto:b.puesto,total:b.total,estado:b.estado,desc:b.descripcion}));
+  const dbBus=d.busquedas.map(b=>({id:b.id,puesto:b.puesto,total:d.postulaciones.filter(p=>p.oferta_id===b.id).length,estado:b.estado,desc:b.descripcion}));
   const busIds=new Set(dbBus.map(b=>b.id));
   S.e.busquedas=[...dbBus,...base.e.busquedas.filter(b=>!busIds.has(b.id))];
   const estados=new Map(d.candidatosEstado.map(r=>[r.id,r]));
