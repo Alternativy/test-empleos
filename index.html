@@ -1,6 +1,10 @@
 <!doctype html>
 <html lang="es">
 <head>
+<link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+<link rel="manifest" href="img/site.webmanifest">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Match Empleos</title>
@@ -42,7 +46,7 @@ html{scroll-behavior:smooth}
 .site{background:var(--navy);color:var(--navy);min-height:100%;overflow-x:hidden}
 .wrap{width:min(1240px,100% - 32px);margin-inline:auto}
 .top{background:var(--navy);height:107px;display:flex;align-items:center}
-.top .wrap{display:flex;align-items:center;gap:clamp(16px,3.5vw,50px);width:min(890px,100% - 32px);justify-content:space-between}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:clamp(16px,3.5vw,50px);width:min(890px,100% - 32px)}
 .lockup{display:flex;align-items:center;gap:8px;text-decoration:none;flex:none}
 .lockup .iso{width:41px;height:38px}
 .lockup .words{display:flex;flex-direction:column;gap:2px;width:78px}
@@ -51,9 +55,11 @@ html{scroll-behavior:smooth}
 .search{flex:1;display:flex;align-items:center;height:26px;border-radius:20px;background:var(--gray2);padding:0 6px 0 14px;min-width:0}
 .search input{flex:1;border:0;background:transparent;font:inherit;font-size:14px;color:var(--navy);min-width:0;outline:none}
 .search button{border:0;border-left:1px solid #9a9a9a;background:transparent;padding:0 4px 0 8px;display:flex}
-.top nav{display:flex;gap:clamp(16px,4.2vw,60px)}
+.top nav{display:flex;align-items:center;gap:clamp(16px,4.2vw,60px)}
 .top nav a{color:var(--gray);text-decoration:none;font-size:20px;white-space:nowrap}
 .top nav a:hover{color:var(--green)}
+.top nav a.top-av{padding:0;line-height:0;border-radius:12px}
+.top nav a.top-av:focus-visible{outline:2px solid var(--green);outline-offset:3px}
 
 /* Hero */
 .hero{background:linear-gradient(var(--navy) 0 45%,var(--green) 45%)}
@@ -100,9 +106,8 @@ html{scroll-behavior:smooth}
 .step p{font-size:16px;line-height:1.3}
 
 /* Futuro */
-.futuro{background:var(--gray);padding-top:40px}
+.futuro{background:var(--gray);padding-top:40px;overflow:hidden}
 .futuro h2{font-size:clamp(36px,4.2vw,60px);font-weight:700;color:var(--navy);padding:0 clamp(16px,5.8vw,84px);margin-bottom:28px;letter-spacing:-.01em}
-.futuro{overflow:hidden}
 .fut-in{position:relative;isolation:isolate;padding:130px clamp(16px,5vw,70px) 90px;color:var(--gray)}
 .fut-in::before{content:"";position:absolute;z-index:-1;top:0;bottom:0;left:0;right:0;background:var(--navy);border-top-left-radius:78% 470px}
 .fut-row{display:flex;align-items:center;gap:50px}
@@ -126,6 +131,9 @@ html{scroll-behavior:smooth}
 .foot .soc svg{width:36px;height:36px;flex:none}
 .foot .soc a{display:flex;align-items:center;gap:20px;color:inherit;text-decoration:none}
 .btn:disabled{opacity:.45;cursor:not-allowed;pointer-events:none}
+.btn.cargando{position:relative;color:transparent!important;pointer-events:none}
+.btn.cargando::after{content:"";position:absolute;width:18px;height:18px;border:2.5px solid var(--on-accent,var(--navy));border-right-color:transparent;border-radius:50%;animation:giro .65s linear infinite}
+@keyframes giro{to{transform:rotate(360deg)}}
 .hint{min-height:18px;font-size:13px;color:var(--t2);margin:6px 0 0;line-height:1.4}
 .field[aria-invalid="true"]{border-color:#B45309}
 .foot-links{display:flex;justify-content:space-between;gap:16px 30px;flex-wrap:wrap;padding:32px 0;border-bottom:2px solid var(--navy)}
@@ -174,10 +182,6 @@ html{scroll-behavior:smooth}
 .btn.pri:hover{filter:brightness(1.05)}
 .btn.out:hover{background:color-mix(in srgb,var(--fg) 6%,transparent)}
 .btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
-.btn.cargando{cursor:progress}
-.btn.cargando::before{content:"";width:16px;height:16px;margin-right:10px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:girar .7s linear infinite;flex:none}
-@keyframes girar{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion: reduce){.btn.cargando::before{animation-duration:2.4s}}
 .btn.sm{min-height:44px;font-size:14px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .field{width:100%;height:24px;border-radius:20px;border:0;background:var(--gray);color:var(--navy);padding:0 18px;font:inherit;font-size:14px}
@@ -209,15 +213,19 @@ button.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)
 .top-bar i{display:block;height:100%;background:var(--accent)}
 .cand .top-bar i{background:var(--green)}
 
-/* Ola y barra inferior (teléfono) */
+/* Ola y barra inferior (teléfono) con iconos SVG y badges */
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:20;pointer-events:none}
-.dock svg{display:block;width:100%;height:92px}
+.dock svg.wave-bg{display:block;width:100%;height:92px}
 .dock .band{background:var(--wave);height:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);pointer-events:auto}
 .dock.plain .band{height:calc(34px + env(safe-area-inset-bottom,0px))}
 .nav-b{display:flex;justify-content:space-around;max-width:430px;margin:0 auto;height:64px;align-items:center}
-.nav-b a{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--wave-fg);text-decoration:none;opacity:.6;min-width:54px}
-.nav-b a .ico{width:20px;height:20px;border-radius:5px;background:var(--wave-fg)}
+.nav-b a{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;color:var(--wave-fg);text-decoration:none;opacity:.65;min-width:58px;transition:opacity .15s,transform .15s}
+.nav-b a:active{transform:scale(.94)}
+.nav-b a .ico,.side-nav a:not(.wm-link) .ico{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border-radius:0;flex:none}
+.nav-b a .ico svg,.side-nav a:not(.wm-link) .ico svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .nav-b a[aria-current="page"]{opacity:1;font-weight:700}
+.nav-badge{position:absolute;top:-4px;right:8px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:var(--navy);color:var(--green);font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.emp .nav-badge{background:var(--green);color:var(--navy)}
 
 /* Escritorio de la app: menú lateral */
 .side-nav{display:none}
@@ -226,18 +234,20 @@ button.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)
   .side-nav{display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;background:var(--wave);padding:36px 20px;z-index:5}
   .side-nav .wm-link{margin:0 0 40px 8px;padding:0;opacity:1;border-radius:4px}
   .side-nav .wm{height:16px;width:auto;max-width:170px;object-fit:contain;margin:0}
-  .side-nav a:not(.wm-link){display:flex;align-items:center;gap:14px;padding:12px 12px;border-radius:12px;color:var(--wave-fg);text-decoration:none;font-size:16px;opacity:.65}
-  .side-nav a:not(.wm-link) .ico{width:22px;height:22px;border-radius:6px;background:var(--wave-fg)}
+  .side-nav a:not(.wm-link){position:relative;display:flex;align-items:center;gap:14px;padding:12px 12px;border-radius:12px;color:var(--wave-fg);text-decoration:none;font-size:16px;opacity:.65}
   .side-nav a:not(.wm-link)[aria-current="page"]{opacity:1;font-weight:700;background:color-mix(in srgb,var(--wave-fg) 12%,transparent)}
   .side-nav a:not(.wm-link):hover{opacity:1}
+  .side-nav .nav-badge{position:static;margin-left:auto}
   .side-nav .who{margin-top:auto;font-size:13px;color:var(--wave-fg);opacity:.8;padding:0 12px}
+  .side-nav a.who{display:block;margin-top:auto;padding:0 12px;font-size:13px;color:var(--wave-fg);opacity:.8;text-decoration:none;border-radius:8px}
+  .side-nav a.who:hover,.side-nav a.who:focus-visible{text-decoration:underline;outline:none}
   .has-nav .dock .band{display:none}
   .has-nav .dock{left:248px}
-  .has-nav .dock svg{height:120px}
+  .has-nav .dock svg.wave-bg{height:120px}
   .has-nav .screen{width:min(100%,1080px);padding:56px 48px 170px}
   .has-nav .hdr .wm,.has-nav .hdr .wm-link{display:none}
   .auth .screen{width:min(100%,480px);padding-top:80px}
-  .dock svg{height:150px}
+  .dock svg.wave-bg{height:150px}
   .wide2{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:40px;align-items:start}
   .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
   .split{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:24px;align-items:start}
@@ -245,8 +255,13 @@ button.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)
 }
 @media (max-width:899px){.only-d{display:none!important}.wide2>*+*{margin-top:0}}
 
-/* Feed */
+/* Feed & Swipe Gestures */
 .offer{background:var(--navy2);border-radius:16px;overflow:hidden}
+.offer.swipe-card{position:relative;touch-action:pan-y;user-select:none;will-change:transform;transition:transform .25s ease,opacity .25s ease}
+.offer.swipe-card.dragging{transition:none;cursor:grabbing}
+.swipe-badge{position:absolute;top:20px;z-index:10;padding:6px 14px;border-radius:10px;font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .1s}
+.swipe-badge.like{left:18px;background:var(--green);color:var(--navy);border:2px solid var(--navy);transform:rotate(-8deg)}
+.swipe-badge.nope{right:18px;background:var(--navy);color:#fff;border:2px solid #fff;transform:rotate(8deg)}
 .offer .ph{width:100%;aspect-ratio:340/206;object-fit:cover;border-radius:16px 16px 0 0}
 .offer .bd{padding:16px 20px 18px;display:flex;flex-direction:column;gap:12px}
 .offer .co{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500}
@@ -282,23 +297,23 @@ button.rowline:hover{color:var(--green)}
 .badge-act{background:var(--green);color:var(--navy);font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px}
 .badge-off{border:1px solid var(--line);color:var(--t2);font-size:12px;padding:4px 10px;border-radius:20px}
 .avatar{width:56px;height:56px;border-radius:14px;object-fit:cover;background:var(--navy2);flex:none}
-.avatar.ph{background:var(--line)}
-.emp .avatar.ph{background:var(--green-deep)}
+.emp .avatar.ph{background:var(--navy)}
 .avatar.lg{width:92px;height:92px;border-radius:24px}
 .tag-sm{font-size:12px;color:var(--green);font-weight:600}
+[data-action="foto"]{cursor:pointer}
 
 /* Chat */
 .chat-wrap{display:flex;flex-direction:column;gap:10px}
-.note-match{font-size:12px;color:var(--t2);text-align:center;background:var(--navy2);border-radius:12px;padding:10px 14px}
-.emp .note-match{background:var(--navy);color:var(--t2)}
-.bub{max-width:82%;padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.4}
-.bub small{display:block;font-size:11px;opacity:.65;margin-top:4px}
 .fila{display:flex;width:100%}
 .fila.them{justify-content:flex-start}
 .fila.me{justify-content:flex-end}
-.bub.them{background:var(--navy2);color:var(--white);border:1px solid var(--line);border-bottom-left-radius:4px}
-.emp .bub.them{background:var(--navy);color:var(--white);border:0}
-.bub.me{background:var(--green);color:var(--navy);border-bottom-right-radius:4px}
+.note-match{font-size:12px;color:var(--t2);text-align:center;background:var(--navy2);border-radius:12px;padding:10px 14px}
+.emp .note-match{background:var(--navy);color:var(--t2)}
+.bub{max-width:82%;padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.4;overflow-wrap:anywhere;word-break:break-word}
+.bub small{display:block;font-size:11px;opacity:.65;margin-top:4px}
+.bub.them{background:var(--navy2);color:var(--white);border-bottom-left-radius:4px;align-self:flex-start}
+.emp .bub.them{background:var(--navy);color:var(--white)}
+.bub.me{background:var(--green);color:var(--navy);border-bottom-right-radius:4px;align-self:flex-end}
 .emp .bub.me{background:var(--white);color:var(--navy)}
 .typing{font-size:12px;color:var(--t2);font-style:italic}
 .emp .typing{color:var(--navy)}
@@ -536,6 +551,10 @@ const DB = {
     return persistir(sb.from('perfiles').update({ cupo }).eq('id', ME.id), 'setCupo');
   },
 
+  guardarDatosPerfil(nombre, datos){
+    return persistir(sb.from('perfiles').update({ nombre, datos }).eq('id', ME.id), 'guardarDatosPerfil');
+  },
+
   guardarBusqueda(b){
     return persistir(sb.from('busquedas').upsert({
       id: b.id, empresa_id: ME.id, puesto: b.puesto,
@@ -556,8 +575,8 @@ const DB = {
   },
 
   nuevoMensaje(chatKey, de, texto, h){
-    if(chatKey.startsWith('chat:')) return persistir(sb.from('mensajes').insert({ chat_id: chatKey.slice(5), autor_id: ME.id, texto, h }), 'nuevoMensaje');
-    return persistir(sb.from('mensajes').insert({ chat_key: chatKey, de, texto, h }), 'nuevoMensaje');
+    if(chatKey.startsWith('chat:')) return persistir(sb.from('mensajes').insert({ chat_id: chatKey.slice(5), autor_id: ME.id, texto, h }).select('id').maybeSingle(), 'nuevoMensaje');
+    return persistir(sb.from('mensajes').insert({ chat_key: chatKey, de, texto, h }).select('id').maybeSingle(), 'nuevoMensaje');
   }
 };
 
@@ -573,8 +592,19 @@ const WM = '<a class="wm-link" href="#/" aria-label="Match Empleos, inicio"><img
 const WM_INV = '<a class="wm-link" href="#/" aria-label="Match Empleos, inicio"><img class="wm" src="img/logo-match-empleos-inv.png" alt="Match Empleos"></a>';
 const IG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>';
 const XI = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L1.9 3h6.3l4.4 5.9L17.8 3Zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5Z"/></svg>';
+const MAIL = '<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M3.5 6.5 12 13l8.5-6.5\"/></svg>';
 const WA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11.6a8.2 8.2 0 0 1-12.1 7.2L3.5 20l1.2-4.2A8.2 8.2 0 1 1 20 11.6Z"/><path d="M9 8.3c.3-.6.6-.6.9-.6h.6c.2 0 .4 0 .6.5l.8 1.9c.1.2 0 .4-.1.6l-.5.6c-.1.2-.2.3 0 .6.4.7 1 1.4 1.7 1.9.6.4 1 .5 1.3.4.2-.1.6-.7.8-.9.2-.2.4-.2.6-.1l1.8.9c.3.1.4.2.4.4 0 .5-.2 1.2-.8 1.6-.6.4-1.5.6-2.6.2-1.3-.5-3-1.5-4.3-3.2-1.1-1.4-1.5-2.7-1.5-3.6 0-.7.3-1.1.6-1.6Z"/></svg>';
 const SEARCH = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+
+const NAV_ICONS = {
+  match: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>',
+  posts: '<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
+  busquedas: '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  candidatos: '<svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.85"/></svg>',
+  mensajes: '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>',
+  notifs: '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+  perfil: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>'
+};
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const now = () => { const d=new Date(); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); };
@@ -600,7 +630,7 @@ privacidad: { titulo:'Centro de Privacidad', html:`
 <h2>Vos tenés el control</h2>
 <ul><li>Revisar y modificar tu información cuando quieras.</li><li>Actualizar tus preferencias.</li><li>Gestionar la visibilidad de tu perfil.</li><li>Pedir la eliminación de tu cuenta y tus datos desde Configuración.</li></ul>
 <p class="lead">La privacidad también es parte del Match.</p>
-<p>¿Tenés dudas sobre tu privacidad? Escribinos por WhatsApp al +54 9 11 3600-9773 o por Instagram a @matchempleos.</p>`},
+<p>¿Tenés dudas sobre tu privacidad? Escribinos a matchempleos@gmail.com o por Instagram a @matchempleos.</p>`},
 terminos: { titulo:'Términos y Condiciones', html:`
 <p class="lead">Bienvenido a Match Empleos</p>
 <p>Estos Términos y Condiciones establecen las reglas para usar Match Empleos, una plataforma que conecta a personas que buscan sus primeras oportunidades laborales con empresas y reclutadores. Al crear una cuenta, como postulante o como empresa, aceptás estos términos.</p>
@@ -628,7 +658,7 @@ terminos: { titulo:'Términos y Condiciones', html:`
 <h2>9. Disponibilidad</h2>
 <p>Buscamos que la plataforma funcione siempre, pero puede haber interrupciones por mantenimiento o problemas técnicos. Si hacemos cambios relevantes en estos términos, lo vamos a comunicar con claridad.</p>
 <h2>10. Contacto</h2>
-<p>Si tenés dudas, escribinos por WhatsApp al +54 9 11 3600-9773.</p>`},
+<p>Si tenés dudas, escribinos a matchempleos@gmail.com.</p>`},
 ayuda: { titulo:'Centro de Ayuda', html:`
 <p class="lead">¿En qué podemos ayudarte?</p>
 <p>Estamos para acompañarte en cada paso, busques trabajo o busques gente para tu equipo.</p>
@@ -644,7 +674,7 @@ ayuda: { titulo:'Centro de Ayuda', html:`
 <h3>¿Cómo respondo rápido?</h3><p>En cada candidato elegí “Me interesa” o “No avanza”. Vas a tener respuestas listas para usar que podés editar antes de enviar.</p>
 <h3>¿Qué es la tasa de respuesta?</h3><p>El porcentaje de postulaciones que respondiste dentro del plazo. La ven todos los postulantes. Con 90% o más, tus búsquedas aparecen primero.</p>
 <span class="parte">Para las dos partes</span>
-<h3>¿Puedo modificar mi información o eliminar mi cuenta?</h3><p>Sí, desde Configuración.</p>
+<h3>¿Puedo modificar mi información o eliminar mi cuenta?</h3><p>Sí, desde Configuración o desde Datos personales/empresariales.</p>
 <h3>¿Encontraste un problema?</h3><p>Escribinos para reportar problemas técnicos, perfiles o publicaciones sospechosas, información incorrecta o comportamientos inapropiados.</p>`}
 };
 
@@ -708,6 +738,8 @@ function freshState(){ return {
 };}
 let S = freshState();
 const timers = [];
+let cargandoSesion = false;
+let editandoPerfil = false;
 
 /* ---------- Utilidades ---------- */
 const root = document.getElementById('root');
@@ -719,21 +751,38 @@ function toast(msg){
 }
 function go(h){ if(location.hash===h) render(); else location.hash=h; }
 function waveSVG(bg, fill, rim){
-  return `<svg viewBox="0 0 390 92" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50 L240 50 C330 50 378 26 390 0 L390 92 L0 92Z" fill="${rim}"/><path d="M0 70 L252 70 C340 70 384 44 390 16 L390 92 L0 92Z" fill="${fill}"/></svg>`;
+  return `<svg class="wave-bg" viewBox="0 0 390 92" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50 L240 50 C330 50 378 26 390 0 L390 92 L0 92Z" fill="${rim}"/><path d="M0 70 L252 70 C340 70 384 44 390 16 L390 92 L0 92Z" fill="${fill}"/></svg>`;
 }
-const CNAV=[['#/c/feed','Match'],['#/c/postulaciones','Postulaciones'],['#/c/mensajes','Mensajes'],['#/c/notificaciones','Notificaciones'],['#/c/perfil','Perfil']];
-const ENAV=[['#/e/panel','Búsquedas'],['#/e/candidatos','Candidatos'],['#/e/mensajes','Mensajes'],['#/e/notificaciones','Notificaciones'],['#/e/empresa','Empresa']];
+const CNAV=[['#/c/feed','Match','match'],['#/c/postulaciones','Postulaciones','posts'],['#/c/mensajes','Mensajes','mensajes'],['#/c/notificaciones','Notificaciones','notifs'],['#/c/perfil','Perfil','perfil']];
+const ENAV=[['#/e/panel','Búsquedas','busquedas'],['#/e/candidatos','Candidatos','candidatos'],['#/e/mensajes','Mensajes','mensajes'],['#/e/notificaciones','Notificaciones','notifs'],['#/e/empresa','Empresa','perfil']];
+
+function navBadgeCount(kind, iconKey){
+  if(iconKey==='notifs'){
+    const list = kind==='e' ? S.e.notifs : S.c.notifs;
+    return list.filter(n=>n.nuevo).length;
+  }
+  if(iconKey==='candidatos' && kind==='e') return S.e.pend.length;
+  return 0;
+}
+
 function shell(kind, active, inner, opts={}){
   const emp = kind==='e';
   const nav = emp?ENAV:CNAV;
-  const links = nav.map(([h,l])=>`<a href="${h}"${h===active?' aria-current="page"':''}><span class="ico"></span>${l}</a>`).join('');
-  const side = `<aside class="side-nav">${emp?WM:WM_INV}${links}<p class="who">${emp?miNombre('e'):miNombre()}</p></aside>`;
+  const links = nav.map(([h,l,ic])=>{
+    const count = navBadgeCount(kind, ic);
+    const badge = count > 0 ? `<span class="nav-badge">${count}</span>` : '';
+    return `<a href="${h}"${h===active?' aria-current="page"':''}><span class="ico">${NAV_ICONS[ic]||''}</span><span>${l}</span>${badge}</a>`;
+  }).join('');
+  const side = `<aside class="side-nav">${emp?WM:WM_INV}${links}<a class="who" href="${emp?'#/e/empresa':'#/c/perfil'}" aria-label="Ir a mi perfil">${emp?miNombre('e'):miNombre()}</a></aside>`;
   const rim='#E9E9E9';
   const dock = `<div class="dock">${waveSVG('',emp?'#002147':'#36F48C',rim)}<div class="band"><nav class="nav-b" aria-label="Secciones">${links}</nav></div></div>`;
   return `<div class="app has-nav ${emp?'emp':'cand'}">${side}<main class="screen${opts.cls?' '+opts.cls:''}">${inner}</main>${dock}</div>`;
 }
 function authShell(inner, kind='c'){
   return `<div class="app auth ${kind==='e'?'emp':'cand'}"><main class="screen">${inner}</main><div class="dock plain">${waveSVG('',kind==='e'?'#002147':'#36F48C','#E9E9E9')}<div class="band"></div></div></div>`;
+}
+function loadingScreen(){
+  return `<div class="app cand"><main class="screen" style="padding-top:72px"></main></div>`;
 }
 function hdr(left, right=''){ return `<div class="hdr">${left}${right?`<span class="side">${right}</span>`:''}</div>`; }
 const backBtn = (to,label='Volver') => `<button class="back" data-go="${to}">‹&nbsp;&nbsp;${label}</button>`;
@@ -743,7 +792,7 @@ function siteFooter(){
   return `<footer class="foot"><div class="wrap">
   <div class="foot-cols">
     <div><h4>Seguinos en:</h4><div class="soc"><span><a href="https://www.instagram.com/matchempleosarg/" target="_blank" rel="noopener">${IG}@matchempleosarg</a></span></div></div>
-    <div><h4>Contacto:</h4><div class="soc"><span>${WA}+54 9 11 3600-9773</span></div></div>
+    <div><h4>Contacto:</h4><div class="soc"><span>${MAIL}<a href="mailto:matchempleos@gmail.com">matchempleos@gmail.com</a></span></div></div>
   </div>
   <nav class="foot-links" aria-label="Pie de página">
     <a href="#/" data-scroll="quienes">¿Quiénes somos?</a><a href="#/" data-scroll="como">¿Cómo funciona?</a>
@@ -752,10 +801,15 @@ function siteFooter(){
   <small>2026 – Match Empleos – Todos los derechos reservados.<br>Propuesta presentada para Premios OBRAR Estudiantes 2026.</small>
   </div></footer>`;
 }
+// Logo de la landing: con sesión va a la app (feed o panel); sin sesión, a iniciar sesión
+function lockupLanding(){
+  const to = (ME.id||ME.demo) ? (ME.rol==='e'?'#/e/panel':'#/c/feed') : '#/login';
+  return LOCKUP.replace('href="#/"', `href="${to}"`);
+}
 function home(){
   return `<div class="site">
-  <header class="top"><div class="wrap">${LOCKUP}
-    <nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>
+  <header class="top"><div class="wrap">${lockupLanding()}
+    ${(ME.id||ME.demo) ? (()=>{ const emp=ME.rol==='e'; const to=emp?'#/e/panel':'#/c/feed'; const img=fotoSrc(emp?'img/logo-cafe-mercado.png':'img/avatar-tomas.png'); return `<nav aria-label="Cuenta"><a href="${emp?'#/e/salir':'#/c/salir'}">Cerrar sesión</a><a href="${to}" class="top-av" aria-label="Ir a ${emp?'el panel':'el feed'}"><img src="${img}" alt="" style="width:48px;height:48px;border-radius:12px;object-fit:cover;background:#fff;display:block"></a></nav>`; })() : '<nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>'}
   </div></header>
 
   <section class="hero"><div class="hero-in">
@@ -854,7 +908,7 @@ function registro(){
 }
 function chipToggles(key, opts, max){
   const sel = S.reg.chips[key]||[];
-  return `<div class="chips">${opts.map(o=>`<button class="chip" data-chip="${key}" data-val="${esc(o)}"${max?` data-max="${max}"`:''} aria-pressed="${sel.includes(o)}">${esc(o)}</button>`).join('')}</div>`;
+  return `<div class="chips">${opts.map(o=>`<button type="button" class="chip" data-chip="${key}" data-val="${esc(o)}"${max?` data-max="${max}"`:''} aria-pressed="${sel.includes(o)}">${esc(o)}</button>`).join('')}</div>`;
 }
 function inputs(list){ return list.map(([id,ph,type])=>`<label class="vh" for="${id}">${ph}</label><input class="field tall" id="${id}" type="${type||'text'}" placeholder="${ph}">`).join(''); }
 function escAttr(v){ return String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
@@ -869,7 +923,7 @@ const TIPO=['Full Time','Part Time','Pasantía','Otro'], MODO=['Presencial','Rem
 function regCand(step){
   const back={1:'#/registro',2:'#/registro/c/1',exp:'#/registro/c/2',3:'#/registro/c/2',4:'#/registro/c/3',5:'#/registro/c/4'}[step]||'#/registro';
   let b='';
-  if(step==='1') b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('rc-nom','Nombre')}${regField('rc-ape','Apellido')}${regField('rc-mail','Email','email')}${regField('rc-pass','Contraseña','password')}</div><p class="hint" id="rc-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="#/registro/c/2" data-cred="rc">Continuar</button>`;
+  if(step==='1') b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><p class="t-note reg-sub">Vas a registrarte con <strong>${esc(regDraft['rg-mail']||regDraft['rc-mail']||'tu correo')}</strong></p><div class="rstack">${regField('rc-nom','Nombre')}${regField('rc-ape','Apellido')}</div><p class="hint" id="rc-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="#/registro/c/2">Continuar</button>`;
   if(step==='2') b=`${regTop(back,true)}<h1 class="t-display reg-h">Datos Personales</h1><div class="rstack">${regField('rc-edad','Edad','number')}${regField('rc-ubi','Ubicación/Residencia')}</div><p style="text-align:center;font-size:14px;margin:30px 0 14px;color:var(--t2)">¿Tenés experiencia laboral?</p><div class="row2"><button class="btn pri" data-go="#/registro/c/exp">Si</button><button class="btn pri" data-go="#/registro/c/3">No</button></div><p style="text-align:center;font-size:14px;margin-top:24px;color:var(--t2);line-height:1.6">¡No necesitás experiencia para empezar a encontrar tu Match!</p>`;
   if(step==='exp') b=`${regTop(back)}<h1 class="t-display">Experiencia laboral</h1><p class="t-note reg-sub">Contanos brevemente donde trabajaste, en que puesto y durante cuanto tiempo.</p><div class="rstack">${regField('rx-emp','Empresa')}${regField('rx-puesto','Puesto/Posición')}${regField('rx-dur','Duración en el cargo')}</div><button class="btn pri reg-cta" data-go="#/registro/c/3">Continuar</button>`;
   if(step==='3') b=`${regTop(back)}<h1 class="t-display">¿Qué buscás?</h1><p class="t-note reg-sub">Elegí hasta tres rubros. Con eso te mostramos búsquedas que tengan que ver con vos.</p>${chipToggles('rubros',RUBROS,3)}<div style="margin-top:34px">${regField('rc-puesto','Elegí un puesto/posición')}</div><button class="btn pri reg-cta" data-go="#/registro/c/4">Continuar</button>`;
@@ -881,7 +935,7 @@ function regEmp(step){
   const n=+step||1; const back = n===1?'#/registro':'#/registro/e/'+(n-1); const next = n<5?'#/registro/e/'+(n+1):'#/registro/terminos/e';
   const cta=`<button class="btn pri reg-cta" data-go="${next}">Continuar</button>`;
   let b='';
-  if(n===1) b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><div class="rstack">${regField('re-resp','Nombre del responsable')}${regField('re-nom','Nombre de la empresa')}${regField('re-mail','Email','email')}${regField('re-pass','Contraseña','password')}</div><p class="hint" id="re-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="${next}" data-cred="re">Continuar</button>`;
+  if(n===1) b=`${regTop(back,true)}<h1 class="t-display reg-h">Creá tu cuenta</h1><p class="t-note reg-sub">Cuenta de empresa para <strong>${esc(regDraft['rg-mail']||regDraft['re-mail']||'tu correo')}</strong></p><div class="rstack">${regField('re-resp','Nombre del responsable')}${regField('re-nom','Nombre de la empresa')}</div><p class="hint" id="re-hint" role="status" aria-live="polite"></p><button class="btn pri reg-cta" data-go="${next}">Continuar</button>`;
   if(n===2) b=`${regTop(back,true)}<h1 class="t-display reg-h">Contanos sobre tu empresa</h1><div class="rstack">${regField('re-rubro','Rubro')}${regField('re-ubi','Ubicación')}${regField('re-tam','Tamaño de la empresa')}</div>${cta}`;
   if(n===3) b=`${regTop(back)}<h1 class="t-display">¿Qué perfil necesitas?</h1><p class="reg-lbl">Elegi un area/sector</p>${chipToggles('esector',['Comercio','Gastronomía','Administración','Logística','Ventas','Diseño','Sistemas','Salud','Otro'])}<div style="margin-top:34px">${regField('re-puesto','Elegí un puesto/posición')}</div>${cta}`;
   if(n===4) b=`${regTop(back)}<h1 class="t-display">Especificá las características del empleo</h1><p class="reg-lbl">Tipo de empleo</p>${chipToggles('etipo',TIPO)}<p class="reg-lbl">Experiencia requerida</p>${chipToggles('eexp',['Sin experiencia','1–2 años','3 años o más','Indistinto'])}<p class="reg-lbl">Modalidad</p>${chipToggles('emodo',MODO)}<p class="reg-lbl">Horario</p>${chipToggles('ehora',HORA)}${cta}`;
@@ -896,10 +950,12 @@ function regTerminos(kind){
 /* ================= CANDIDATO ================= */
 function offerById(id){ return S.c.ofertas.find(o=>o.id===id); }
 function offerCard(o){
-  return `<article class="offer">
-    ${o.foto?`<img class="ph" src="${o.foto}" alt="Preparación de café en ${esc(o.emp)}">`:''}
+  return `<article class="offer swipe-card" data-swipe-card="${esc(o.id)}">
+    <span class="swipe-badge like">Me interesa</span>
+    <span class="swipe-badge nope">Descartar</span>
+    ${o.foto?`<img class="ph" src="${o.foto}" alt="Preparación de café en ${esc(o.emp)}" draggable="false">`:''}
     <div class="bd">
-      <div class="co">${o.logo?`<img src="${esc(o.logo)}" alt="">`:'<span class="sq"></span>'}${esc(o.emp)}</div>
+      <div class="co">${o.logo?`<img src="${esc(o.logo)}" alt="" draggable="false">`:'<span class="sq"></span>'}${esc(o.emp)}</div>
       <h2>${esc(o.puesto)}</h2>
       <div class="chips">${o.fchips.map(c=>`<span class="chip">${esc(c)}</span>`).join('')}</div>
       <div class="strip"><span class="dot"></span><span>Contesta el ${o.tasa}% de las postulaciones, en ${o.dias} días promedio</span></div>
@@ -1009,7 +1065,6 @@ function notifs(kind){
 function cPerfil(){
   const env=S.c.posts.length, resp=S.c.posts.filter(p=>p.estado==='Respondida').length, mt=S.c.posts.filter(p=>p.match).length;
   const inner=`<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="${fotoSrc('img/avatar-tomas.png')}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()||'<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
-  <div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:14px"><b style="font-weight:600">Tu perfil está al 70%</b><b style="color:var(--green);font-weight:600">70%</b></div><div class="progress"><i style="width:70%"></i></div><p class="t-note" style="margin-top:14px">Sumá una foto y tus estudios para completarlo.</p></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">${[[env,'enviadas'],[resp,'respuestas'],[mt,'matches']].map(([n,l])=>`<div class="card"><p class="bignum">${n}</p><p class="t-note" style="margin-top:6px">${l}</p></div>`).join('')}</div>
   <div style="margin-top:14px">${[['Datos personales','#/c/datos'],['Configuración','#/c/config']].map(([l,h])=>`<button class="rowline" data-go="${h}"><span>${l}</span><span class="v">›</span></button>`).join('')}</div></div>`;
   return shell('c','#/c/perfil',inner);
@@ -1028,8 +1083,21 @@ function configScreen(kind){
 }
 function cDatos(){
   const EJEMPLO=[['Edad','20'],['Ubicación','Lomas de Zamora'],['Experiencia','Sin experiencia'],['Tipo de empleo','Part Time'],['Modalidad','Presencial'],['Horario','Mañana']];
-  const campos=ME.demo?{}:(ME.datos?.campos||{});
-  const chips=ME.demo?{}:(ME.datos?.chips||{});
+  const campos=ME.demo?{'rc-edad':'20','rc-ubi':'Lomas de Zamora','rc-puesto':'Ayudante de cocina','rc-sobre':'Soy Tomás Ferreyra, busco mis primeras experiencias.'}:(ME.datos?.campos||{});
+  const chips=ME.demo?{tipo:['Part Time'],modo:['Presencial'],hora:['Mañana'],rubros:['Gastronomía','Ventas']}:(ME.datos?.chips||{});
+  if(editandoPerfil){
+    const inner=`<div style="max-width:720px"><div class="hdr"><button class="back" data-action="cancelar-edicion">‹&nbsp;&nbsp;Cancelar</button></div>
+      <h1 class="t-title" style="margin-bottom:18px">Editar datos personales</h1>
+      <form data-form="editar-perfil-c" class="rstack">
+        <div class="rf"><label class="flabel" for="ed-nom">Nombre y apellido</label><input class="field tall" id="ed-nom" data-letras="1" value="${escAttr(miNombre())}" required></div>
+        <div class="rf"><label class="flabel" for="ed-edad">Edad</label><input class="field tall" id="ed-edad" data-digitos="1" inputmode="numeric" maxlength="2" value="${escAttr(campos['rc-edad']||'')}"></div>
+        <div class="rf"><label class="flabel" for="ed-ubi">Ubicación / Localidad</label><input class="field tall" id="ed-ubi" value="${escAttr(campos['rc-ubi']||'')}"></div>
+        <div class="rf"><label class="flabel" for="ed-puesto">Puesto buscado</label><input class="field tall" id="ed-puesto" value="${escAttr(campos['rc-puesto']||'')}"></div>
+        <div class="rf"><label class="flabel" for="ed-sobre">Sobre vos</label><textarea class="field" id="ed-sobre">${esc(campos['rc-sobre']||'')}</textarea></div>
+        <button class="btn pri" type="submit">Guardar cambios</button>
+      </form></div>`;
+    return shell('c','#/c/perfil',inner);
+  }
   const exp=[campos['rx-puesto'],campos['rx-emp'],campos['rx-dur']].filter(x=>x&&String(x).trim()).join(' · ');
   const filas = ME.demo ? EJEMPLO : [
     ['Correo', ME.email],
@@ -1049,8 +1117,10 @@ function cDatos(){
     return txt.trim() ? esc(txt) : '<span style="color:var(--t3)">Sin completar</span>';
   };
   const subt = ME.demo ? 'Lomas de Zamora · Busco mi primer trabajo' : (campos['rc-ubi'] ? esc(campos['rc-ubi']) : '');
-  const inner=`<div style="max-width:720px">${hdr(backBtn('#/c/config'))}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img class="avatar" src="${fotoSrc('img/avatar-tomas.png')}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
-  ${filas.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join('')}</div>`;
+  const inner=`<div style="max-width:720px">${hdr(backBtn('#/c/config'),'<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img class="avatar" src="${fotoSrc('img/avatar-tomas.png')}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
+  ${filas.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join('')}
+  ${campos['rc-sobre']?`<p class="t-sec">Sobre mí</p><p style="color:var(--t2);line-height:1.6">${esc(campos['rc-sobre'])}</p>`:''}
+  <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar mis datos</button></div>`;
   return shell('c','#/c/perfil',inner);
 }
 function salir(kind){
@@ -1184,8 +1254,22 @@ function eEmpresa(){
   return shell('e','#/e/empresa',inner);
 }
 function eDatos(){
-  const campos=ME.demo?{}:(ME.datos?.campos||{});
+  const campos=ME.demo?{'re-resp':'Carolina Gómez','re-puesto':'Ayudante de cocina','re-rubro':'Gastronomía','re-tam':'12 empleados','re-ubi':'Lomas de Zamora','re-desc':'Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.'}:(ME.datos?.campos||{});
   const chips=ME.demo?{}:(ME.datos?.chips||{});
+  if(editandoPerfil){
+    const inner=`<div style="max-width:720px"><div class="hdr"><button class="back" data-action="cancelar-edicion">‹&nbsp;&nbsp;Cancelar</button></div>
+      <h1 class="t-title" style="margin-bottom:18px">Editar datos de la empresa</h1>
+      <form data-form="editar-perfil-e" class="rstack">
+        <div class="rf"><label class="flabel" for="ede-nom">Nombre comercial de la empresa</label><input class="field tall" id="ede-nom" value="${escAttr(miNombre('e'))}" required></div>
+        <div class="rf"><label class="flabel" for="ede-resp">Responsable de la cuenta</label><input class="field tall" id="ede-resp" data-letras="1" value="${escAttr(campos['re-resp']||'')}"></div>
+        <div class="rf"><label class="flabel" for="ede-rubro">Rubro</label><input class="field tall" id="ede-rubro" value="${escAttr(campos['re-rubro']||'')}"></div>
+        <div class="rf"><label class="flabel" for="ede-tam">Tamaño de la empresa</label><input class="field tall" id="ede-tam" value="${escAttr(campos['re-tam']||'')}"></div>
+        <div class="rf"><label class="flabel" for="ede-ubi">Ubicación</label><input class="field tall" id="ede-ubi" value="${escAttr(campos['re-ubi']||'')}"></div>
+        <div class="rf"><label class="flabel" for="ede-desc">Descripción de la empresa</label><textarea class="field" id="ede-desc">${esc(campos['re-desc']||'')}</textarea></div>
+        <button class="btn pri" type="submit">Guardar cambios</button>
+      </form></div>`;
+    return shell('e','#/e/empresa',inner);
+  }
   const filas=ME.demo
     ? [['Rubro','Gastronomía'],['Ubicación','Lomas de Zamora'],['Tamaño','12 empleados']]
     : [['Responsable',campos['re-resp']],['Puesto a cubrir',campos['re-puesto']],['Rubro',campos['re-rubro']],['Tamaño',campos['re-tam']],['Ubicación',campos['re-ubi']],['Sector',chips.esector],['Tipo de empleo',chips.etipo],['Experiencia requerida',chips.eexp],['Modalidad',chips.emodo],['Horario',chips.ehora]];
@@ -1193,14 +1277,63 @@ function eDatos(){
   const descr=ME.demo
     ? 'Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.<br>No es necesario contar con experiencia previa: valoramos principalmente la responsabilidad, las ganas de aprender, el compromiso y la buena predisposición.'
     : (campos['re-desc']?esc(campos['re-desc']).replace(/\n/g,'<br>'):'');
-  const inner=`<div style="max-width:720px">${hdr(backBtn('#/e/empresa'))}<h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
+  const inner=`<div style="max-width:720px">${hdr(backBtn('#/e/empresa'),'<button class="back" data-action="editar-perfil" style="color:var(--navy);font-weight:700">Editar</button>')}<h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
   <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="${fotoSrc('img/logo-cafe-mercado.png')}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre('e'))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
   ${filas.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join('')}
-  ${descr?`<h2 class="t-sec">Descripción</h2><p style="line-height:1.6">${descr}</p>`:''}</div>`;
+  ${descr?`<h2 class="t-sec">Descripción</h2><p style="line-height:1.6">${descr}</p>`:''}
+  <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar datos empresariales</button></div>`;
   return shell('e','#/e/empresa',inner);
 }
 
-/* ---------- Simulaciones ---------- */
+/* ---------- Simulaciones y Gestos ---------- */
+function initSwipeCard(){
+  const card = document.querySelector('[data-swipe-card]');
+  if(!card) return;
+  const oid = card.dataset.swipeCard;
+  const likeBadge = card.querySelector('.swipe-badge.like');
+  const nopeBadge = card.querySelector('.swipe-badge.nope');
+  let startX = 0, startY = 0, dx = 0, dragging = false;
+
+  card.addEventListener('pointerdown', e => {
+    if(e.target.closest('button,a')) return;
+    startX = e.clientX; startY = e.clientY; dx = 0; dragging = true;
+    card.classList.add('dragging');
+    try { card.setPointerCapture(e.pointerId); } catch(_){}
+  });
+
+  card.addEventListener('pointermove', e => {
+    if(!dragging) return;
+    dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if(Math.abs(dy) > Math.abs(dx) && Math.abs(dx) < 15) return;
+    const rot = dx * 0.05;
+    card.style.transform = `translate3d(${dx}px, 0, 0) rotate(${rot}deg)`;
+    if(likeBadge) likeBadge.style.opacity = dx > 25 ? Math.min(1, (dx - 25) / 70) : 0;
+    if(nopeBadge) nopeBadge.style.opacity = dx < -25 ? Math.min(1, (-dx - 25) / 70) : 0;
+  });
+
+  const endDrag = () => {
+    if(!dragging) return;
+    dragging = false;
+    card.classList.remove('dragging');
+    if(dx > 95 && !applied(oid) && S.c.cupo > 0){
+      card.style.transform = 'translate3d(420px, 20px, 0) rotate(16deg)';
+      card.style.opacity = '0';
+      setTimeout(() => apply(oid), 180);
+    } else if(dx < -95){
+      card.style.transform = 'translate3d(-420px, 20px, 0) rotate(-16deg)';
+      card.style.opacity = '0';
+      setTimeout(() => { S.c.idx++; render(true); }, 180);
+    } else {
+      card.style.transform = '';
+      if(likeBadge) likeBadge.style.opacity = 0;
+      if(nopeBadge) nopeBadge.style.opacity = 0;
+    }
+  };
+  card.addEventListener('pointerup', endDrag);
+  card.addEventListener('pointercancel', endDrag);
+}
+
 function later(ms,fn){ timers.push(setTimeout(()=>{fn(); softRender();},ms)); }
 function softRender(){
   // re-render sin perder lo que se está escribiendo
@@ -1254,7 +1387,6 @@ async function enviarResp(id,tipo,text){
   const i=S.e.pend.findIndex(x=>x.id===id);if(i<0)return;const c=S.e.pend.splice(i,1)[0];if(S.e.demora>2&&S.e.pend.length%2===0)S.e.demora--;
   const guardadoCand=DB.guardarCandidato(c.id,c.corto,tipo);
   const rec={nombre:c.corto,tipo,oid:c.oferta_id};S.e.resp.unshift(rec);S.e.tasa=calcTasa();DB.setTasa(S.e.tasa);
-  // El chat real lo crea el servidor al marcar 'si'. 'mas' no abre chat (solo en demo se mantiene).
   const abreChat=tipo==='si'||(ME.demo&&tipo==='mas');
   if(abreChat){
     rec.chat=c.id;const key='chat:'+c.id;const bienvenida=text.replace(/^«|»$/g,'');
@@ -1267,12 +1399,14 @@ async function enviarResp(id,tipo,text){
   if(ME.demo&&abreChat)later(3500,()=>{const ch=S.e.chats[c.id];if(ch){const t=tipo==='si'?'¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?':'¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.';const m={de:'them',t,h:now()};ch.msgs.push(m);DB.nuevoMensaje('chat:'+c.id,'them',t,m.h);S.e.notifs.unshift({t:`${c.corto} te escribió`,cuando:'ahora',d:ePuestoActual(),go:'#/e/chat/'+c.id,nuevo:true});toast(`${c.corto} te respondió`);}});
   tplSel=null;toast(`Respuesta enviada a ${c.corto}. Tu tasa de respuesta es ahora ${S.e.tasa}%.`);if(!S.e.pend.length)S.e.notifs.unshift({t:'Estás al día',cuando:'ahora',d:'Respondiste todas las postulaciones. Ya podés publicar.',go:'#/e/publicar',nuevo:true});go(abreChat?'#/e/chat/'+c.id:(S.e.pend.length?'#/e/candidatos':'#/e/panel'));
 }
+
 /* ---------- Router ---------- */
 function route(){
   const h=(location.hash||'#/').replace(/^#/,'');
   const p=h.split('/').filter(Boolean);
   if(!p.length) return home();
   const [a,b,c,d]=p;
+  if(cargandoSesion && (a==='c'||a==='e')) return loadingScreen();
   const PUBLICAS=['privacidad','terminos','ayuda','login','recuperar','nueva-clave','registro','confirmar'];
   if(!ME.id && !ME.demo && a && !PUBLICAS.includes(a)) return login();
   if((ME.id||ME.demo) && ((a==='c'&&ME.rol!=='c')||(a==='e'&&ME.rol!=='e'))){ go(ME.rol==='e'?'#/e/panel':'#/c/feed'); return ''; }
@@ -1301,6 +1435,7 @@ function render(keepScroll){
   ['rg','rc','re'].forEach(pfx=>{
     if(document.getElementById(pfx+'-mail') && (regDraft[pfx+'-mail']||regDraft[pfx+'-pass'])) validarCred(pfx);
   });
+  initSwipeCard();
   const isNew = location.hash!==lastHash; lastHash=location.hash;
   if(isNew && /^#\/c\/match(?:\/|$)/.test(location.hash)){
     const matchSound = new Audio('sfx/match-sound-fx.mp3');
@@ -1312,7 +1447,7 @@ function render(keepScroll){
   const log=document.querySelector('[data-chatlog]'); if(log){ const last=log.lastElementChild; if(last && keepScroll!==false) last.scrollIntoView({block:'nearest'}); }
 }
 let pendingScroll=null;
-window.addEventListener('hashchange',()=>{ tplSel=null; render(); });
+window.addEventListener('hashchange',()=>{ tplSel=null; editandoPerfil=false; render(); });
 
 /* ---------- Eventos ---------- */
 document.addEventListener('click',e=>{
@@ -1334,6 +1469,8 @@ document.addEventListener('click',e=>{
   if(act==='toast'){ toast(t.dataset.msg); return; }
   if(act==='leidas'){ (t.dataset.kind==='e'?S.e.notifs:S.c.notifs).forEach(n=>n.nuevo=false); render(true); return; }
   if(act==='write'){ const ta=document.createElement('textarea'); ta.className='field'; ta.id=t.dataset.target; ta.placeholder='Escribí aquí'; ta.value=regDraft[t.dataset.target]||''; t.replaceWith(ta); ta.focus(); return; }
+  if(act==='editar-perfil'){ editandoPerfil=true; render(true); return; }
+  if(act==='cancelar-edicion'){ editandoPerfil=false; render(true); return; }
   if(act==='logout'){ timers.forEach(clearTimeout); timers.length=0; const eraDemo=ME.demo; ME={id:null,rol:null,nombre:null,demo:false}; S=freshState(); if(!eraDemo) sb.auth.signOut(); go('#/login'); return; }
   if(act==='demo'){ entrarDemo(t.dataset.kind); return; }
   if(act==='pub-next'){ savePub(); if(!pubDraft.puesto.trim()){ toast('Escribí el nombre del puesto para continuar.'); document.getElementById('pb-puesto')?.focus(); return; } go('#/e/publicar/2'); return; }
@@ -1344,12 +1481,46 @@ document.addEventListener('click',e=>{
   if(act==='enviar-resp'){ const txt=document.getElementById('resp-txt').value.trim(); if(!txt){ toast('Escribí un mensaje antes de enviar.'); return; } enviarResp(t.dataset.id,t.dataset.tipo,txt); return; }
 });
 function savePub(){ const a=document.getElementById('pb-puesto'), b=document.getElementById('pb-desc'); if(a) pubDraft.puesto=a.value; if(b) pubDraft.desc=b.value; }
+
+async function guardarEdicionPerfil(kind){
+  if(kind==='c'){
+    const nom=(document.getElementById('ed-nom')?.value||'').trim()||miNombre();
+    const nuevosCampos={...(ME.datos?.campos||{}),
+      'rc-edad':(document.getElementById('ed-edad')?.value||'').trim(),
+      'rc-ubi':(document.getElementById('ed-ubi')?.value||'').trim(),
+      'rc-puesto':(document.getElementById('ed-puesto')?.value||'').trim(),
+      'rc-sobre':(document.getElementById('ed-sobre')?.value||'').trim()
+    };
+    ME.nombre=nom;
+    ME.datos={...(ME.datos||{}),campos:nuevosCampos};
+    if(!ME.demo) await DB.guardarDatosPerfil(nom,ME.datos);
+  } else {
+    const nom=(document.getElementById('ede-nom')?.value||'').trim()||miNombre('e');
+    const nuevosCampos={...(ME.datos?.campos||{}),
+      're-nom':nom,
+      're-resp':(document.getElementById('ede-resp')?.value||'').trim(),
+      're-rubro':(document.getElementById('ede-rubro')?.value||'').trim(),
+      're-tam':(document.getElementById('ede-tam')?.value||'').trim(),
+      're-ubi':(document.getElementById('ede-ubi')?.value||'').trim(),
+      're-desc':(document.getElementById('ede-desc')?.value||'').trim()
+    };
+    ME.nombre=nom;
+    ME.datos={...(ME.datos||{}),campos:nuevosCampos};
+    if(!ME.demo) await DB.guardarDatosPerfil(nom,ME.datos);
+  }
+  editandoPerfil=false;
+  toast('Datos actualizados.');
+  render(true);
+}
+
 document.addEventListener('submit',e=>{
   const f=e.target; e.preventDefault();
   if(f.dataset.form==='search'){ toast('Iniciá sesión para ver las búsquedas que coinciden con tu perfil.'); go('#/login'); }
   if(f.dataset.form==='login') iniciarSesionForm();
   if(f.dataset.form==='recuperar') recuperarForm();
   if(f.dataset.form==='nueva-clave') nuevaClaveForm();
+  if(f.dataset.form==='editar-perfil-c') guardarEdicionPerfil('c');
+  if(f.dataset.form==='editar-perfil-e') guardarEdicionPerfil('e');
   if(f.dataset.form==='chat'){ const inp=f.querySelector('input'); sendChat(f.dataset.kind,f.dataset.id,inp.value); }
 });
 document.addEventListener('change',e=>{
@@ -1360,7 +1531,6 @@ document.addEventListener('change',e=>{
 });
 
 // Tasa de respuesta = postulaciones respondidas / total de postulaciones recibidas.
-// Sin postulaciones todavía se muestra 100 % para no mostrar un número vacío.
 function calcTasa(){ const r=S.e.resp.length, p=S.e.pend.length; return r+p ? Math.round(100*r/(r+p)) : 100; }
 function msgsDeChat(d,chatId){ return (d.mensajes||[]).filter(m=>m.chat_id===chatId).map(m=>({dbId:m.id,de:m.autor_id===ME.id?'me':'them',t:m.texto,h:m.h})); }
 function msgsDe(d,key){ return d.mensajes.filter(m=>m.chat_key===key).map(m=>({dbId:m.id,de:m.de,t:m.texto,h:m.h})); }
@@ -1385,7 +1555,6 @@ async function hidratar(){
   });
   if(ME.rol==='c') S.c.notifs=base.c.notifs.filter(n=>!/(Farmacia Sur|Supermercado Norte)/i.test((n.t||'')+' '+(n.d||'')));
   // Empresa: búsquedas y candidatos respondidos
-  // En una empresa real no se mezclan las búsquedas/notificaciones de ejemplo.
   if(ME.rol==='e') S.e.notifs=[];
   const dbBus=d.busquedas.map(b=>({id:b.id,puesto:b.puesto,total:d.postulaciones.filter(p=>p.oferta_id===b.id).length,estado:b.estado,desc:b.descripcion}));
   const busIds=new Set(dbBus.map(b=>b.id));
@@ -1402,7 +1571,6 @@ async function hidratar(){
   const empresaMap=new Map((d.empresas||[]).map(p=>[p.id,p]));
   const ofertasReales=d.busquedas.map(b=>{ const ep=empresaMap.get(b.empresa_id); const ec=ep?.datos?.campos||{}; const ecx=ep?.datos?.chips||{}; return {id:b.id,emp:ep?.nombre||'Empresa',meta:[ec['re-rubro'],ec['re-tam']].filter(Boolean).join(' · '),puesto:b.puesto,chips:[ec['re-ubi'],ecx.etipo,ecx.emodo,ecx.ehora].flat().filter(Boolean),fchips:[ec['re-ubi'],ecx.etipo,ecx.emodo].flat().filter(Boolean),tasa:ep?.tasa||94,dias:ep?.demora||3,logo:ep?.avatar_url||'',desc:b.descripcion||ec['re-desc']||'',real:true}; });
   if(ME.rol==='c' && ofertasReales.length){ const ids=new Set(S.c.ofertas.map(o=>o.id)); S.c.ofertas=[...ofertasReales.filter(o=>!ids.has(o.id)),...S.c.ofertas]; }
-  // Mensajes guardados se suman a cada chat (los de ejemplo base se conservan sin duplicarse)
   Object.keys(S.c.chats).forEach(k=>{ S.c.chats[k].msgs=[...(S.c.chats[k].msgs||[]),...msgsDe(d,'c:'+k)]; });
   Object.keys(S.e.chats).forEach(k=>{ S.e.chats[k].msgs=[...(S.e.chats[k].msgs||[]),...msgsDe(d,'e:'+k)]; });
   if(ME.rol==='e'){ S.e.tasa=calcTasa(); if(perf && perf.tasa!==S.e.tasa) DB.setTasa(S.e.tasa); }
@@ -1506,9 +1674,9 @@ async function reenviarConfirmacion(){
 }
 async function crearCuenta(kind){
   const p=kind==='e'?'re-':'rc-';
-  const email=(regDraft[p+'mail']||'').trim();
-  const password=regDraft[p+'pass']||'';
-  if(!email||password.length<8){ toast('Revisá el correo y usá una contraseña de al menos 8 caracteres.'); go(kind==='e'?'#/registro/e/1':'#/registro/c/1'); return; }
+  const email=(regDraft[p+'mail']||regDraft['rg-mail']||'').trim();
+  const password=regDraft[p+'pass']||regDraft['rg-pass']||'';
+  if(!email||password.length<8){ toast('Revisá el correo y usá una contraseña de al menos 8 caracteres.'); go('#/registro'); return; }
   const nombre=kind==='e'?(regDraft['re-nom']||''):[regDraft['rc-nom'],regDraft['rc-ape']].filter(Boolean).join(' ');
   ultimoCorreo=email;
   const {data,error}=await sb.auth.signUp({email,password,options:{data:{rol:kind,nombre,display_name:nombre,full_name:nombre,datos:perfilDatos()}}});
@@ -1569,7 +1737,6 @@ function phSrc(){
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${fill}"/><circle cx="50" cy="40" r="18" fill="#FFFFFF" fill-opacity=".35"/><path d="M20 100Q20 64 50 64Q80 64 80 100Z" fill="#FFFFFF" fill-opacity=".35"/></svg>`;
   return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
-// Demo conserva sus imágenes de ejemplo; en cuentas reales sin foto se muestra el placeholder
 function fotoSrc(defecto){ if(ME.demo) return defecto; return ME.avatarUrl || phSrc(); }
 function avPh(size){ return ME.demo ? `<span class="avatar" style="${size};background:var(--navy2)"></span>` : `<img class="avatar" src="${phSrc()}" alt="" style="${size}">`; }
 function subtituloEmpresa(){
@@ -1596,12 +1763,16 @@ async function asegurarBusquedaEmpresa(){
   await DB.guardarBusqueda({id:'registro-'+ME.id,puesto,total:0,estado:'Activa',desc:(ME.datos?.campos||{})['re-desc']||''});
 }
 async function setSesion(session){
-  if(!session){ ME={id:null,rol:null,nombre:null,email:null,datos:{},avatarUrl:null,demo:false}; S=freshState(); return; }
+  if(!session){ cargandoSesion=false; ME={id:null,rol:null,nombre:null,email:null,datos:{},avatarUrl:null,demo:false}; S=freshState(); return; }
+  cargandoSesion=true; render();
   ME.id=session.user.id; ME.demo=false;
   const {data:perfil}=await sb.from('perfiles').select('rol,nombre,datos,avatar_url').eq('id',ME.id).maybeSingle();
   ME.rol=perfil?.rol||null; ME.nombre=perfil?.nombre||null; ME.datos=perfil?.datos||{}; ME.avatarUrl=perfil?.avatar_url||null; ME.email=session.user.email||'';
-  if(!ME.rol){ toast('Tu cuenta no tiene perfil. Escribinos para resolverlo.'); await sb.auth.signOut(); return; }
-  if(ME.rol==='e') await asegurarBusquedaEmpresa(); S=freshState(); await hidratar();
+  if(!ME.rol){ cargandoSesion=false; toast('Tu cuenta no tiene perfil. Escribinos para resolverlo.'); await sb.auth.signOut(); return; }
+  if(ME.rol==='e') await asegurarBusquedaEmpresa();
+  S=freshState();
+  await hidratar();
+  cargandoSesion=false;
 }
 document.addEventListener('db-error',()=>toast('No se pudo guardar. Revisá tu conexión.'));
 let ultimoUid=undefined;
