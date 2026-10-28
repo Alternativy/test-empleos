@@ -1063,10 +1063,10 @@ function legalApp(kind,doc){
 }
 
 /* ================= EMPRESA ================= */
-function sinResp(b){ return b.id==='b1'?S.e.pend.length:0; }
+function sinResp(b){ return S.e.pend.filter(p=>ofertaDe(p)===b.id).length; }
 function ePanel(){
   const p=S.e.pend.length; const vieja=S.e.pend[0];
-  const pendCard = p?`<a class="card" href="#/e/candidatos" style="display:block;text-decoration:none"><h2 style="font-size:20px;font-weight:500;line-height:1.3;margin-bottom:10px">Te faltan responder ${p} postulaci${p===1?'ón':'ones'}</h2><p class="t-note">La más vieja lleva ${vieja.hace} días esperando. Te quedan ${vieja.quedan} para contestarla sin que baje tu tasa.</p></a>`
+  const pendCard = p?`<a class="card" data-bsel="all" href="#/e/candidatos" style="display:block;text-decoration:none"><h2 style="font-size:20px;font-weight:500;line-height:1.3;margin-bottom:10px">Te faltan responder ${p} postulaci${p===1?'ón':'ones'}</h2><p class="t-note">La más vieja lleva ${vieja.hace} días esperando. Te quedan ${vieja.quedan} para contestarla sin que baje tu tasa.</p></a>`
     :`<div class="card"><h2 style="font-size:20px;font-weight:500;margin-bottom:8px">Estás al día</h2><p class="t-note">Respondiste todas las postulaciones. Ya podés publicar una búsqueda nueva.</p></div>`;
   const camposEmpresa=ME.demo?{}:(ME.datos?.campos||{});
   const busquedasEmpresa=ME.demo?S.e.busquedas:(S.e.busquedas.length?S.e.busquedas:[{id:'registro',puesto:camposEmpresa['re-puesto']||'Búsqueda de empleo',total:0,estado:'Activa'}]);
@@ -1076,7 +1076,7 @@ function ePanel(){
   <div><div class="row2"><div class="card"><p class="bignum">${S.e.tasa}%</p><p class="t-note" style="margin-top:6px">tu tasa de respuesta</p></div><div class="card"><p class="bignum">${S.e.demora} días</p><p class="t-note" style="margin-top:6px">tu demora promedio</p></div></div>
   <p style="font-size:13px;margin-top:10px">Este número lo ven los candidatos antes de postularse.</p></div></div>
   <h2 class="t-sec">Tus búsquedas</h2>
-  <div class="stack grid2">${busquedasEmpresa.map(b=>{const s=sinResp(b);return `<a class="item" href="#/e/candidatos"><div class="grow"><h3>${esc(b.puesto)}</h3><p class="t-note">${b.total} postulaciones · ${s?s+' sin responder':'al día'}</p></div><span class="badge-act">${b.estado}</span></a>`;}).join('')}</div>
+  <div class="stack grid2">${busquedasEmpresa.map(b=>{const s=sinResp(b);return `<a class="item" data-bsel="${esc(b.id)}" href="#/e/candidatos"><div class="grow"><h3>${esc(b.puesto)}</h3><p class="t-note">${b.total} postulaciones · ${s?s+' sin responder':'al día'}</p></div><span class="badge-act">${b.estado}</span></a>`;}).join('')}</div>
   <button class="btn out" style="margin-top:16px;max-width:520px" data-go="#/e/publicar">Publicar una búsqueda</button>`;
   return shell('e','#/e/panel',inner);
 }
@@ -1105,9 +1105,16 @@ function ePublicar(step){
   return shell('e','#/e/panel',inner);
 }
 let candFilter='pend';
+let candBusqueda='all'; // 'all' o id de búsqueda
+// Postulación -> búsqueda. En demo, los postulantes sin oferta pertenecen a b1.
+function ofertaDe(c){ return c.oferta_id || (ME.demo?'b1':null); }
 function ePuestoActual(){ return ME.demo ? 'Ayudante de cocina' : ((ME.datos?.campos||{})['re-puesto'] || 'Búsqueda de empleo'); }
 function eCandidatos(){
-  const b=S.e.busquedas[0]; const list=S.e.pend.filter(c=>!b || !c.oferta_id || c.oferta_id===b.id); const tot=b?.total??list.length;
+  const bs=S.e.busquedas||[];
+  const sel=(candBusqueda!=='all')?bs.find(x=>x.id===candBusqueda):null;
+  const list=S.e.pend.filter(c=>!sel||ofertaDe(c)===sel.id);
+  const tot=sel?(sel.total??list.length):(bs.reduce((a,x)=>a+(x.total||0),0)||S.e.pend.length);
+  const bChips=[`<button class="chip" data-bsel="all" aria-pressed="${!sel}">Todas (${S.e.pend.length})</button>`,...bs.map(x=>`<button class="chip" data-bsel="${esc(x.id)}" aria-pressed="${sel?.id===x.id}">${esc(x.puesto)} (${sinResp(x)})</button>`)].join('');
   const chips=[['pend',`Sin responder (${list.length})`],['resp','Respondidas'],['match','Con match']].map(([k,l])=>`<button class="chip" data-cfilter="${k}" aria-pressed="${candFilter===k}">${l}</button>`).join('');
   let body='';
   if(candFilter==='pend'){
@@ -1115,10 +1122,11 @@ function eCandidatos(){
       <div class="row2"><button class="btn cno" data-go="#/e/responder/${c.id}/no">No avanza</button><button class="btn cyes" data-go="#/e/responder/${c.id}/si">Me interesa</button></div></div>`).join('')
       || `<div class="empty"><p style="font-weight:600">Respondiste a todos</p><p>Tu tasa de respuesta sube y ya podés publicar una búsqueda nueva.</p><button class="btn out sm" data-go="#/e/publicar">Publicar una búsqueda</button></div>`;
   } else {
-    const r=S.e.resp.filter(x=>candFilter==='resp'||x.tipo==='si');
+    const r=S.e.resp.filter(x=>(candFilter==='resp'||x.tipo==='si')&&(!sel||!x.oid||x.oid===sel.id));
     body=r.map(x=>`<div class="ccard"><a href="${x.chat?'#/e/chat/'+x.chat:'#/e/candidatos'}">${avPh('width:40px;height:40px;border-radius:10px')}<div style="flex:1"><h3>${esc(x.nombre)}</h3><p class="t-note">${x.tipo==='si'?'Lo quiero conocer · hay match':x.tipo==='mas'?'Le pediste más información':'Por ahora no'}</p></div></a></div>`).join('')||'<div class="empty">Todavía no hay candidatos en este filtro.</div>';
   }
-  const inner=`<button class="back big" data-go="#/e/panel">‹&nbsp; ${esc(ePuestoActual())}</button><p style="font-size:13px;margin:4px 0 14px">${tot} postulaciones · ${list.length} sin responder</p>
+  const inner=`<button class="back big" data-go="#/e/panel">‹&nbsp; ${esc(sel?sel.puesto:'Todas las búsquedas')}</button><p style="font-size:13px;margin:4px 0 14px">${tot} postulaciones · ${list.length} sin responder</p>
+  <div class="chips" style="margin-bottom:12px">${bChips}</div>
   <div class="chips" style="margin-bottom:16px">${chips}</div><div class="stack grid2">${body}</div>`;
   return shell('e','#/e/candidatos',inner);
 }
@@ -1245,12 +1253,12 @@ async function sendChat(kind,id,text){
 async function enviarResp(id,tipo,text){
   const i=S.e.pend.findIndex(x=>x.id===id);if(i<0)return;const c=S.e.pend.splice(i,1)[0];if(S.e.demora>2&&S.e.pend.length%2===0)S.e.demora--;
   const guardadoCand=DB.guardarCandidato(c.id,c.corto,tipo);
-  const rec={nombre:c.corto,tipo};S.e.resp.unshift(rec);S.e.tasa=calcTasa();DB.setTasa(S.e.tasa);
+  const rec={nombre:c.corto,tipo,oid:c.oferta_id};S.e.resp.unshift(rec);S.e.tasa=calcTasa();DB.setTasa(S.e.tasa);
   // El chat real lo crea el servidor al marcar 'si'. 'mas' no abre chat (solo en demo se mantiene).
   const abreChat=tipo==='si'||(ME.demo&&tipo==='mas');
   if(abreChat){
     rec.chat=c.id;const key='chat:'+c.id;const bienvenida=text.replace(/^«|»$/g,'');
-    S.e.chats[c.id]={con:c.corto,puesto:ePuestoActual(),key,match:tipo==='si',avatar:c.avatar||'',perfilUrl:'#/e/candidato/'+c.id,msgs:[{de:'me',t:bienvenida,h:now()}]};
+    S.e.chats[c.id]={con:c.corto,puesto:(S.e.busquedas.find(b=>b.id===c.oferta_id)?.puesto)||ePuestoActual(),key,match:tipo==='si',avatar:c.avatar||'',perfilUrl:'#/e/candidato/'+c.id,msgs:[{de:'me',t:bienvenida,h:now()}]};
     await guardadoCand;
     DB.nuevoMensaje(key,'me',bienvenida,now());
   } else await guardadoCand;
@@ -1308,7 +1316,7 @@ window.addEventListener('hashchange',()=>{ tplSel=null; render(); });
 
 /* ---------- Eventos ---------- */
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-scroll],[data-go],[data-apply],[data-action],[data-chip],[data-filter],[data-cfilter],[data-plazo],[data-tpl],[data-notif]');
+  const t=e.target.closest('[data-scroll],[data-go],[data-apply],[data-action],[data-chip],[data-filter],[data-cfilter],[data-plazo],[data-tpl],[data-notif],[data-bsel]');
   if(!t) return;
   if(t.dataset.scroll){ e.preventDefault(); const id=t.dataset.scroll; if((location.hash||'#/')==='#/'||location.hash===''){ const el=document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth'}); } else { pendingScroll=id; location.hash='#/'; } return; }
   if(t.dataset.notif){ const [k,i]=t.dataset.notif.split(':'); const n=(k==='e'?S.e.notifs:S.c.notifs)[+i]; if(n) n.nuevo=false; return; }
@@ -1317,6 +1325,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.chip){ const k=t.dataset.chip, v=t.dataset.val; const max=+t.dataset.max||0; let arr=S.reg.chips[k]||[]; if(!arr.includes(v)&&max&&arr.length>=max){ toast('Podés elegir hasta tres rubros.'); return; } arr = arr.includes(v)?arr.filter(x=>x!==v):[...arr,v]; S.reg.chips[k]=arr; savePub(); render(true); return; }
   if(t.dataset.filter){ postFilter=t.dataset.filter; render(true); return; }
   if(t.dataset.cfilter){ candFilter=t.dataset.cfilter; render(true); return; }
+  if(t.dataset.bsel){ candBusqueda=t.dataset.bsel; if(t.tagName==='BUTTON') render(true); return; }
   if(t.dataset.plazo){ S.e.plazo=+t.dataset.plazo; render(true); return; }
   if(t.dataset.tpl){ tplSel=+t.dataset.tpl; render(true); return; }
   const act=t.dataset.action;
@@ -1389,7 +1398,7 @@ async function hidratar(){
     return {id:r.id,candidato_id:r.candidato_id,oferta_id:r.oferta_id,nombre,corto:nombre.trim().split(/\s+/).slice(0,2).join(' '),edad:datos['rc-edad']||'',zona:datos['rc-ubi']||'',linea:[datos['rc-puesto'],datos['rc-ubi']].filter(Boolean).join(' · ')||'Postulante',busca:datos['rc-puesto']||'Busca trabajo',hace:dias,quedan:Math.max(0,S.e.plazo-dias),avatar:perfil?.avatar_url||'',porque:datos['rc-sobre']||'Se postuló a esta búsqueda según su perfil.',sabe:[...(chips.rubros||[]),...(datos['rx-puesto']?[datos['rx-puesto']]:[])].slice(0,4),estudios:datos['rc-estudios']||'Perfil en Match Empleos',estado:r.estado};
   });
   S.e.todos=postulantes; S.e.pend=postulantes.filter(p=>!estados.has(p.id)&&p.estado!=='Respondida'); S.e.resp=[]; S.e.chats={};
-  d.candidatosEstado.forEach(r=>{ const p=postulantes.find(x=>x.id===r.id); const nombre=p?.corto||r.corto; const hasChat=r.estado==='si'; S.e.resp.unshift({nombre,tipo:r.estado,chat:hasChat?r.id:undefined}); if(hasChat) S.e.chats[r.id]={con:nombre,puesto:ePuestoActual(),match:true,key:'chat:'+r.id,avatar:p?.avatar||'',perfilUrl:'#/e/candidato/'+r.id,msgs:msgsDeChat(d,r.id)}; });
+  d.candidatosEstado.forEach(r=>{ const p=postulantes.find(x=>x.id===r.id); const nombre=p?.corto||r.corto; const hasChat=r.estado==='si'; S.e.resp.unshift({nombre,tipo:r.estado,chat:hasChat?r.id:undefined,oid:p?.oferta_id}); if(hasChat) S.e.chats[r.id]={con:nombre,puesto:(S.e.busquedas.find(b=>b.id===p?.oferta_id)?.puesto)||ePuestoActual(),match:true,key:'chat:'+r.id,avatar:p?.avatar||'',perfilUrl:'#/e/candidato/'+r.id,msgs:msgsDeChat(d,r.id)}; });
   const empresaMap=new Map((d.empresas||[]).map(p=>[p.id,p]));
   const ofertasReales=d.busquedas.map(b=>{ const ep=empresaMap.get(b.empresa_id); const ec=ep?.datos?.campos||{}; const ecx=ep?.datos?.chips||{}; return {id:b.id,emp:ep?.nombre||'Empresa',meta:[ec['re-rubro'],ec['re-tam']].filter(Boolean).join(' · '),puesto:b.puesto,chips:[ec['re-ubi'],ecx.etipo,ecx.emodo,ecx.ehora].flat().filter(Boolean),fchips:[ec['re-ubi'],ecx.etipo,ecx.emodo].flat().filter(Boolean),tasa:ep?.tasa||94,dias:ep?.demora||3,logo:ep?.avatar_url||'',desc:b.descripcion||ec['re-desc']||'',real:true}; });
   if(ME.rol==='c' && ofertasReales.length){ const ids=new Set(S.c.ofertas.map(o=>o.id)); S.c.ofertas=[...ofertasReales.filter(o=>!ids.has(o.id)),...S.c.ofertas]; }
