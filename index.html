@@ -1120,6 +1120,8 @@ function cDatos(){
   const inner=`<div style="max-width:720px">${hdr(backBtn('#/c/config'),'<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img class="avatar" src="${fotoSrc('img/avatar-tomas.png')}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
   ${filas.map(([k,v])=>`<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join('')}
   ${campos['rc-sobre']?`<p class="t-sec">Sobre mí</p><p style="color:var(--t2);line-height:1.6">${esc(campos['rc-sobre'])}</p>`:''}
+  ${ME.demo?'':`<div class="rowline"><span>Currículum (PDF)</span><span class="v">${ME.datos?.cv?esc(ME.datos.cv.nombre):'<span style="color:var(--t3)">Sin cargar</span>'}</span></div>
+  <div class="stack" style="margin-top:12px">${ME.datos?.cv?`<button class="btn out sm" data-action="ver-cv" data-cv="${esc(ME.datos.cv.path)}">Ver mi CV</button>`:''}<label class="btn out sm" for="cv-up" style="cursor:pointer">${ME.datos?.cv?'Reemplazar CV':'Subir CV'}</label><input id="cv-up" type="file" accept=".pdf,application/pdf" hidden></div>`}
   <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar mis datos</button></div>`;
   return shell('c','#/c/perfil',inner);
 }
@@ -1207,6 +1209,7 @@ function eCandidatoPerfil(t){
   <h2 class="t-sec">Por qué se postuló</h2><p style="line-height:1.6">${esc(t.porque||'')}</p>
   <h2 class="t-sec">Lo que sabe hacer</h2><div class="chips">${(t.sabe||[]).map(s=>`<span class="chip fill">${esc(s)}</span>`).join('')}</div>
   <h2 class="t-sec">Estudios</h2><p style="line-height:1.6">${esc(t.estudios||'')}</p>
+  ${cvBtn(t.cv)}
   ${tiene?`<div class="stack" style="margin-top:22px"><button class="btn pri" data-go="#/e/chat/${t.id}">Escribirle</button></div>`:''}</div>`;
   return shell('e','#/e/candidatos',inner);
 }
@@ -1220,6 +1223,7 @@ function eCandidato(id){
   <h2 class="t-sec">Por qué se postuló</h2><p style="line-height:1.6">${esc(c.porque)}</p>
   <h2 class="t-sec">Lo que sabe hacer</h2><div class="chips">${c.sabe.map(s=>`<span class="chip fill">${esc(s)}</span>`).join('')}</div>
   <h2 class="t-sec">Estudios</h2><p style="line-height:1.6">${esc(c.estudios)}</p>
+  ${cvBtn(c.cv)}
   <div class="row2" style="margin-top:22px"><button class="btn out" data-go="#/e/responder/${c.id}/no">No avanza</button><button class="btn pri" data-go="#/e/responder/${c.id}/si">Me interesa</button></div></div>`;
   return shell('e','#/e/candidatos',inner);
 }
@@ -1471,6 +1475,7 @@ document.addEventListener('click',e=>{
   if(act==='write'){ const ta=document.createElement('textarea'); ta.className='field'; ta.id=t.dataset.target; ta.placeholder='Escribí aquí'; ta.value=regDraft[t.dataset.target]||''; t.replaceWith(ta); ta.focus(); return; }
   if(act==='editar-perfil'){ editandoPerfil=true; render(true); return; }
   if(act==='cancelar-edicion'){ editandoPerfil=false; render(true); return; }
+  if(act==='ver-cv'){ verCV(t.dataset.cv); return; }
   if(act==='logout'){ timers.forEach(clearTimeout); timers.length=0; const eraDemo=ME.demo; ME={id:null,rol:null,nombre:null,demo:false}; S=freshState(); if(!eraDemo) sb.auth.signOut(); go('#/login'); return; }
   if(act==='demo'){ entrarDemo(t.dataset.kind); return; }
   if(act==='pub-next'){ savePub(); if(!pubDraft.puesto.trim()){ toast('Escribí el nombre del puesto para continuar.'); document.getElementById('pb-puesto')?.focus(); return; } go('#/e/publicar/2'); return; }
@@ -1524,7 +1529,9 @@ document.addEventListener('submit',e=>{
   if(f.dataset.form==='chat'){ const inp=f.querySelector('input'); sendChat(f.dataset.kind,f.dataset.id,inp.value); }
 });
 document.addEventListener('change',e=>{
+  if(e.target.id==='cv-up' && e.target.files[0]){ const f=e.target.files[0]; e.target.value=''; subirCV(f); }
   if(e.target.id==='rc-cv' && e.target.files[0]){
+    regCvFile=e.target.files[0];
     regDraft['rc-cv-name']=e.target.files[0].name;
     const s=document.querySelector('[data-cvname]'); if(s) s.textContent='CV cargado: '+e.target.files[0].name;
   }
@@ -1564,7 +1571,7 @@ async function hidratar(){
   const postulantes=d.postulaciones.map(r=>{
     const perfil=perfilesPorId.get(r.candidato_id); const datos=perfil?.datos?.campos||{}; const chips=perfil?.datos?.chips||{}; const nombre=perfil?.nombre||'Postulante';
     const dias=Math.max(0,Math.floor((Date.now()-new Date(r.created_at||Date.now()).getTime())/86400000));
-    return {id:r.id,candidato_id:r.candidato_id,oferta_id:r.oferta_id,nombre,corto:nombre.trim().split(/\s+/).slice(0,2).join(' '),edad:datos['rc-edad']||'',zona:datos['rc-ubi']||'',linea:[datos['rc-puesto'],datos['rc-ubi']].filter(Boolean).join(' · ')||'Postulante',busca:datos['rc-puesto']||'Busca trabajo',hace:dias,quedan:Math.max(0,S.e.plazo-dias),avatar:perfil?.avatar_url||'',porque:datos['rc-sobre']||'Se postuló a esta búsqueda según su perfil.',sabe:[...(chips.rubros||[]),...(datos['rx-puesto']?[datos['rx-puesto']]:[])].slice(0,4),estudios:datos['rc-estudios']||'Perfil en Match Empleos',estado:r.estado};
+    return {id:r.id,candidato_id:r.candidato_id,oferta_id:r.oferta_id,nombre,corto:nombre.trim().split(/\s+/).slice(0,2).join(' '),edad:datos['rc-edad']||'',zona:datos['rc-ubi']||'',linea:[datos['rc-puesto'],datos['rc-ubi']].filter(Boolean).join(' · ')||'Postulante',busca:datos['rc-puesto']||'Busca trabajo',hace:dias,quedan:Math.max(0,S.e.plazo-dias),avatar:perfil?.avatar_url||'',cv:perfil?.datos?.cv?.path||'',porque:datos['rc-sobre']||'Se postuló a esta búsqueda según su perfil.',sabe:[...(chips.rubros||[]),...(datos['rx-puesto']?[datos['rx-puesto']]:[])].slice(0,4),estudios:datos['rc-estudios']||'Perfil en Match Empleos',estado:r.estado};
   });
   S.e.todos=postulantes; S.e.pend=postulantes.filter(p=>!estados.has(p.id)&&p.estado!=='Respondida'); S.e.resp=[]; S.e.chats={};
   d.candidatosEstado.forEach(r=>{ const p=postulantes.find(x=>x.id===r.id); const nombre=p?.corto||r.corto; const hasChat=r.estado==='si'; S.e.resp.unshift({nombre,tipo:r.estado,chat:hasChat?r.id:undefined,oid:p?.oferta_id}); if(hasChat) S.e.chats[r.id]={con:nombre,puesto:(S.e.busquedas.find(b=>b.id===p?.oferta_id)?.puesto)||ePuestoActual(),match:true,key:'chat:'+r.id,avatar:p?.avatar||'',perfilUrl:'#/e/candidato/'+r.id,msgs:msgsDeChat(d,r.id)}; });
@@ -1646,6 +1653,31 @@ function abrirSelectorFoto(){
   }
   inputFoto.click();
 }
+let regCvFile=null; // CV elegido en el registro; se sube al tener sesión
+// Botón para abrir un CV privado con un enlace temporal (5 minutos)
+function cvBtn(path){ return path?`<div style="margin:18px 0"><button class="btn out sm" data-action="ver-cv" data-cv="${esc(path)}">Ver CV (PDF)</button></div>`:''; }
+async function verCV(path){
+  if(!path) return;
+  const w=window.open('','_blank');
+  const {data,error}=await sb.storage.from('cvs').createSignedUrl(path,300);
+  if(error||!data){ if(w) w.close(); toast('No pudimos abrir el CV.'); return; }
+  if(w) w.location=data.signedUrl; else window.open(data.signedUrl,'_blank');
+}
+async function subirCV(file, uid=ME.id){
+  if(!(file.type==='application/pdf' || /\.pdf$/i.test(file.name))){ toast('El CV tiene que ser un PDF.'); return false; }
+  if(file.size>5*1024*1024){ toast('El CV no puede pesar más de 5 MB.'); return false; }
+  toast('Subiendo CV…');
+  const ruta=`${uid}/cv.pdf`;
+  const subida=await persistir(sb.storage.from('cvs').upload(ruta,file,{upsert:true,contentType:'application/pdf',cacheControl:'3600'}),'subirCV');
+  if(subida===null) return false;
+  const info={path:ruta,nombre:file.name,fecha:new Date().toISOString()};
+  const {data:perf}=await sb.from('perfiles').select('datos').eq('id',uid).single();
+  const guardado=await persistir(sb.from('perfiles').update({datos:{...(perf?.datos||{}),cv:info}}).eq('id',uid),'guardarCV');
+  if(guardado===null) return false;
+  if(ME.id===uid){ ME.datos={...(ME.datos||{}),cv:info}; render(true); }
+  toast('CV guardado.');
+  return true;
+}
 async function subirFoto(file){
   if(!formatoFotoOK.includes(file.type)){ toast('La foto tiene que ser JPG, PNG o WEBP.'); return; }
   if(file.size>2*1024*1024){ toast('La foto no puede pesar más de 2 MB.'); return; }
@@ -1681,8 +1713,15 @@ async function crearCuenta(kind){
   ultimoCorreo=email;
   const {data,error}=await sb.auth.signUp({email,password,options:{data:{rol:kind,nombre,display_name:nombre,full_name:nombre,datos:perfilDatos()}}});
   if(error){ toast(/already registered/i.test(error.message)?'Ya existe una cuenta con ese correo.':'No pudimos crear la cuenta. Probá de nuevo.'); return; }
+  const cvPend=regCvFile; regCvFile=null;
   regDraft={}; S.reg={chips:{}};
-  if(data.session) go(kind==='e'?'#/e/panel':'#/c/feed'); else go('#/confirmar');
+  if(data.session){
+    if(cvPend && kind==='c') await subirCV(cvPend, data.user.id);
+    go(kind==='e'?'#/e/panel':'#/c/feed');
+  } else {
+    if(cvPend) toast('Después de confirmar tu correo, subí tu CV desde tu perfil.');
+    go('#/confirmar');
+  }
 }
 async function recuperarForm(){
   const email=(document.getElementById('rc-mail').value||'').trim();
