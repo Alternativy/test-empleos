@@ -471,8 +471,8 @@ const ENTORNOS = {
     key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0bnhsa3F1bXBwZWludGRweWNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3MzgzNTYsImV4cCI6MjEwNzMxNDM1Nn0.e_ErAYbO2lNrk2fPGRI5PMKNWap-A9Gs4sqF0NNjlDk' // Project Settings > API del proyecto de pruebas
   },
   prod: {
-    url: 'PENDIENTE_URL_PROD',
-    key: 'PENDIENTE_KEY_PROD'
+    url: 'https://mijmzywmrazzaqypuwhu.supabase.co',
+    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pam16eXdtcmF6emFxeXB1d2h1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNTA1ODcsImV4cCI6MjEwODcyNjU4N30.5wxGjnxxqXPhonQmNY5Fw81SgrpEdepP5rh0y24aKMY'
   }
 };
 
@@ -523,7 +523,8 @@ const DB = {
         if(candidateIds.length){ const pr=await sb.from('perfiles').select('*').in('id',candidateIds).eq('rol','c'); if(pr.error) throw pr.error; candidatos=pr.data; }
       }
       const chatsR=await sb.from('chats').select('id,postulacion_id,candidato_id,empresa_id,candidato:perfiles!candidato_id(id,nombre,avatar_url,datos)'); if(chatsR.error) throw chatsR.error;
-      return {perfiles:perfiles.data,postulaciones,busquedas:busquedas.data,candidatosEstado:candidatosEstado.data,candidatos,mensajes:mensajes.data,chats:chatsR.data};
+      const cupoR=await sb.rpc('cupo_actual'); if(cupoR.error) throw cupoR.error;
+      return {perfiles:perfiles.data,postulaciones,busquedas:busquedas.data,candidatosEstado:candidatosEstado.data,candidatos,mensajes:mensajes.data,chats:chatsR.data,cupo:cupoR.data};
     }
     const [perfiles,postulaciones,busquedas,candidatosEstado,mensajes]=await Promise.all([
       sb.from('perfiles').select('*').eq('id',ME.id),
@@ -540,16 +541,28 @@ const DB = {
   },
 
   // Create o Update según exista el id
+  // Crea la postulación y descuenta el cupo semanal en el servidor
+  postular(post, oid){
+    return sb.rpc('postular', { p_id: post.id, p_oferta: oid, p_datos: { post, chat: null } }).then(({ data, error }) => {
+      if (error) {
+        const m = error.message || '';
+        toast(/sin_cupo/.test(m) ? 'Usaste tus 5 postulaciones de esta semana. Se renuevan el lunes.'
+          : /ya_postulado/.test(m) ? 'Ya te postulaste a esta búsqueda.'
+          : 'No pudimos enviar la postulación. Probá de nuevo.');
+        console.error('[db] postular', error);
+        return null;
+      }
+      return data;
+    });
+  },
   guardarPostulacion(post, oid, chat){
-    return persistir(sb.from('postulaciones').upsert({
-      id: post.id, candidato_id: ME.id, oferta_id: oid,
+    return persistir(sb.from('postulaciones').update({
       estado: post.estado, datos: { post, chat: chat || null }, updated_at: new Date().toISOString()
-    }), 'guardarPostulacion');
+    }).eq('id', post.id), 'guardarPostulacion');
   },
 
-  setCupo(cupo){
-    return persistir(sb.from('perfiles').update({ cupo }).eq('id', ME.id), 'setCupo');
-  },
+  // El cupo lo maneja el servidor (ver postular y cupo_actual)
+  setCupo(cupo){ return null; },
 
   guardarDatosPerfil(nombre, datos){
     return persistir(sb.from('perfiles').update({ nombre, datos }).eq('id', ME.id), 'guardarDatosPerfil');
@@ -1346,7 +1359,14 @@ function softRender(){
 }
 async function apply(oid){
   const o=offerById(oid); if(!o||applied(oid)||S.c.cupo<=0) return;
-  if(!ME.demo&&o.real){S.c.cupo--;DB.setCupo(S.c.cupo);const post={id:'p'+crypto.randomUUID(),oid,puesto:o.puesto,emp:o.emp,estado:'Enviada',pie:'Enviada recién'};S.c.posts.unshift(post);S.c.idx++;await DB.guardarPostulacion(post,oid,null);toast(`Te postulaste a ${o.puesto}. ${S.c.cupo>0?`Te quedan ${S.c.cupo}.`:'Usaste tu cupo semanal.'}`);render();return;}
+  if(!ME.demo&&o.real){
+    const post={id:'p'+crypto.randomUUID(),oid,puesto:o.puesto,emp:o.emp,estado:'Enviada',pie:'Enviada recién'};
+    const restante=await DB.postular(post,oid);
+    if(restante===null){ render(); return; }
+    S.c.cupo=restante; S.c.posts.unshift(post); S.c.idx++;
+    toast(`Te postulaste a ${o.puesto}. ${S.c.cupo>0?`Te quedan ${S.c.cupo}.`:'Usaste tu cupo semanal.'}`);
+    render(); return;
+  }
   S.c.cupo--; DB.setCupo(S.c.cupo);
   if(o.match){
     const post={id:'p'+Date.now(),oid,puesto:o.puesto,emp:o.emp,estado:'Respondida',pie:'Te contestaron recién',match:true,chat:oid};
@@ -1547,7 +1567,7 @@ async function hidratar(){
   if(!d) return;
   const base=freshState();
   const perf=d.perfiles[0];
-  if(perf && ME.rol==='c') S.c.cupo=perf.cupo;
+  if(ME.rol==='c' && d.cupo!=null) S.c.cupo=d.cupo;
   if(perf && ME.rol==='e') S.e.tasa=perf.tasa;
   // Candidato: postulaciones y chats creados
   const dbPosts=d.postulaciones.map(r=>({...r.datos.post,estado:r.estado}));
