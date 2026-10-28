@@ -16,7 +16,17 @@ Este documento está pensado para dos lectores: personas del equipo y agentes de
 | Entornos | **Staging** (`gtnxlkqumppeintdpycn`) y **producción** (`mijmzywmrazzaqypuwhu`). Son proyectos separados. |
 | Selección de entorno | Por host: `matchempleos.com.ar` y `www.matchempleos.com.ar` usan producción; cualquier otro host (GitHub Pages, Netlify de pruebas, localhost) usa staging. |
 | Migraciones SQL | `supabase/migrations/`, de `000` a `009`. Ver [sección 8](#8-base-de-datos). |
-| Repos | `Alternativy/MatchEmpleos` (repo oficial) y `Alternativy/test-empleos` (pruebas). |
+| Repos | `Alternativy/test-empleos` (desarrollo y pruebas) y el repo `matchempleos` (producción). Ver [flujo de trabajo](#flujo-de-trabajo). |
+
+---
+
+## Flujo de trabajo
+
+- **Desarrollo en `test-empleos`.** Todos los cambios se hacen y se prueban en este repo. Su despliegue (GitHub Pages y el sitio de Netlify de pruebas) usa **staging**.
+- **Pull request a `matchempleos` para producción.** Cuando una funcionalidad o un cambio relevante está probado en staging, se abre un pull request desde `test-empleos` hacia el repo `matchempleos`, que es el de producción. Los cambios pequeños (textos, correcciones) pueden ir directo al repo de pruebas, pero no llegan a producción sin un pull request.
+- **Migraciones SQL.** Se aplican primero en staging. Para producción, se aplican al proyecto de producción **antes** del merge, y en el mismo orden de la carpeta `supabase/migrations/`.
+- **Checklist antes del pull request:** ejecutar la sección 10 completa en staging, validar la sintaxis de los `<script>` de `index.html`, y revisar que la configuración de producción (`ENTORNOS.prod`, `HOSTS_PRODUCCION`) no cambió sin querer.
+- **Pendientes de publicación:** los que dependan de la configuración del dashboard o de archivos fuera del código están en la sección 12.
 
 ---
 
@@ -48,6 +58,8 @@ supabase/migrations/
   007_cupo_semanal.sql                  Cupo de 5 postulaciones por semana (RPC postular)
   008_empresa_actualiza_postulaciones.sql
   009_alinear_staging_produccion.sql    Alineación de permisos de staging con producción
+robots.txt                             Permite indexar la raíz y apunta al sitemap
+sitemap.xml                            Lista la landing (única URL indexable)
 README.md                               Este documento
 ```
 
@@ -101,7 +113,20 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 - En demo **no se escribe nada en la base**: `persistir()` devuelve `null` antes de ejecutar cualquier consulta, y las RPC no se llaman.
 - Se controla con la constante `DEMO_HABILITADO` (en `index.html`). Ponerla en `false` oculta los botones y desactiva `entrarDemo`.
 - Por ahora está en `true`, porque el equipo lo usa para pruebas.
+- **Próximamente, la demo no será visible en producción.** La constante `DEMO_VISIBLE` combina `DEMO_HABILITADO` con el entorno: en `matchempleos.com.ar` (y `www`) los botones de demo se ocultan y `entrarDemo` no hace nada. En staging, Netlify y localhost sigue disponible. Este cambio ya está en el código; cuando se publique en producción, la demo deja de aparecer allí.
 - Las cuentas demo conservan sus datos de ejemplo (Tomás Ferreyra, Café Mercado, Malena, Lucía, Farmacia Sur, etc.). No deben aparecer en cuentas reales.
+
+---
+
+## 6b. SEO y contenido estático de la landing
+
+- `index.html` tiene metadatos en el `<head>`: `title`, `meta description`, `canonical`, Open Graph, Twitter Card y datos estructurados JSON-LD (`Organization` y `WebSite`). No hay `FAQPage`, a propósito.
+- El script de `<head>` agrega `<meta name="robots" content="noindex, nofollow">` cuando el host no es `matchempleos.com.ar` ni `www.matchempleos.com.ar`. Por eso los entornos de prueba no se indexan.
+- La landing tiene **contenido estático** dentro de `<div id="root">`: el hero, "¿Quiénes somos?", "Situación actual en Argentina", "¿Cómo funciona?", "¡El futuro no espera, vos tampoco!" y el pie. Así el contenido existe aunque no se ejecute JavaScript. Cuando carga la app, `render()` reemplaza ese contenido por la versión dinámica.
+- **Los textos estáticos son copia de los dinámicos.** Si cambian los textos de la landing, hay que actualizar los dos lugares: el bloque estático dentro de `#root` y la función `home()` (y `siteFooter()` para el pie).
+- `titleFor()` cambia el título de la pestaña según la vista. La landing mantiene el título completo.
+- Las imágenes llevan `loading="lazy"`, excepto el hero y el logo del encabezado.
+- Las rutas con hash (`#/privacidad`, `#/terminos`, `#/ayuda`) no son URLs que un buscador indexe por separado. Está pendiente separarlas en páginas propias (ver sección 12).
 
 ---
 
@@ -345,3 +370,15 @@ Si sos un agente que trabaja en este repo, seguí estas reglas:
 15. **Al modificar `hidratar()`, preservá la separación demo/real.** Un candidato real no debe recibir las postulaciones o chats de `freshState()`, y una empresa real no debe recibir búsquedas o notificaciones demo.
 16. **No cambies la selección de entorno** (`HOSTS_PRODUCCION`) sin confirmación: decide a qué base se conecta cada dominio.
 17. **Antes de cambiar la lógica de autenticación**, revisá la sección 7 completa: los pasos de registro, confirmación y login están conectados entre sí.
+
+---
+
+## 12. Pendientes para la próxima publicación a producción
+
+- [ ] **Google Search Console (después del merge a producción):** verificar la propiedad de dominio `matchempleos.com.ar` con el registro TXT en el DNS, pedir indexación de `https://matchempleos.com.ar/` y enviar `sitemap.xml`. Revisar que `matchempleos.netlify.app` no aparezca indexado.
+- [ ] **Imagen para compartir** de 1200×630 para `og:image` (hoy se usa `img/ilus-hero.png`).
+- [ ] **Subir el `site.webmanifest` corregido** a `img/` (nombre, rutas de íconos relativas).
+- [x] **`robots.txt` y `sitemap.xml`** en la raíz de `test-empleos`. Pasan a producción con el pull request.
+- [ ] Ejecutar la sección 8 (Storage y Auth) y la configuración de URLs de redirección de producción.
+- [ ] Páginas legales como URLs propias (`privacidad.html`, `terminos.html`, `ayuda.html`), para indexarlas.
+- [ ] Verificar el dominio en Google Search Console después del merge a producción, pedir indexación de `https://matchempleos.com.ar/` y enviar `sitemap.xml`.

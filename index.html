@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-AR">
   <head>
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png" />
@@ -22,6 +22,32 @@
     <meta name="twitter:title" content="Match Empleos: Acá te contestan" />
     <meta name="twitter:description" content="Match Empleos es una plataforma digital de búsqueda laboral que plantea transformar la experiencia de conseguir trabajo, especialmente para los jóvenes." />
     <meta name="twitter:image" content="https://matchempleos.com.ar/img/ilus-hero.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://matchempleos.com.ar/#organization",
+            "name": "Match Empleos",
+            "url": "https://matchempleos.com.ar/",
+            "logo": "https://matchempleos.com.ar/img/logo-match-empleos.png",
+            "email": "matchempleos@gmail.com",
+            "description": "Match Empleos es una plataforma digital de búsqueda laboral que plantea transformar la experiencia de conseguir trabajo, especialmente para los jóvenes.",
+            "sameAs": ["https://www.instagram.com/matchempleosarg/"],
+            "areaServed": { "@type": "Country", "name": "Argentina" }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://matchempleos.com.ar/#website",
+            "url": "https://matchempleos.com.ar/",
+            "name": "Match Empleos",
+            "inLanguage": "es-AR",
+            "publisher": { "@id": "https://matchempleos.com.ar/#organization" }
+          }
+        ]
+      }
+    </script>
     <script>
       // Indexación: solo los dominios de producción se indexan. Cualquier otro host (pruebas, Netlify, localhost) lleva noindex.
       (function () {
@@ -2230,6 +2256,55 @@
             </div>
           </div>
         </section>
+        <div class="green-gap"></div>
+
+        <section class="quienes"><div class="quienes-in" id="quienes">
+          <h2>¿Quiénes somos?</h2>
+          <div class="txt">
+            <p>Somos un equipo de cinco estudiantes que desarrollamos una plataforma digital pensada para facilitar el acceso de los jóvenes al mundo laboral y generar nuevas formas de conexión con empresas y reclutadores.</p>
+            <p>De esta búsqueda nace Match Empleos, una plataforma digital que conecta a jóvenes en búsqueda de sus primeras oportunidades laborales con empresas y reclutadores que buscan nuevos talentos.</p>
+            <p>La propuesta busca transformar la manera tradicional de buscar empleo, haciendo que el proceso sea más simple, dinámico y personalizado. En lugar de enfrentarse a una gran cantidad de ofertas, los usuarios reciben oportunidades relevantes para su perfil.</p>
+          </div>
+        </div></section>
+
+        <section class="sit"><div class="sit-in" id="situacion">
+          <h2>Situación actual en Argentina</h2>
+          <div class="stats">
+            <div class="stat g"><div class="n">16,5%</div><p>Desocupación en personas<br>entre 14 y 29 años,<br>con un 7,5% general.</p></div>
+            <div class="stat d"><div class="n">43%</div><p>De la generación Z sufrió ghosting al postularse.<br>El 45% dudó de sus capacidades.</p></div>
+            <div class="stat g"><div class="n">0,17%</div><p>Es la tasa de 1.500 inserciones sobre 900.000 beneficiarios.</p></div>
+            <img class="ilus" src="img/ilus-situacion.png" alt="Joven pensativa sentada sobre su valija con un CV en la mano" loading="lazy" decoding="async" />
+          </div>
+        </div></section>
+        <div class="navy-gap"></div>
+
+        <section class="como"><div class="como-in" id="como">
+          <h2>¿Cómo funciona?</h2>
+          <div class="steps">
+            <div class="step"><div class="num">1.</div><div class="card"><h3>Creá tu perfil</h3><p>Contanos quién sos, qué estudias, qué experiencia tenés, qué habilidades posees.</p></div></div>
+            <div class="step"><div class="num">2.</div><div class="card"><h3>Descubrí oportunidades</h3><p>Te mostramos empleos y empresas que coinciden con tu perfil y tus intereses.</p></div></div>
+            <div class="step"><div class="num">3.</div><div class="card"><h3>Hace MATCH</h3><p>Buscá y comunicá aquellas oportunidades que te interesan o te llaman la atención.</p></div></div>
+            <div class="step"><div class="num">4.</div><div class="card"><h3>Conectá</h3><p>Si hay match, podrás ponerte en contacto, interactuar y avanzar en la selección.</p></div></div>
+          </div>
+        </div></section>
+
+        <section class="futuro"><h2>¡El futuro no espera, vos tampoco!</h2>
+          <div class="fut-in">
+            <div class="fut-row b"><img src="img/ilus-oficina.png" alt="Dos jóvenes conversando frente a una computadora" loading="lazy" decoding="async" /><div><h3>Encontrá tu Match.</h3><p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p></div></div>
+          </div>
+        </section>
+
+        <footer class="foot"><div class="wrap">
+          <div class="foot-cols">
+            <div><h4>Seguinos en:</h4><div class="soc"><span><a href="https://www.instagram.com/matchempleosarg/" target="_blank" rel="noopener">@matchempleosarg</a></span></div></div>
+            <div><h4>Contacto:</h4><div class="soc"><span><a href="mailto:matchempleos@gmail.com">matchempleos@gmail.com</a></span></div></div>
+          </div>
+          <nav class="foot-links" aria-label="Pie de página">
+            <a href="#/quienes">¿Quiénes somos?</a><a href="#/como">¿Cómo funciona?</a>
+            <a href="#/privacidad">Centro de Privacidad</a><a href="#/terminos">Términos y Condiciones</a><a href="#/ayuda">Ayuda</a>
+          </nav>
+          <small>2026 – Match Empleos – Todos los derechos reservados.<br>Propuesta presentada para Premios OBRAR Estudiantes 2026.</small>
+        </div></footer>
       </div>
     </div>
 
@@ -2487,8 +2562,8 @@
         "use strict";
 
         /* ---------- Iconos y piezas de marca ---------- */
-        const ISO = '<img class="iso" src="img/isotipo.svg" alt="">';
-        const LOCKUP = `<a class="lockup" href="#/" aria-label="Match Empleos, inicio">${ISO}<span class="words"><img src="img/logo-match.png" alt=""><img src="img/logo-empleos.png" alt=""></span></a>`;
+        const ISO = '<img loading="lazy" decoding="async" class="iso" src="img/isotipo.svg" alt="">';
+        const LOCKUP = `<a class="lockup" href="#/" aria-label="Match Empleos, inicio">${ISO}<span class="words"><img loading="lazy" decoding="async" src="img/logo-match.png" alt=""><img loading="lazy" decoding="async" src="img/logo-empleos.png" alt=""></span></a>`;
         const WM =
           '<a class="wm-link" href="#/" aria-label="Match Empleos, inicio"><img class="wm" src="img/logo-match-empleos.png" alt="Match Empleos"></a>';
         const WM_INV =
@@ -2979,7 +3054,7 @@
             const emp = ME.rol === "e";
             const to = emp ? "#/e/panel" : "#/c/feed";
             const img = fotoSrc(emp ? "img/logo-cafe-mercado.png" : "img/avatar-tomas.png");
-            return `<nav aria-label="Cuenta"><a href="${emp ? "#/e/salir" : "#/c/salir"}">Cerrar sesión</a><a href="${to}" class="top-av" aria-label="Ir a ${emp ? "el panel" : "el feed"}"><img src="${img}" alt="" style="width:48px;height:48px;border-radius:12px;object-fit:cover;background:#fff;display:block"></a></nav>`;
+            return `<nav aria-label="Cuenta"><a href="${emp ? "#/e/salir" : "#/c/salir"}">Cerrar sesión</a><a href="${to}" class="top-av" aria-label="Ir a ${emp ? "el panel" : "el feed"}"><img loading="lazy" decoding="async" src="${img}" alt="" style="width:48px;height:48px;border-radius:12px;object-fit:cover;background:#fff;display:block"></a></nav>`;
           })()
         : '<nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>'
     }
@@ -3007,7 +3082,7 @@
       <div class="stat g"><div class="n">16,5%</div><p>Desocupación en personas<br>entre 14 y 29 años,<br>con un 7,5% general.</p></div>
       <div class="stat d"><div class="n">43%</div><p>De la generación Z sufrió ghosting al postularse.<br>El 45% dudó de sus capacidades.</p></div>
       <div class="stat g"><div class="n">0,17%</div><p>Es la tasa de 1.500 inserciones sobre 900.000 beneficiarios.</p></div>
-      <img class="ilus" src="img/ilus-situacion.png" alt="Joven pensativa sentada sobre su valija con un CV en la mano">
+      <img loading="lazy" decoding="async" class="ilus" src="img/ilus-situacion.png" alt="Joven pensativa sentada sobre su valija con un CV en la mano">
     </div>
   </div></section>
   <div class="navy-gap"></div>
@@ -3024,8 +3099,8 @@
 
   <section class="futuro"><h2>¡El futuro no espera, vos tampoco!</h2>
     <div class="fut-in">
-      <div class="fut-row a"><div class="t"><h3>En Match Empleos creemos que todas las oportunidades cuentan.</h3><p>Buscamos acercarte a trabajos, oficios, comercios y oportunidades reales que puedan coincidir con lo que sabés hacer, lo que te interesa y lo que estás buscando.</p></div><img src="img/ilus-oficios.png" alt="Jóvenes trabajando en carpintería y en cocina"></div>
-      <div class="fut-row b"><img src="img/ilus-oficina.png" alt="Dos jóvenes conversando frente a una computadora"><div><h3>Encontrá tu Match.</h3><p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p></div></div>
+      <div class="fut-row a"><div class="t"><h3>En Match Empleos creemos que todas las oportunidades cuentan.</h3><p>Buscamos acercarte a trabajos, oficios, comercios y oportunidades reales que puedan coincidir con lo que sabés hacer, lo que te interesa y lo que estás buscando.</p></div><img loading="lazy" decoding="async" src="img/ilus-oficios.png" alt="Jóvenes trabajando en carpintería y en cocina"></div>
+      <div class="fut-row b"><img loading="lazy" decoding="async" src="img/ilus-oficina.png" alt="Dos jóvenes conversando frente a una computadora"><div><h3>Encontrá tu Match.</h3><p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p></div></div>
     </div>
   </section>
   ${siteFooter()}
@@ -3052,7 +3127,7 @@
       <button class="btn out" type="button" data-go="#/recuperar">¿Has olvidado tu contraseña?</button>
     </div>
   </form>
-  <p class="linkline" style="margin-top:56px">¿Aún no te has registrado?<button data-go="#/registro">Registraté</button></p>${DEMO_HABILITADO ? `<p class="linkline" style="margin-top:14px">Demo (sin base de datos):<button data-action="demo" data-kind="c">Entrar como candidato</button><button data-action="demo" data-kind="e">Entrar como empresa</button></p>` : ""}
+  <p class="linkline" style="margin-top:56px">¿Aún no te has registrado?<button data-go="#/registro">Registraté</button></p>${DEMO_VISIBLE ? `<p class="linkline" style="margin-top:14px">Demo (sin base de datos):<button data-action="demo" data-kind="c">Entrar como candidato</button><button data-action="demo" data-kind="e">Entrar como empresa</button></p>` : ""}
   `);
         }
         function recuperar() {
@@ -3186,9 +3261,9 @@
           return `<article class="offer swipe-card" data-swipe-card="${esc(o.id)}">
     <span class="swipe-badge like">Me interesa</span>
     <span class="swipe-badge nope">Descartar</span>
-    ${o.foto ? `<img class="ph" src="${o.foto}" alt="Preparación de café en ${esc(o.emp)}" draggable="false">` : ""}
+    ${o.foto ? `<img loading="lazy" decoding="async" class="ph" src="${o.foto}" alt="Preparación de café en ${esc(o.emp)}" draggable="false">` : ""}
     <div class="bd">
-      <div class="co">${o.logo ? `<img src="${esc(o.logo)}" alt="" draggable="false">` : '<span class="sq"></span>'}${esc(o.emp)}</div>
+      <div class="co">${o.logo ? `<img loading="lazy" decoding="async" src="${esc(o.logo)}" alt="" draggable="false">` : '<span class="sq"></span>'}${esc(o.emp)}</div>
       <h2>${esc(o.puesto)}</h2>
       <div class="chips">${o.fchips.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>
       <div class="strip"><span class="dot"></span><span>Contesta el ${o.tasa}% de las postulaciones, en ${o.dias} días promedio</span></div>
@@ -3240,7 +3315,7 @@
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
     <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
-    <div class="match-pair"><img src="${fotoSrc("img/avatar-tomas.png")}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img src="${o.logo || (ME.demo ? "img/logo-cafe-mercado.png" : phSrc())}" alt="${esc(o.emp)}"></div>
+    <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || (ME.demo ? "img/logo-cafe-mercado.png" : phSrc())}" alt="${esc(o.emp)}"></div>
     <p class="note-match" style="max-width:342px">Ya podés coordinar los próximos pasos en el chat.</p>
   </div>
   <div class="stack" style="margin-top:60px"><button class="btn pri" data-go="#/c/chat/${o.id}">Escribirle ahora</button><button class="btn out" data-go="#/c/feed">Seguir viendo búsquedas</button></div>
@@ -3275,14 +3350,14 @@
         function avatarOf(kind, k) {
           const ch = (kind === "e" ? S.e.chats : S.c.chats)[k];
           if (ch?.avatar)
-            return `<img class="avatar" src="${esc(ch.avatar)}" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">`;
+            return `<img loading="lazy" decoding="async" class="avatar" src="${esc(ch.avatar)}" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">`;
           if (!ME.demo) return avPh("width:44px;height:44px;border-radius:12px");
           if (kind === "e")
             return k === "tomas"
-              ? '<img class="avatar" src="img/avatar-tomas.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
+              ? '<img loading="lazy" decoding="async" class="avatar" src="img/avatar-tomas.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
               : '<span class="avatar" style="width:44px;height:44px;border-radius:12px;background:var(--navy2)"></span>';
           return k === "cafe"
-            ? '<img class="avatar" src="img/logo-cafe-mercado.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
+            ? '<img loading="lazy" decoding="async" class="avatar" src="img/logo-cafe-mercado.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
             : '<span class="sq" style="width:44px;height:44px;border-radius:12px"></span>';
         }
         function convItems(kind, active) {
@@ -3345,7 +3420,7 @@
           const env = S.c.posts.length,
             resp = S.c.posts.filter((p) => p.estado === "Respondida").length,
             mt = S.c.posts.filter((p) => p.match).length;
-          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
+          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">${[
     [env, "enviadas"],
     [resp, "respuestas"],
@@ -3368,9 +3443,9 @@
         }
         function profHead(kind) {
           if (kind === "e") {
-            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
+            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
           }
-          return `<div class="prof-head"><img src="${fotoSrc("img/avatar-tomas.png")}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
+          return `<div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
         }
         function configScreen(kind) {
           const e = kind === "e";
@@ -3449,7 +3524,7 @@
             : campos["rc-ubi"]
               ? esc(campos["rc-ubi"])
               : "";
-          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
+          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${campos["rc-sobre"] ? `<p class="t-sec">Sobre mí</p><p style="color:var(--t2);line-height:1.6">${esc(campos["rc-sobre"])}</p>` : ""}
   ${
@@ -3583,7 +3658,7 @@
                 .map(
                   (
                     c,
-                  ) => `<div class="ccard"><a href="#/e/candidato/${c.id}">${c.avatar ? `<img class="avatar" src="${c.avatar}" alt="" style="width:40px;height:40px;border-radius:10px;background:#fff">` : avPh("width:40px;height:40px;border-radius:10px")}<div class="grow" style="flex:1;min-width:0"><h3>${esc(c.corto)}, ${c.edad}</h3><p class="t-note" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.linea)}</p></div><span class="vence">Vence en ${c.quedan} días</span></a>
+                  ) => `<div class="ccard"><a href="#/e/candidato/${c.id}">${c.avatar ? `<img loading="lazy" decoding="async" class="avatar" src="${c.avatar}" alt="" style="width:40px;height:40px;border-radius:10px;background:#fff">` : avPh("width:40px;height:40px;border-radius:10px")}<div class="grow" style="flex:1;min-width:0"><h3>${esc(c.corto)}, ${c.edad}</h3><p class="t-note" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.linea)}</p></div><span class="vence">Vence en ${c.quedan} días</span></a>
       <div class="row2"><button class="btn cno" data-go="#/e/responder/${c.id}/no">No avanza</button><button class="btn cyes" data-go="#/e/responder/${c.id}/si">Me interesa</button></div></div>`,
                 )
                 .join("") ||
@@ -3608,7 +3683,7 @@
         function eCandidatoPerfil(t) {
           const tiene = !!S.e.chats[t.id];
           const inner = `<div style="max-width:720px">${hdr(backBtn(tiene ? "#/e/chat/" + t.id : "#/e/candidatos"))}
-  <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">${t.avatar ? `<img class="avatar" src="${esc(t.avatar)}" alt="" style="background:#fff">` : '<span class="avatar ph"></span>'}<div><h1 style="font-size:20px;font-weight:600">${esc(t.nombre)}${t.edad ? ", " + t.edad : ""}</h1><p style="font-size:13px">${esc(t.zona || "")}${t.busca ? " · " + esc(t.busca) : ""}</p></div></div>
+  <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">${t.avatar ? `<img loading="lazy" decoding="async" class="avatar" src="${esc(t.avatar)}" alt="" style="background:#fff">` : '<span class="avatar ph"></span>'}<div><h1 style="font-size:20px;font-weight:600">${esc(t.nombre)}${t.edad ? ", " + t.edad : ""}</h1><p style="font-size:13px">${esc(t.zona || "")}${t.busca ? " · " + esc(t.busca) : ""}</p></div></div>
   <h2 class="t-sec">Por qué se postuló</h2><p style="line-height:1.6">${esc(t.porque || "")}</p>
   <h2 class="t-sec">Lo que sabe hacer</h2><div class="chips">${(t.sabe || []).map((s) => `<span class="chip fill">${esc(s)}</span>`).join("")}</div>
   <h2 class="t-sec">Estudios</h2><p style="line-height:1.6">${esc(t.estudios || "")}</p>
@@ -3624,7 +3699,7 @@
           }
           const idx = S.e.pend.indexOf(c) + 1;
           const inner = `<div style="max-width:720px">${hdr(backBtn("#/e/candidatos"), `${idx} de ${S.e.pend.length} sin responder`)}
-  <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">${c.avatar ? `<img class="avatar" src="${c.avatar}" alt="" style="background:#fff">` : '<span class="avatar ph"></span>'}<div><h1 style="font-size:20px;font-weight:600">${esc(c.nombre)}, ${c.edad}</h1><p style="font-size:13px">${esc(c.zona)} · ${esc(c.busca)}</p></div></div>
+  <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px">${c.avatar ? `<img loading="lazy" decoding="async" class="avatar" src="${c.avatar}" alt="" style="background:#fff">` : '<span class="avatar ph"></span>'}<div><h1 style="font-size:20px;font-weight:600">${esc(c.nombre)}, ${c.edad}</h1><p style="font-size:13px">${esc(c.zona)} · ${esc(c.busca)}</p></div></div>
   <div class="card" style="font-size:13px">Se postuló hace ${c.hace} días. Te quedan ${c.quedan} para contestarle.</div>
   <h2 class="t-sec">Por qué se postuló</h2><p style="line-height:1.6">${esc(c.porque)}</p>
   <h2 class="t-sec">Lo que sabe hacer</h2><div class="chips">${c.sabe.map((s) => `<span class="chip fill">${esc(s)}</span>`).join("")}</div>
@@ -3677,7 +3752,7 @@
             .format(new Date())
             .replace(/^./, (c) => c.toUpperCase());
           const inner = `<div style="max-width:720px"><h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
   <div class="card"><div class="row2"><div><p class="bignum">${S.e.tasa}%</p><p class="t-note">de respuesta</p></div><div><p class="bignum">${S.e.demora} días</p><p class="t-note">de demora</p></div></div><div class="progress" style="margin:14px 0"><i style="width:${S.e.tasa}%"></i></div><p class="t-note">Con 90% o más entrás en el grupo de empresas destacadas y tus búsquedas aparecen primero.</p></div>
   <h2 class="t-sec">Historial de respuesta</h2>
   ${[[mesActual, S.e.tasa]].map(([m, v]) => `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>${m}</span><span>${v}%</span></div><div class="progress"><i style="width:${v}%;background:var(--navy)"></i></div></div>`).join("")}
@@ -3740,7 +3815,7 @@
               ? esc(campos["re-desc"]).replace(/\n/g, "<br>")
               : "";
           const inner = `<div style="max-width:720px">${hdr(backBtn("#/e/empresa"), '<button class="back" data-action="editar-perfil" style="color:var(--navy);font-weight:700">Editar</button>')}<h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${descr ? `<h2 class="t-sec">Descripción</h2><p style="line-height:1.6">${descr}</p>` : ""}
   <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar datos empresariales</button></div>`;
@@ -4174,7 +4249,21 @@
           return home();
         }
         let lastHash = "";
+        // Título de la pestaña según la vista (la landing conserva el título completo)
+        function titleFor(hash) {
+          const h = (hash || "").split("?")[0];
+          const sufijo = " · Match Empleos";
+          if (h === "" || h === "#" || h === "#/") return "Match Empleos: Acá te contestan";
+          if (h.startsWith("#/login")) return "Iniciar sesión" + sufijo;
+          if (h.startsWith("#/recuperar") || h.startsWith("#/nueva-clave")) return "Recuperar contraseña" + sufijo;
+          if (h.startsWith("#/registro")) return "Registrarse" + sufijo;
+          if (h.startsWith("#/privacidad")) return "Centro de Privacidad" + sufijo;
+          if (h.startsWith("#/terminos")) return "Términos y Condiciones" + sufijo;
+          if (h.startsWith("#/ayuda")) return "Ayuda" + sufijo;
+          return "Match Empleos";
+        }
         function render(keepScroll) {
+          document.title = titleFor(location.hash);
           const y = window.scrollY;
           root.innerHTML = route();
           ["rg", "rc", "re"].forEach((pfx) => {
@@ -5006,6 +5095,8 @@
 
         // Demo: sin login y sin escrituras en la base. Para quitarla, poner en false o borrar este bloque.
         const DEMO_HABILITADO = true;
+        // Las cuentas de demo no se ofrecen en el dominio de producción
+        const DEMO_VISIBLE = DEMO_HABILITADO && ENTORNO !== "prod";
         function miNombre(kind) {
           if (ME.demo) return kind === "e" ? "Café Mercado" : "Tomás Ferreyra";
           return ME.nombre || "";
@@ -5022,7 +5113,7 @@
         function avPh(size) {
           return ME.demo
             ? `<span class="avatar" style="${size};background:var(--navy2)"></span>`
-            : `<img class="avatar" src="${phSrc()}" alt="" style="${size}">`;
+            : `<img loading="lazy" decoding="async" class="avatar" src="${phSrc()}" alt="" style="${size}">`;
         }
         function subtituloEmpresa() {
           if (ME.demo) return "Gastronomía · 12 empleados · Lomas de Zamora";
@@ -5042,7 +5133,7 @@
           return miNombre().split(" ")[0] || "";
         }
         function entrarDemo(kind) {
-          if (!DEMO_HABILITADO) return;
+          if (!DEMO_VISIBLE) return;
           ME = { id: null, rol: kind, nombre: null, demo: true };
           S = freshState();
           go(kind === "e" ? "#/e/panel" : "#/c/feed");
