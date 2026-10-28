@@ -2,7 +2,7 @@
 
 Plataforma que conecta candidatos (personas que buscan trabajo) con empresas que publican búsquedas. Idioma de la interfaz: **español rioplatense** (voseo: "Creá", "Contanos", "Escribí").
 
-Este documento está pensado para dos lectores: personas del equipo y agentes de IA que trabajen en el proyecto. Si sos un agente, leé primero la sección [Reglas para agentes](#reglas-para-agentes-de-ia).
+Este documento está pensado para dos lectores: personas del equipo y agentes de IA que trabajen en el proyecto. Si sos un agente, leé primero la sección [Reglas para agentes](#11-reglas-para-agentes-de-ia).
 
 ---
 
@@ -11,47 +11,51 @@ Este documento está pensado para dos lectores: personas del equipo y agentes de
 | Qué | Dónde / cómo |
 |---|---|
 | Frontend | Un único archivo: `index.html` (HTML + CSS + JS). Sin build, sin npm, sin framework. |
-| Backend | Supabase (Postgres + Auth + API REST). Proyecto de staging: `gtnxlkqumppeintdpycn`. |
+| Backend | Supabase (Postgres + Auth + Storage + Realtime + API REST). |
 | Cliente de Supabase | `vendor/supabase.js` (versión **2.45.4**, copiada tal cual desde npm). |
-| Migraciones SQL | `supabase/migrations/` (001 histórica, 002 vigente). |
-| Entornos | `staging` (por defecto) y `prod` (solo si el host es el de producción). |
+| Entornos | **Staging** (`gtnxlkqumppeintdpycn`) y **producción** (`mijmzywmrazzaqypuwhu`). Son proyectos separados. |
+| Selección de entorno | Por host: `matchempleos.com.ar` y `www.matchempleos.com.ar` usan producción; cualquier otro host (GitHub Pages, Netlify de pruebas, localhost) usa staging. |
+| Migraciones SQL | `supabase/migrations/`, de `000` a `009`. Ver [sección 8](#8-base-de-datos). |
 | Repos | `Alternativy/MatchEmpleos` (repo oficial) y `Alternativy/test-empleos` (pruebas). |
-| Rama principal actual | `main` |
 
 ---
 
 ## 2. Cómo correr el proyecto en local
 
-1. Clonar el repo y cambiar a la rama de trabajo:
-   ```bash
-   git checkout feature/supabase-crud
-   ```
-2. Abrir la carpeta en VS Code y usar **Live Server** (botón "Go Live"), o servir la carpeta con cualquier servidor estático. **No abrir `index.html` con doble clic**: Supabase Auth necesita un origen `http://`.
-3. Verificar en la consola del navegador la línea `[db] entorno: staging`. Si aparece `prod`, el host no es el esperado.
+1. Clonar el repo.
+2. Servir la carpeta con un servidor estático, por ejemplo **Live Server** de VS Code ("Go Live"). **No abrir `index.html` con doble clic**: Supabase Auth necesita un origen `http://`.
+3. Verificar en la consola la línea `[db] entorno: staging`. En local siempre debe ser staging. Si aparece `prod`, el host no es el esperado.
 
-Para que el login y los enlaces de correo funcionen en local, el host (por ejemplo `http://127.0.0.1:5500`) tiene que estar en **Authentication > URL Configuration > Redirect URLs** del proyecto de Supabase.
+Para que el login y los enlaces de correo funcionen en local, el host (por ejemplo `http://127.0.0.1:5500`) tiene que estar en **Authentication > URL Configuration > Redirect URLs** del proyecto de **staging**. Producción no tiene esos hosts, a propósito.
 
 ---
 
 ## 3. Estructura del repo
 
 ```
-index.html                       App completa (routing, UI, estado, auth y acceso a datos)
-vendor/supabase.js               Cliente de Supabase 2.45.4 (código de terceros, no editar)
-img/                             Logos, avatares e ilustraciones
+index.html                              App completa (estilos, datos, routing, UI, auth y acceso a datos)
+vendor/supabase.js                      Cliente de Supabase 2.45.4 (código de terceros, no editar)
+img/                                    Logos, avatares, ilustraciones y favicons
+  favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png, site.webmanifest
 supabase/migrations/
-  001_crud_inicial.sql           Esquema inicial con IDs de texto y RLS abierta (histórica, superada)
-  002_auth_por_usuario.sql       Esquema vigente: perfiles ligados a auth.users, trigger y RLS por usuario
-README.md                        Este documento
+  000_esquema_produccion.sql            Esquema base completo, consolidado (ver sección 8)
+  001_crud_inicial.sql                  Histórica, superada
+  002_auth_por_usuario.sql              Histórica, destructiva (recrea tablas)
+  003_chats_y_mensajes.sql              Chats por Match mutuo y mensajes con autor
+  004_revocar_execute_funciones_definer.sql
+  005_bucket_cvs.sql                    Bucket privado de CVs
+  006_permisos_perfiles_y_tasa.sql      Permisos de perfiles; tasa calculada en servidor
+  007_cupo_semanal.sql                  Cupo de 5 postulaciones por semana (RPC postular)
+  008_empresa_actualiza_postulaciones.sql
+  009_alinear_staging_produccion.sql    Alineación de permisos de staging con producción
+README.md                               Este documento
 ```
-
-**Importante:** `db.js` ya no existe. Su código está dentro de `index.html`, en el primer `<script>`.
 
 ### Estructura interna de `index.html`
 
-1. **Estilos** (`<style>`): variables CSS en `:root` (`--navy`, `--green`, `--gray`, etc.), con paleta azul prusiano, verde primaveral y alabastro. Clases como `.btn`, `.field`, `.hint`, `.chip`.
-2. **Script de datos** (primer `<script>`): configuración de entornos, cliente de Supabase (`sb`), identidad (`ME`) y el objeto `DB` con todas las escrituras y lecturas.
-3. **Script principal** (segundo `<script>`, dentro de una IIFE): estado global `S`, datos de ejemplo (`freshState`), plantillas de pantallas, routing (`route`), autenticación, handlers de eventos y arranque.
+1. **Estilos** (`<style>`): variables CSS en `:root` (`--navy`, `--green`, `--gray`, `--navy2`, `--line`, etc.), con paleta azul prusiano, verde primaveral y alabastro. Clases como `.btn`, `.field`, `.chip`, `.ccard`, `.bub`, `.fila`.
+2. **Script de datos** (primer `<script>`): configuración de entornos (`ENTORNOS`, `HOSTS_PRODUCCION`), cliente de Supabase (`sb`), identidad (`ME`), helpers de Storage (`subirFoto`, `subirCV`, `verCV`) y el objeto `DB` con todas las escrituras y lecturas.
+3. **Script principal** (segundo `<script>`, dentro de una IIFE): estado global `S`, datos de ejemplo (`freshState`), plantillas de pantallas, routing (`route`), autenticación, handlers de eventos y arranque (`hidratar`, Realtime).
 
 ---
 
@@ -61,15 +65,21 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 | Ruta | Pantalla |
 |---|---|
-| `#/` | Landing pública |
+| `#/` | Landing pública. Con sesión muestra la foto de perfil (lleva a la app) y "Cerrar sesión"; sin sesión, "Iniciar sesión" y "Registrarse". |
 | `#/login`, `#/recuperar`, `#/nueva-clave` | Autenticación |
 | `#/registro`, `#/registro/c/1..5`, `#/registro/e/1..5`, `#/registro/terminos/{c\|e}` | Registro de candidato y de empresa |
 | `#/confirmar` | "Revisá tu correo" |
-| `#/c/...` | Área del candidato (feed, postulaciones, chat, perfil, configuración) |
-| `#/e/...` | Área de la empresa (panel, búsquedas, candidatos, chat) |
+| `#/c/feed`, `#/c/oferta/:id`, `#/c/match/:id` | Candidato: feed de ofertas, detalle y confirmación de Match |
+| `#/c/postulaciones`, `#/c/mensajes`, `#/c/chat/:id`, `#/c/notificaciones` | Candidato: seguimiento, conversaciones, notificaciones |
+| `#/c/perfil`, `#/c/datos`, `#/c/config`, `#/c/salir` | Candidato: perfil (datos personales y CV), configuración y salida |
+| `#/e/panel`, `#/e/publicar`, `#/e/candidatos`, `#/e/candidato/:id`, `#/e/responder/:id/:tipo` | Empresa: panel de búsquedas, publicación, candidatos y respuestas |
+| `#/e/mensajes`, `#/e/chat/:id`, `#/e/notificaciones` | Empresa: conversaciones y notificaciones |
+| `#/e/empresa`, `#/e/datos`, `#/e/config`, `#/e/salir` | Empresa: perfil de la empresa, datos, configuración y salida |
 | `#/privacidad`, `#/terminos`, `#/ayuda` | Páginas legales |
 
 **Guardia de rutas:** `route()` deja pasar sin sesión solo a las rutas de `PUBLICAS`. Un candidato que entra a `#/e/...` (o al revés) es redirigido a su área.
+
+**Logo de Match Empleos:** en la landing, con sesión lleva al feed (candidato) o al panel (empresa); sin sesión, a `#/login`. En el resto de las pantallas lleva a `#/`.
 
 ---
 
@@ -77,18 +87,21 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 - `S` es el estado de la UI en memoria: `S.c` (candidato) y `S.e` (empresa). Se construye con `freshState()`.
 - `freshState()` **contiene datos de ejemplo** para el modo demo.
-- En una sesión real, `hidratar()` lee de Supabase las postulaciones, búsquedas, respuestas, mensajes, cupo y tasa del usuario. Para un candidato real, `S.c.posts` se reemplaza por sus postulaciones reales y no se agregan las postulaciones demo; los chats base tampoco se cargan. Para una empresa real, `S.e.busquedas` se construye solo con sus búsquedas de Supabase y `S.e.notifs` se inicializa vacío.
-- Las ofertas reales publicadas por empresas se incorporan al feed del candidato y llevan `real:true`. Al pulsar "Me interesa" sobre una oferta real, se crea una postulación en `postulaciones`; no se ejecutan las simulaciones de "vista" ni de respuesta automática.
-- `ME` guarda la identidad: `ME.id` (uuid de Auth), `ME.rol` (`'c'` o `'e'`), `ME.nombre` y `ME.demo`.
+- En una sesión real, `hidratar()` lee de Supabase: postulaciones, búsquedas, respuestas (`candidatos_estado`), mensajes, chats, cupo y tasa del usuario. Un candidato real no recibe las postulaciones ni los chats demo; una empresa real no recibe búsquedas ni notificaciones demo.
+- **Cupo** (`S.c.cupo`): lo entrega el servidor con `cupo_actual()` al cargar la sesión.
+- **Tasa de respuesta** (`perfiles.tasa`): la calcula el servidor. Es respondidas ÷ total de postulaciones recibidas, y 100 % si no hay ninguna. El cliente la recalcula para mostrarla y no la escribe.
+- Las ofertas reales de empresas llevan `real: true`. "Me interesa" sobre una oferta real llama a la RPC `postular`, que descuenta el cupo y crea la postulación en la misma transacción.
+- `ME` guarda la identidad: `ME.id` (uuid de Auth), `ME.rol` (`'c'` o `'e'`), `ME.nombre`, `ME.email`, `ME.datos`, `ME.avatarUrl` y `ME.demo`.
 
 ---
 
 ## 6. Modo demo
 
 - Los botones "Entrar como candidato" / "Entrar como empresa" de la pantalla de login activan `ME.demo = true`.
-- En demo **no se escribe nada en la base**: `persistir()` devuelve `null` antes de ejecutar cualquier consulta.
+- En demo **no se escribe nada en la base**: `persistir()` devuelve `null` antes de ejecutar cualquier consulta, y las RPC no se llaman.
 - Se controla con la constante `DEMO_HABILITADO` (en `index.html`). Ponerla en `false` oculta los botones y desactiva `entrarDemo`.
 - Por ahora está en `true`, porque el equipo lo usa para pruebas.
+- Las cuentas demo conservan sus datos de ejemplo (Tomás Ferreyra, Café Mercado, Malena, Lucía, Farmacia Sur, etc.). No deben aparecer en cuentas reales.
 
 ---
 
@@ -98,7 +111,7 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 1. **`#/registro`**: el usuario elige "Busco trabajo" o "Busco gente para mi empresa". Antes escribe correo y contraseña. Los botones quedan deshabilitados hasta que son válidos.
 2. **Paso 1** (`#/registro/c/1`): nombre, apellido, correo y contraseña. El correo y la contraseña tienen que coincidir con los de la pantalla anterior (`verificarCoincidencia`).
-3. **Pasos 2 a 5**: edad, ubicación, experiencia, rubros, tipo de empleo, modalidad, horario y perfil. Los datos quedan en memoria (`regDraft` y `S.reg.chips`).
+3. **Pasos 2 a 5**: edad, ubicación, experiencia, rubros, tipo de empleo, modalidad, horario, perfil y **CV en PDF** (paso 5). Los datos quedan en memoria (`regDraft` y `S.reg.chips`). El CV queda en `regCvFile`.
 4. **Términos** (`#/registro/terminos/c`): el botón "Crear mi cuenta" llama a `crearCuenta()`.
 5. **`crearCuenta()`** llama a `sb.auth.signUp` con:
    ```js
@@ -106,12 +119,13 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
    ```
    `perfilDatos()` junta los campos `rc-*`, `re-*` y `rx-*` (sin correo, contraseña ni CV) y los chips de `S.reg`.
 6. Si la confirmación por correo está activa, `data.session` es `null` y la app muestra `#/confirmar`. Si no, entra directo.
-7. El trigger `on_auth_user_created` (en la 002) crea la fila en `perfiles` con `rol`, `nombre` y `datos`.
-8. Al confirmar el correo, el enlace vuelve a la URL base. El listener de `onAuthStateChange` detecta `SIGNED_IN` y lleva al panel correspondiente.
+7. Si hay sesión y hay CV, `crearCuenta()` lo sube con `subirCV(file, user.id)`. Si no hay sesión, el archivo no sobrevive a la recarga por el enlace de confirmación: la app avisa que hay que subirlo desde "Datos personales".
+8. El trigger `on_auth_user_created` ejecuta `handle_new_user()`, que crea la fila en `perfiles` con `rol`, `nombre` y `datos`.
+9. Al confirmar el correo, el enlace vuelve a la URL base. El listener de `onAuthStateChange` detecta `SIGNED_IN` y lleva al panel correspondiente.
 
 ### Login
 
-- `iniciarSesionForm()` valida formato de correo y largo de contraseña (mínimo 8) antes de llamar a `signInWithPassword`.
+- `iniciarSesionForm()` valida formato de correo y largo de contraseña (mínimo 8) antes de llamar a `signInWithPassword`. Mientras espera la respuesta, el botón muestra un spinner y queda deshabilitado.
 - Si el correo no está confirmado, se muestra un mensaje con el botón "Reenviar correo" (`sb.auth.resend`).
 - Si las credenciales no coinciden, se muestra un mensaje genérico con el enlace "¿Olvidaste tu contraseña?". El motivo real se registra en la consola (`[auth] login falló`).
 
@@ -122,7 +136,7 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 ### Cerrar sesión
 
-- El botón de salir llama a `sb.auth.signOut()` (salvo en demo) y limpia `ME` y `S`.
+- Desde la landing o desde la sección "Salir" de la app, `#/c/salir` o `#/e/salir`. Llama a `sb.auth.signOut()` (salvo en demo) y limpia `ME` y `S`.
 
 ### Reglas de validación en formularios
 
@@ -133,6 +147,8 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 | Nombre, apellido, responsable | Solo letras de alfabetos latinos y espacios (`\p{Script=Latin}`). Sin números ni símbolos. |
 | Edad | Solo dígitos, máximo 2. |
 | Correo y contraseña del paso 1 | Deben coincidir con los de "Busco trabajo". |
+| CV | Solo PDF, máximo 5 MB. |
+| Foto de perfil | JPG, PNG o WEBP, máximo 2 MB. |
 
 Los campos conservan lo escrito al volver atrás: `regField()` y los inputs de `registro()` leen `regDraft`.
 
@@ -140,103 +156,171 @@ Los campos conservan lo escrito al volver atrás: `regField()` y los inputs de `
 
 ## 8. Base de datos
 
-### Proyecto
+### Proyectos
 
-- **Staging:** `gtnxlkqumppeintdpycn` (región us-east-1). Es el proyecto que usan las pruebas y el que está configurado en `ENTORNOS.staging`.
-- **Producción:** todavía **no existe**. `ENTORNOS.prod` tiene valores `PENDIENTE`.
-
-### Tablas (esquema 002)
-
-| Tabla | Contenido | Clave / relaciones |
+| Entorno | Proyecto | Uso |
 |---|---|---|
-| `perfiles` | Una fila por cuenta. `rol` (`c`/`e`), `nombre`, `cupo`, `tasa`, `demora`, `plazo`, `datos` (jsonb con el onboarding). | `id` = `auth.users.id` (uuid), con `on delete cascade`. |
-| `postulaciones` | Postulaciones de un candidato a una oferta. `datos` guarda el objeto de la postulación y el chat. | `candidato_id` → `perfiles`. Único por (candidato, oferta). |
-| `busquedas` | Búsquedas publicadas por una empresa. | `empresa_id` → `perfiles`. |
-| `candidatos_estado` | Respuesta de una empresa a un candidato: `si`, `mas`, `no`. | `empresa_id` → `perfiles`. `id` es texto. |
-| `mensajes` | Mensajes de todos los chats. | Se usan claves históricas `c:<oferta>` / `e:<candidato>` para el modo anterior y `chat:<postulacion>` para conversaciones reales compartidas entre candidato y empresa. |
+| Staging | `gtnxlkqumppeintdpycn` (us-east-1) | Pruebas. Tiene datos de prueba y chats demo heredados. |
+| Producción | `mijmzywmrazzaqypuwhu` (us-east-2) | Dominio `matchempleos.com.ar`. Arranca limpio, sin datos de prueba. |
 
-### Trigger
+Los dos proyectos se configuran por separado: esquema, permisos, buckets, URLs de redirección y SMTP. Las migraciones se aplican a cada uno por separado.
 
-`on_auth_user_created` (sobre `auth.users`) ejecuta `handle_new_user()`, que inserta en `perfiles` usando `raw_user_meta_data`: `rol`, `nombre` y `datos`. Si `rol` no es `c` o `e`, el `check` de la tabla rechaza el registro.
-
-### RLS (Row Level Security)
-
-Todas las tablas tienen RLS activo. Las políticas son por dueño:
-
-- `perfiles`: leer y editar solo la propia fila. Del lado del cliente solo se pueden actualizar `nombre`, `cupo` y `tasa` (ver pendientes).
-- `postulaciones`: el candidato gestiona las suyas.
-- `busquedas` y `candidatos_estado`: la empresa gestiona las suyas.
-- `mensajes`: se permite si el chat pertenece al usuario. La política vigente admite las claves históricas `c:<oferta>` / `e:<candidato>` y la clave compartida `chat:<postulacion>` cuando la postulación corresponde al candidato autenticado o a una oferta de la empresa autenticada.
-- La tabla `mensajes` está habilitada en la publicación `supabase_realtime` en staging para recibir inserts en tiempo real.
+Diferencias intencionales entre staging y producción (ver migración `009`):
+- Staging conserva columnas y una política de la versión demo de chats: `mensajes.de`, `mensajes.chat_key`, la restricción `mensajes_de_check`, el índice `mensajes_chat_idx` y la política "historial anterior solo lectura". Producción no los tiene.
+- Producción tiene la función `rls_auto_enable`, creada por la opción "Enable automatic RLS" del dashboard.
+- Staging tenía un bucket `subidas` sin uso que hay que borrar desde el dashboard.
 
 ### Migraciones
 
-- Se aplican en orden numérico.
-- **002 es destructiva**: borra y recrea las tablas porque cambia los ids de `text` a `uuid`. Solo se aplica en staging, o sobre una base vacía.
-- La política de `mensajes` y la habilitación de `mensajes` en `supabase_realtime` se ajustaron en staging durante la implementación del chat real. **Ese cambio debe quedar versionado en una migración `003_...sql` antes de recrear el proyecto o desplegar a otro entorno.**
-- No cambiar tablas a mano en el editor de Supabase. Todo cambio futuro va en un archivo nuevo de `supabase/migrations/`.
+- Se aplican en orden numérico. `000` es la base completa de producción y ya incluye el efecto de `003` a `008`. Para un proyecto nuevo, aplicar `000` y después las que vengan después de la `009`.
+- `002` es **destructiva**: recrea las tablas. No se vuelve a correr sobre una base con datos.
+- `003` borra los datos de prueba de chats y candidatos en `si`/`mas`. Solo corresponde a staging. **No correrla en producción** (producción ya tiene su estado correcto).
+- `004` a `009` son para staging. Su efecto ya está incluido en `000`.
+- Todo cambio futuro va en un archivo nuevo, numerado a partir de `010`. No cambiar tablas a mano en el editor de Supabase.
+
+### Tablas
+
+| Tabla | Contenido | Clave / relaciones |
+|---|---|---|
+| `perfiles` | Una fila por cuenta. `rol` (`c`/`e`), `nombre`, `avatar_url`, `datos` (jsonb con el onboarding y el CV), `cupo`, `cupo_semana_inicio`, `tasa`, `demora`, `plazo`. | `id` = `auth.users.id`, `on delete cascade`. |
+| `busquedas` | Búsquedas publicadas por una empresa. `estado` (`Activa` por defecto), `total`. | `empresa_id` → `perfiles`. |
+| `postulaciones` | Postulación de un candidato a una búsqueda. `estado` (`Enviada`, `Vista`, `Respondida`), `datos` (objeto de la postulación). | `candidato_id` → `perfiles`. Único por (candidato, oferta). |
+| `candidatos_estado` | Respuesta de la empresa a una postulación: `si`, `mas` o `no`. `id` = `postulaciones.id`. | `empresa_id` → `perfiles`. |
+| `chats` | Un chat por postulación con Match mutuo. Sin vencimiento. | `postulacion_id` único; `candidato_id` y `empresa_id` → `perfiles`. |
+| `mensajes` | Mensajes de un chat. `autor_id` identifica al que escribe; `texto` y `h` (hora). Inmutables: no tienen UPDATE ni DELETE. | `chat_id` → `chats`; `autor_id` → `perfiles`. |
+
+Staging además conserva `mensajes.de` y `mensajes.chat_key` (historial demo).
+
+### Funciones del servidor
+
+| Función | Quién la llama | Qué hace |
+|---|---|---|
+| `handle_new_user()` | Trigger `on_auth_user_created` | Crea la fila de `perfiles` desde `raw_user_meta_data`. |
+| `postular(p_id, p_oferta, p_datos)` | Cliente (RPC) | Valida cupo, evita postulaciones repetidas, crea la postulación y descuenta el cupo, en una transacción. |
+| `cupo_actual()` | Cliente (RPC) al cargar la sesión | Devuelve el cupo vigente. Si empezó una semana nueva, lo renueva a 5. |
+| `inicio_semana_ar()` | Interna | Lunes 00:00 de Buenos Aires. |
+| `abrir_chat_con_match()` | Trigger sobre `candidatos_estado` | Crea el chat cuando la empresa marca `si` sobre una postulación suya. |
+| `recalcular_tasa(empresa)` | Triggers sobre `postulaciones` y `candidatos_estado` | Recalcula `perfiles.tasa`. |
+
+Las funciones `SECURITY DEFINER` no son ejecutables por `anon` ni `public`. Solo `cupo_actual` y `postular` son invocables por usuarios logueados, y validan `auth.uid()` adentro.
+
+### Reglas de cupo y tasa
+
+- **Cupo**: 5 postulaciones por semana. Se renuevan los lunes a las 00:00 hora de Buenos Aires. Lo controla el servidor; el cliente no puede modificar `cupo`.
+- **Tasa**: respondidas ÷ total de postulaciones recibidas. Se recalcula sola cada vez que cambia una postulación o una respuesta.
+
+### RLS (Row Level Security)
+
+Todas las tablas tienen RLS activo.
+
+- `perfiles`: cada uno lee y edita su propia fila. Los candidatos leen los perfiles de empresas (`rol = 'e'`). Las empresas leen los perfiles de los postulantes a sus búsquedas.
+- `busquedas`: la empresa gestiona las suyas. Los candidatos leen las activas.
+- `postulaciones`: el candidato gestiona las suyas. La empresa las lee y actualiza (`estado`, `datos`, `updated_at`) solo si la búsqueda es suya.
+- `candidatos_estado`: la empresa gestiona las suyas.
+- `chats`: lectura solo para los dos miembros.
+- `mensajes`: lectura y escritura solo para los miembros del chat. Se escribe solo como uno mismo (`autor_id = auth.uid()`). No hay UPDATE ni DELETE.
+
+**Privilegios de tabla:** `anon` no tiene ningún permiso sobre las tablas. `authenticated` tiene solo lo que usa la app:
+
+| Tabla | Permisos |
+|---|---|
+| `busquedas`, `candidatos_estado` | select, insert, update, delete |
+| `chats` | select |
+| `mensajes` | select, insert |
+| `perfiles` | select; update solo de `nombre`, `avatar_url`, `datos` |
+| `postulaciones` | select; update solo de `estado`, `datos`, `updated_at` (el alta pasa por `postular`) |
+
+`TRUNCATE`, `REFERENCES` y `TRIGGER` están revocados. `TRUNCATE` ignora RLS.
+
+### Storage
+
+| Bucket | Público | Límite | Ruta | Quién lee / escribe |
+|---|---|---|---|---|
+| `avatars` | Sí | 2 MB; JPG, PNG, WEBP | `{user_id}/avatar` | Cada usuario, en su carpeta. La lectura pública es por URL. |
+| `cvs` | No | 5 MB; solo PDF | `{candidato_id}/cv.pdf` | El candidato, en su carpeta. La empresa, solo si el candidato se postuló a una de sus búsquedas. Se abre con enlace firmado de 5 minutos. |
+
+### Realtime
+
+La publicación `supabase_realtime` incluye `mensajes` y `chats`. El cliente se suscribe a inserts de `mensajes` (por chat) y a inserts de `chats` (para recargar la sesión cuando empieza un chat nuevo). RLS aplica también a Realtime.
 
 ### Configuración del proyecto (Dashboard)
 
-- **Authentication > URL Configuration**: Site URL y Redirect URLs. Tienen que incluir los dominios de producción, `www`, y los hosts de pruebas (`127.0.0.1:5500`, `localhost:5500`). Si una URL falta, el enlace del correo falla.
+Esto no se puede versionar con SQL. Hay que hacerlo en cada proyecto.
+
+- **Authentication > URL Configuration**:
+  - Staging: Site URL el de pruebas; Redirect URLs con `127.0.0.1:5500`, `localhost:5500`, el dominio de pruebas y `matchempleos.com.ar`.
+  - Producción: Site URL `https://matchempleos.com.ar`; Redirect URLs `https://matchempleos.com.ar` y `https://www.matchempleos.com.ar`. Nada más.
 - **Authentication > Sign In / Providers > Email**: "Confirm email" decide si hay que confirmar antes de entrar.
-- **Authentication > Email Templates**: la plantilla por defecto está en inglés. Pendiente personalizarla.
-- **SMTP**: el envío por defecto de Supabase tiene límites bajos. Producción necesita un SMTP propio.
+- **Authentication > Notifications > Emails > Security**: activar "Password changed" y "Email address changed".
+- **Authentication > Email Templates**: revisar los textos en español antes de salir al público.
+- **Authentication > Attack Protection**: la protección contra contraseñas filtradas requiere plan Pro y todavía no está activa.
+- **SMTP**: por ahora se usa el SMTP de Supabase, con límites bajos. Antes de escalar, conviene un proveedor propio (Resend, Amazon SES, Postmark) con subdominio y SPF, DKIM y DMARC.
+- **Storage**: crear los buckets desde las migraciones, no desde el dashboard.
 
 ---
 
 ## 9. Pendientes y limitaciones conocidas
 
-Estos puntos **bloquean producción**. Están documentados para que nadie los pase por alto.
+Estos puntos **bloquean o condicionan producción**. Están documentados para que nadie los pase por alto.
 
-1. **El rol se toma de la metadata del registro.** Cualquiera con la anon key puede llamar a `signUp` con `rol: 'e'`. Solución propuesta: que el trigger asigne siempre `'c'` y que el rol de empresa se asigne desde el servidor (verificación manual o función protegida).
-2. **Datos de ejemplo solo en demo / compatibilidad.** `freshState()` sigue conteniendo datos ficticios, pero las sesiones reales ya no los mezclan en los principales listados: el candidato real no recibe las postulaciones demo ni el chat de Farmacia Sur; sus notificaciones base filtran Farmacia Sur y Supermercado Norte. La empresa real no recibe las búsquedas demo ni las notificaciones demo.
-3. **Chat real implementado en cliente + Supabase.** Las conversaciones reales usan `chat:<postulacion>`, los mensajes se guardan en `mensajes` y existe una suscripción Realtime a inserts. Las respuestas automáticas quedan restringidas a `ME.demo`. Sin embargo, `hidratar()` todavía carga explícitamente los mensajes históricos con las claves antiguas `c:<oferta>` / `e:<candidato>`; el historial de una conversación real con `chat:<postulacion>` debe terminar de incorporarse al cargar la sesión. Además, la escritura de mensajes sigue estando autorizada por RLS para el cliente, por lo que la identidad del remitente debe reforzarse en servidor antes de producción.
-4. **`cupo` y `tasa` los modifica el cliente.** Debería cambiarse con una función del servidor (RPC).
-5. **El modelo de empresa es de demo.** Los candidatos que ve una empresa no vienen de las postulaciones reales en la base. Requiere rediseñar cómo una oferta se relaciona con una empresa.
-6. **El CV no se guarda.** Subirlo a Storage requiere sesión, así que debe hacerse en el primer inicio de sesión.
-7. **Los datos del onboarding no son editables** después del registro. Se guardan en `perfiles.datos`, pero no hay pantalla para modificarlos.
-8. **Las ofertas demo están en el código** (`offerById`, `freshState`), pero las ofertas publicadas por empresas reales se leen de `busquedas` y se incorporan al feed del candidato.
-9. **Los ids de postulaciones reales** se generan en el navegador con `'p'+crypto.randomUUID()`; el modo demo conserva su lógica de prueba. Los ids de mensajes los genera la base.
-10. **Las transiciones automáticas de estado ya no se aplican a ofertas reales.** La ruta real de postulación crea `Enviada` y espera una acción real de la empresa. Los `setTimeout` de `apply()` y las respuestas automáticas siguen existiendo únicamente para las ofertas/demo antiguas. Si se recarga una sesión real, no debe suponerse que esos temporizadores continúan.
-11. **Sin pruebas automatizadas.** Todo se prueba a mano. Ver checklist en la sección 10.
-12. **Rate limiting, CAPTCHA y contraseñas filtradas** no están configurados. Conviene activarlos en Auth antes de producción.
-13. **Historial de chat real:** el canal Realtime actualiza mensajes nuevos, pero la hidratación del historial todavía debe unificar completamente `chat:<postulacion>` con las claves históricas `c:<oferta>` / `e:<candidato>`.
-14. **Versionado de RLS de chat:** la política de `mensajes` que admite `chat:<postulacion>` fue aplicada en staging pero todavía debe guardarse como migración en `supabase/migrations/`.
-15. **Notificaciones reales:** las notificaciones de candidato no se persisten en una tabla; las que aparecen en sesión real son estado de UI. El filtrado actual elimina de las notificaciones base las referencias a Farmacia Sur y Supermercado Norte.
-13. **Empresa:** el nombre de la empresa acepta números y símbolos, a propósito.
-14. **Mensajes de error reveladores:** "Ya existe una cuenta con ese correo" permite averiguar qué correos están registrados. Debería ser un mensaje genérico.
+1. **El rol se toma de la metadata del registro.** Cualquiera con la anon key puede llamar a `signUp` con `rol: 'e'`. Solución propuesta: asignar el rol de empresa desde el servidor (verificación manual o función protegida).
+2. **Datos de ejemplo en el código.** `freshState()`, `offerById` y las plantillas siguen teniendo datos ficticios. Las sesiones reales no los mezclan en los listados principales, pero el código sigue cargándolos para el modo demo.
+3. **Historial de chats demo.** `hidratar()` todavía lee las claves históricas `c:<oferta>` y `e:<candidato>`. Solo tiene sentido en staging, donde están esos datos.
+4. **Contraseñas filtradas y CAPTCHA.** La protección contra contraseñas filtradas requiere plan Pro. Mientras tanto, la longitud mínima de contraseña se controla en el cliente (8 caracteres) y puede subirse en Auth.
+5. **SMTP de Supabase.** Tiene límites bajos. Antes de escalar, usar un proveedor propio.
+6. **Mensajes de error reveladores.** "Ya existe una cuenta con ese correo" permite averiguar qué correos están registrados. Es una decisión de producto; debería ser un mensaje genérico.
+7. **Los datos del onboarding no son editables** después del registro. Se guardan en `perfiles.datos`, pero no hay pantalla para modificar todos los campos. Hoy se pueden editar nombre, edad, ubicación, puesto buscado y "Sobre vos", y en la empresa nombre, responsable, rubro, tamaño, ubicación y descripción.
+8. **Notificaciones.** Las notificaciones del candidato no se persisten en una tabla; son estado de UI. Las notificaciones base filtran Farmacia Sur y Supermercado Norte.
+9. **El CV se sube solo con sesión.** Si el registro requiere confirmar el correo, el archivo elegido en el paso 5 no se puede guardar; el usuario tiene que subirlo después desde "Datos personales".
+10. **Sin pruebas automatizadas.** Todo se prueba a mano. Ver checklist en la sección 10.
+11. **Respuestas automáticas.** Los temporizadores de `apply()` y `enviarResp()` solo corren para ofertas demo. Las cuentas reales no reciben respuestas automáticas.
+12. **Métodos heredados.** `DB.setCupo` y `DB.setTasa` son no-ops; la app ya no escribe esos valores desde el cliente.
+13. **Columnas heredadas en staging.** `mensajes.de` y `mensajes.chat_key` siguen en staging por el historial demo. No se replican en producción.
 
 ---
 
 ## 10. Checklist de prueba manual
 
-Antes de mergear a `main`:
+Antes de mergear a `main` o de publicar en producción, probar en **staging** con dos cuentas reales (una empresa y un candidato):
 
-- [ ] Modo demo: entrar como candidato y como empresa, postular y publicar. No aparecen filas nuevas en Supabase.
-- [ ] Candidato real: sus postulaciones muestran solo filas de `postulaciones` propias; no aparecen las postulaciones demo.
-- [ ] Candidato real: `Mensajes` no muestra el chat demo de Farmacia Sur.
-- [ ] Candidato real: `Notificaciones` conserva las otras notificaciones base y elimina Farmacia Sur y Supermercado Norte.
-- [ ] Candidato real: "Me interesa" sobre una oferta real crea una fila en `postulaciones` y no dispara notificaciones ni respuestas automáticas.
-- [ ] Empresa real: `Tus búsquedas` muestra las filas de `busquedas` propias y no "Ayudante de cocina" / "Cajero fin de semana" salvo que el usuario realmente las haya publicado.
-- [ ] Empresa real: no aparecen las notificaciones demo.
-- [ ] Empresa real: al responder una postulación, la conversación usa `chat:<postulacion>` y no genera una respuesta automática.
-- [ ] Dos sesiones reales: un mensaje enviado por una parte aparece en la otra mediante Realtime.
+**Modo demo**
+- [ ] Entrar como candidato y como empresa, postular y publicar. No aparecen filas nuevas en Supabase.
 
-
-- [ ] Login con "Hola" en correo: no avanza, muestra el aviso debajo del campo.
+**Registro y acceso**
 - [ ] "Busco trabajo" con datos inválidos: botones deshabilitados, aviso visible.
 - [ ] Registro completo de candidato con un correo real. Llega el correo, se confirma, entra al feed.
-- [ ] En la base, `perfiles` tiene la fila con `rol`, `nombre` y `datos` (edad, rubros, horario).
+- [ ] En la base, `perfiles` tiene la fila con `rol`, `nombre` y `datos`.
 - [ ] Volver atrás en el registro conserva los datos escritos.
-- [ ] Nombre con números o símbolos: se borran y aparece el aviso. Nombre con ñ, ç, acentos: se acepta.
-- [ ] Edad con letras: no se escriben.
-- [ ] Paso 1 con correo o contraseña distintos a los de "Busco trabajo": no avanza, el aviso explica por qué.
+- [ ] Nombre con números o símbolos: se rechaza. Nombre con ñ, ç, acentos: se acepta.
+- [ ] Paso 1 con correo o contraseña distintos a los de "Busco trabajo": no avanza.
 - [ ] Login con correo sin confirmar: aparece "Reenviar correo".
 - [ ] Recuperación de contraseña: llega el enlace y permite elegir una nueva.
-- [ ] Cerrar sesión: vuelve al login.
+- [ ] Cerrar sesión desde `#/c/salir` y `#/e/salir`: vuelve al login.
+- [ ] Logo de la landing: con sesión lleva a la app; sin sesión, a login.
 - [ ] Dos cuentas distintas no ven los datos de la otra.
-- [ ] Consola sin errores de Supabase ni del navegador (los avisos de Tracking Prevention deben haber desaparecido al servir `vendor/supabase.js`).
+
+**Candidato**
+- [ ] Subir CV desde "Datos personales": aparece el nombre del archivo. Un archivo que no es PDF o pesa más de 5 MB se rechaza.
+- [ ] Foto de perfil: se sube y se ve en el encabezado de la landing y en la barra lateral.
+- [ ] Cupo: "Me interesa" descuenta una postulación. Con cupo en 0, el botón queda deshabilitado. Una búsqueda no se puede postular dos veces.
+- [ ] El estado de la postulación pasa a "Respondida" cuando la empresa responde.
+- [ ] "Me interesa" de la empresa con postulación previa abre el chat. "Pidió más información" no lo abre.
+- [ ] Chat: los mensajes propios aparecen a la derecha y los de la empresa a la izquierda. El avatar y el nombre de la empresa se ven en la lista y en el encabezado.
+- [ ] Notificaciones y mensajes no muestran datos demo.
+
+**Empresa**
+- [ ] Publicar una búsqueda: aparece en el panel y en la lista de búsquedas.
+- [ ] Con dos o más búsquedas, el selector de candidatos filtra por búsqueda y los contadores coinciden.
+- [ ] Responder "Me interesa" a un candidato: se abre el chat con el candidato, y el mensaje de bienvenida aparece con autor propio.
+- [ ] Responder "No avanza": el candidato ve "Respondida" y no hay chat.
+- [ ] Tasa de respuesta: sube al responder y llega a 100 % cuando no quedan pendientes.
+- [ ] Ver CV desde el perfil de un postulante con postulación: abre el PDF. Un postulante sin postulación a una búsqueda propia no se puede abrir.
+
+**Tiempo real**
+- [ ] Dos sesiones reales: un mensaje enviado por una parte aparece en la otra sin recargar.
+
+**Consola**
+- [ ] Sin errores de Supabase ni del navegador. Los errores de permisos (`permission denied`) indican un `grant` faltante en la migración correspondiente.
 
 ---
 
@@ -246,30 +330,18 @@ Si sos un agente que trabaja en este repo, seguí estas reglas:
 
 1. **Nunca pongas una `service_role` key en el código ni en el repo.** La anon key sí es pública y ya está en `index.html`.
 2. **No edites `vendor/supabase.js`.** Si hace falta otra versión, se reemplaza el archivo completo y se actualiza la versión en esta documentación.
-3. **No apliques migraciones destructivas** (como la 002) sobre una base con datos que alguien quiera conservar. Preguntá primero.
-4. **Toda escritura a la base pasa por `persistir()`**, así los errores llegan a la UI con el evento `db-error`. No llames a `sb.from(...)` directo desde la UI.
+3. **No apliques migraciones destructivas** (como la 002) ni la 003 sobre una base con datos que alguien quiera conservar. Preguntá primero.
+4. **Toda escritura a la base pasa por `persistir()`**, así los errores llegan a la UI. No llames a `sb.from(...)` directo desde la UI, salvo en las funciones de `DB` o de Storage ya existentes.
 5. **No llames a `sb.*` dentro de un callback de `onAuthStateChange` sin `setTimeout`.** Ya está resuelto en el código: no lo reviertas.
 6. **Respetá la validación de campos** descrita en la sección 7. Si agregás un campo, definí sus reglas.
 7. **Los textos de la interfaz van en español rioplatense**, con voseo.
-8. **Cualquier cambio de esquema va en una migración nueva** (`003_...sql`), nunca editando una existente ya aplicada.
-9. **Después de cambiar `index.html`, validá la sintaxis** de cada `<script>` (por ejemplo con `node --check` sobre el contenido extraído).
-10. **No cambies `DEMO_HABILITADO` a `false` sin confirmación del equipo.**
-11. **No reutilices las claves `c:<oferta>` / `e:<candidato>` para un chat real nuevo.** Las conversaciones reales deben usar `chat:<postulacion>` y conservar el mismo identificador en ambos lados.
-12. **No reintroduzcas respuestas automáticas en cuentas reales.** Los temporizadores de `sendChat()` y de `enviarResp()` están deliberadamente protegidos por `ME.demo`.
-13. **Al modificar `hidratar()`, preservá la separación demo/real.** Un candidato real no debe recibir las postulaciones o chats de `freshState()`, y una empresa real no debe recibir búsquedas o notificaciones demo.
-14. **Antes de cambiar la lógica de autenticación**, revisá la sección 7 completa: los pasos de registro, confirmación y login están conectados entre sí.
-15. **Si tenés dudas sobre producto** (qué datos mostrar, cómo se relacionan empresas y ofertas), preguntá. Hay decisiones pendientes que no las tomó el código.
-
----
-
-## 12. Contacto y decisiones abiertas
-
-Decisiones que todavía no están tomadas:
-
-- ¿Se confirma el correo antes de entrar o se permite entrar y completar el perfil después?
-- ¿Cómo se asigna el rol de empresa (verificación manual o automática)?
-- ¿Se borran los datos de ejemplo o se reemplazan por datos reales antes de producción?
-- ¿Cómo se relacionan las ofertas con las empresas?
-- ¿Se crea un proyecto de Supabase separado para producción?
-
-Responsable del proyecto: [completar]
+8. **Cualquier cambio de esquema va en una migración nueva**, numerada a partir de `010`. Nunca edites una migración ya aplicada.
+9. **Permisos explícitos.** Toda tabla nueva necesita `grant` explícito para `authenticated`, y RLS activo. No asumas que la plataforma los da.
+10. **Nunca dejes que el cliente escriba `cupo`, `tasa` ni `rol`.** Esos valores los calcula el servidor.
+11. **Después de cambiar `index.html`, validá la sintaxis** de cada `<script>` (por ejemplo con `node --check` sobre el contenido extraído).
+12. **No cambies `DEMO_HABILITADO` a `false` sin confirmación del equipo.**
+13. **No reutilices las claves `c:<oferta>` / `e:<candidato>` para un chat real nuevo.** Las conversaciones reales usan `chats` y `mensajes.chat_id`.
+14. **No reintroduzcas respuestas automáticas en cuentas reales.** Los temporizadores de `sendChat()`, `enviarResp()` y `apply()` están protegidos por `ME.demo`.
+15. **Al modificar `hidratar()`, preservá la separación demo/real.** Un candidato real no debe recibir las postulaciones o chats de `freshState()`, y una empresa real no debe recibir búsquedas o notificaciones demo.
+16. **No cambies la selección de entorno** (`HOSTS_PRODUCCION`) sin confirmación: decide a qué base se conecta cada dominio.
+17. **Antes de cambiar la lógica de autenticación**, revisá la sección 7 completa: los pasos de registro, confirmación y login están conectados entre sí.
