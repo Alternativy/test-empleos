@@ -570,9 +570,8 @@ const DB = {
   cargarPostulacion(id){return persistir(sb.from('postulaciones').select('*').eq('id',id).maybeSingle(),'cargarPostulacion');},
   actualizarPostulacion(row){return persistir(sb.from('postulaciones').update({estado:row.estado,datos:row.datos,updated_at:new Date().toISOString()}).eq('id',row.id),'actualizarPostulacion');},
 
-  setTasa(tasa){
-    return persistir(sb.from('perfiles').update({ tasa }).eq('id', ME.id), 'setTasa');
-  },
+  // La tasa de respuesta la calcula el servidor (trigger en postulaciones y candidatos_estado)
+  setTasa(tasa){ return null; },
 
   nuevoMensaje(chatKey, de, texto, h){
     if(chatKey.startsWith('chat:')) return persistir(sb.from('mensajes').insert({ chat_id: chatKey.slice(5), autor_id: ME.id, texto, h }).select('id').maybeSingle(), 'nuevoMensaje');
