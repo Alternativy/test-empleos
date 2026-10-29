@@ -58,6 +58,8 @@ supabase/migrations/
   007_cupo_semanal.sql                  Cupo de 5 postulaciones por semana (RPC postular)
   008_empresa_actualiza_postulaciones.sql
   009_alinear_staging_produccion.sql    Alineación de permisos de staging con producción
+  010_busquedas_jornada_turno_y_borrado.sql  Jornada y turno en búsquedas; borrado seguro (RPC borrar_busqueda)
+  011_pausar_busquedas.sql              Búsquedas pausadas no reciben postulaciones (postular valida estado)
 robots.txt                             Permite indexar la raíz y apunta al sitemap
 sitemap.xml                            Lista la landing (única URL indexable)
 README.md                               Este documento
@@ -122,8 +124,9 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 - `index.html` tiene metadatos en el `<head>`: `title`, `meta description`, `canonical`, Open Graph, Twitter Card y datos estructurados JSON-LD (`Organization` y `WebSite`). No hay `FAQPage`, a propósito.
 - El script de `<head>` agrega `<meta name="robots" content="noindex, nofollow">` cuando el host no es `matchempleos.com.ar` ni `www.matchempleos.com.ar`. Por eso los entornos de prueba no se indexan.
-- La landing tiene **contenido estático** dentro de `<div id="root">`: el hero, "¿Quiénes somos?", "Situación actual en Argentina", "¿Cómo funciona?", "¡El futuro no espera, vos tampoco!" y el pie. Así el contenido existe aunque no se ejecute JavaScript. Cuando carga la app, `render()` reemplaza ese contenido por la versión dinámica.
-- **Los textos estáticos son copia de los dinámicos.** Si cambian los textos de la landing, hay que actualizar los dos lugares: el bloque estático dentro de `#root` y la función `home()` (y `siteFooter()` para el pie).
+- La landing tiene **una sola fuente de texto**: el HTML dentro de `<div id="root">` en `index.html` (encabezado, hero, "¿Quiénes somos?", "Situación actual en Argentina", "¿Cómo funciona?", "¡El futuro no espera, vos tampoco!" y pie). Ese HTML se guarda en `LANDING_HTML` al arrancar. `home()` lo reutiliza y solo ajusta lo que depende de la sesión (enlace del logo y menú de cuenta). `siteFooter()` toma el pie del mismo HTML.
+- **Para cambiar un texto de la landing, editá solo el HTML de `#root`.** No hay copia en JavaScript. El pie que usan las demás pantallas sale del mismo bloque.
+- Como el contenido existe en el HTML, se ve y se indexa aunque no cargue JavaScript.
 - `titleFor()` cambia el título de la pestaña según la vista. La landing mantiene el título completo.
 - Las imágenes llevan `loading="lazy"`, excepto el hero y el logo del encabezado.
 - Las rutas con hash (`#/privacidad`, `#/terminos`, `#/ayuda`) no son URLs que un buscador indexe por separado. Está pendiente separarlas en páginas propias (ver sección 12).
@@ -179,6 +182,15 @@ Los campos conservan lo escrito al volver atrás: `regField()` y los inputs de `
 
 ---
 
+## Búsquedas de la empresa
+
+- Cada búsqueda tiene puesto, descripción, **jornada** y **turno** (columnas `busquedas.jornada` y `busquedas.turno`, arrays de texto).
+- En "Búsquedas" del panel, cada tarjeta abre el detalle de la búsqueda. Desde ahí se puede ver los candidatos (`Ver candidatos`), editar la búsqueda o eliminarla.
+- **Pausar una búsqueda** cambia `busquedas.estado` entre `Activa` y `Pausada`. Una búsqueda pausada no aparece en el feed de candidatos y `postular` la rechaza. Las postulaciones que ya tiene siguen visibles para la empresa.
+- **Eliminar una búsqueda** llama a la RPC `borrar_busqueda`, que borra también sus postulaciones, respuestas, chats y mensajes. Es irreversible. La app pide confirmación antes.
+
+---
+
 ## 8. Base de datos
 
 ### Proyectos
@@ -201,7 +213,7 @@ Diferencias intencionales entre staging y producción (ver migración `009`):
 - `002` es **destructiva**: recrea las tablas. No se vuelve a correr sobre una base con datos.
 - `003` borra los datos de prueba de chats y candidatos en `si`/`mas`. Solo corresponde a staging. **No correrla en producción** (producción ya tiene su estado correcto).
 - `004` a `009` son para staging. Su efecto ya está incluido en `000`.
-- Todo cambio futuro va en un archivo nuevo, numerado a partir de `010`. No cambiar tablas a mano en el editor de Supabase.
+- Todo cambio futuro va en un archivo nuevo, numerado a partir de `012`. Las `010` y `011` ya están aplicadas en staging y en producción. No cambiar tablas a mano en el editor de Supabase.
 
 ### Tablas
 
@@ -294,7 +306,7 @@ Estos puntos **bloquean o condicionan producción**. Están documentados para qu
 4. **Contraseñas filtradas y CAPTCHA.** La protección contra contraseñas filtradas requiere plan Pro. Mientras tanto, la longitud mínima de contraseña se controla en el cliente (8 caracteres) y puede subirse en Auth.
 5. **SMTP de Supabase.** Tiene límites bajos. Antes de escalar, usar un proveedor propio.
 6. **Mensajes de error reveladores.** "Ya existe una cuenta con ese correo" permite averiguar qué correos están registrados. Es una decisión de producto; debería ser un mensaje genérico.
-7. **Los datos del onboarding no son editables** después del registro. Se guardan en `perfiles.datos`, pero no hay pantalla para modificar todos los campos. Hoy se pueden editar nombre, edad, ubicación, puesto buscado y "Sobre vos", y en la empresa nombre, responsable, rubro, tamaño, ubicación y descripción.
+7. **Correo no editable desde la app.** Los datos de "Datos personales" (candidato) y "Datos empresariales" (empresa) se editan todos, salvo el correo, que es el usuario de acceso. Cambiarlo requiere el flujo de cambio de correo de Auth, que todavía no está implementado.
 8. **Notificaciones.** Las notificaciones del candidato no se persisten en una tabla; son estado de UI. Las notificaciones base filtran Farmacia Sur y Supermercado Norte.
 9. **El CV se sube solo con sesión.** Si el registro requiere confirmar el correo, el archivo elegido en el paso 5 no se puede guardar; el usuario tiene que subirlo después desde "Datos personales".
 10. **Sin pruebas automatizadas.** Todo se prueba a mano. Ver checklist en la sección 10.
@@ -360,7 +372,7 @@ Si sos un agente que trabaja en este repo, seguí estas reglas:
 5. **No llames a `sb.*` dentro de un callback de `onAuthStateChange` sin `setTimeout`.** Ya está resuelto en el código: no lo reviertas.
 6. **Respetá la validación de campos** descrita en la sección 7. Si agregás un campo, definí sus reglas.
 7. **Los textos de la interfaz van en español rioplatense**, con voseo.
-8. **Cualquier cambio de esquema va en una migración nueva**, numerada a partir de `010`. Nunca edites una migración ya aplicada.
+8. **Cualquier cambio de esquema va en una migración nueva**, numerada a partir de `012`. Nunca edites una migración ya aplicada.
 9. **Permisos explícitos.** Toda tabla nueva necesita `grant` explícito para `authenticated`, y RLS activo. No asumas que la plataforma los da.
 10. **Nunca dejes que el cliente escriba `cupo`, `tasa` ni `rol`.** Esos valores los calcula el servidor.
 11. **Después de cambiar `index.html`, validá la sintaxis** de cada `<script>` (por ejemplo con `node --check` sobre el contenido extraído).
@@ -379,6 +391,7 @@ Si sos un agente que trabaja en este repo, seguí estas reglas:
 - [ ] **Imagen para compartir** de 1200×630 para `og:image` (hoy se usa `img/ilus-hero.png`).
 - [ ] **Subir el `site.webmanifest` corregido** a `img/` (nombre, rutas de íconos relativas).
 - [x] **`robots.txt` y `sitemap.xml`** en la raíz de `test-empleos`. Pasan a producción con el pull request.
+- [x] **Landing con una sola fuente de texto** (HTML estático en `#root`).
 - [ ] Ejecutar la sección 8 (Storage y Auth) y la configuración de URLs de redirección de producción.
 - [ ] Páginas legales como URLs propias (`privacidad.html`, `terminos.html`, `ayuda.html`), para indexarlas.
 - [ ] Verificar el dominio en Google Search Console después del merge a producción, pedir indexación de `https://matchempleos.com.ar/` y enviar `sitemap.xml`.
