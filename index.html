@@ -2309,15 +2309,17 @@
       .landing-v2 .lp-hero::before {
         content: "";
         position: absolute;
-        z-index: -1;
+        z-index: 0;
         right: 0;
-        bottom: -74px;
+        bottom: 0;
         width: 39%;
         height: 430px;
         background: var(--gray);
         border-top-left-radius: 100% 100%;
       }
       .landing-v2 .lp-hero-inner {
+        position: relative;
+        z-index: 1;
         min-height: 582px;
         display: grid;
         grid-template-columns: 1.15fr .85fr;
@@ -2501,13 +2503,14 @@
       .landing-v2 .lp-how::before {
         content: "";
         position: absolute;
-        z-index: -1;
+        z-index: 0;
         inset: 0 0 auto;
         height: 205px;
         background: var(--navy);
       }
       .landing-v2 .lp-how-inner {
         position: relative;
+        z-index: 1;
         width: 100%;
         max-width: none;
         margin: 0;
@@ -2584,7 +2587,7 @@
       .landing-v2 .lp-cta::before {
         content: "";
         position: absolute;
-        z-index: -1;
+        z-index: 0;
         top: 78px;
         left: 0;
         right: 0;
@@ -2594,6 +2597,7 @@
       }
       .landing-v2 .lp-cta-inner {
         position: relative;
+        z-index: 1;
         width: 100%;
         max-width: none;
         min-height: 900px;
@@ -2775,6 +2779,11 @@
         .landing-v2 .lp-wrap,
         .landing-v2 .lp-footer-wrap {
           width: calc(100% - 36px);
+        }
+        .landing-v2 .lp-about-inner,
+        .landing-v2 .lp-how-inner,
+        .landing-v2 .lp-cta-inner {
+          width: 100%;
         }
         .landing-v2 .lp-header {
           height: 72px;
