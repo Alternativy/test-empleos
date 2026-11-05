@@ -2243,71 +2243,270 @@
           padding: 28px 22px 60px;
         }
       }
-    </style>
+    
+      /* Landing actualizada según "Match Empleos Landing (copia).pdf".
+         Los estilos quedan aislados para no alterar las pantallas de la aplicación. */
+      .site.landing-v2 { background:var(--navy); color:var(--white); overflow:hidden; }
+      .landing-v2 .lp-wrap { width:min(1120px, calc(100% - 64px)); margin-inline:auto; }
+      .landing-v2 .lp-header { height:88px; background:var(--navy); border-bottom:1px solid rgba(255,255,255,.08); }
+      .landing-v2 .lp-header-inner { height:100%; display:flex; align-items:center; justify-content:space-between; }
+      .landing-v2 .lp-brand { display:block; width:132px; }
+      .landing-v2 .lp-brand img { width:100%; height:auto; }
+      .landing-v2 .lp-account { display:flex; align-items:center; gap:42px; }
+      .landing-v2 .lp-account a { color:var(--white); font-size:14px; text-decoration:none; }
+      .landing-v2 .lp-account a:hover { color:var(--green); }
+      .landing-v2 .lp-hero { position:relative; min-height:600px; background:var(--navy); padding:68px 0 78px; }
+      .landing-v2 .lp-hero-inner { min-height:390px; display:grid; grid-template-columns:1fr .85fr; align-items:center; gap:28px; }
+      .landing-v2 .lp-hero-copy { align-self:start; padding-top:18px; position:relative; z-index:1; }
+      .landing-v2 .lp-hero h1 { color:var(--gray); font-size:clamp(38px,5vw,64px); line-height:1.08; font-weight:700; letter-spacing:-.035em; }
+      .landing-v2 .lp-hero-copy p { color:var(--green); font-size:clamp(16px,1.8vw,22px); margin-top:12px; }
+      .landing-v2 .lp-hero-art { width:min(100%,470px); max-height:380px; object-fit:contain; justify-self:end; align-self:end; }
+      .landing-v2 .lp-scroll { position:absolute; bottom:0; left:0; width:100%; height:58px; border:0; background:var(--gray); color:var(--navy); text-align:left; padding:0 max(32px,calc((100% - 1120px)/2)); font-size:18px; }
+      .landing-v2 .lp-scroll:hover { color:var(--green-deep); }
+      .landing-v2 .lp-about { position:relative; background:var(--green); padding:0 0 0; }
+      .landing-v2 .lp-about-shape { position:absolute; inset:0 0 auto; height:100%; background:var(--green); clip-path:polygon(0 0,100% 0,100% 0,100% 18%,100% 30%,0 68%); }
+      .landing-v2 .lp-about-inner { position:relative; min-height:470px; padding:76px 0 86px; background:linear-gradient(90deg,rgba(0,33,71,.72),rgba(0,33,71,.91)),url('img/foto-quienes.jpg') center/cover; border-radius:46% 0 0 0 / 22% 0 0 0; display:flex; flex-direction:column; align-items:flex-end; }
+      .landing-v2 .lp-about-inner h2 { color:var(--gray); font-size:clamp(34px,4vw,52px); margin:0 5% 18px 0; }
+      .landing-v2 .lp-about-copy { width:min(760px,78%); padding-right:4%; text-align:right; color:var(--gray); font-size:15px; line-height:1.55; display:grid; gap:22px; }
+      .landing-v2 .lp-situation { position:relative; background:linear-gradient(110deg,rgba(54,244,140,.88),rgba(54,244,140,.96)),url('img/foto-quienes.jpg') center/cover; color:var(--navy); padding:54px 0 80px; border-radius:0 0 42% 0 / 0 0 10% 0; }
+      .landing-v2 .lp-situation-inner h2 { font-size:clamp(28px,3.5vw,42px); font-weight:400; margin:0 0 36px; }
+      .landing-v2 .lp-situation-inner h2 strong { font-weight:700; }
+      .landing-v2 .lp-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) minmax(150px,.9fr); align-items:center; gap:18px; }
+      .landing-v2 .lp-stat { min-height:220px; border-radius:18px; padding:20px 14px; text-align:center; box-shadow:0 8px 0 rgba(0,33,71,.15); display:flex; flex-direction:column; justify-content:center; }
+      .landing-v2 .lp-stat-light { background:var(--gray); color:var(--navy); }
+      .landing-v2 .lp-stat-dark { background:var(--navy); color:var(--green); }
+      .landing-v2 .lp-stat strong { font-size:clamp(34px,4vw,52px); line-height:1; margin-bottom:18px; }
+      .landing-v2 .lp-stat p { font-size:13px; line-height:1.4; }
+      .landing-v2 .lp-situation-art { width:100%; max-width:230px; justify-self:center; }
+      .landing-v2 .lp-how { background:var(--gray); color:var(--navy); padding:62px 0 0; border-radius:0 0 0 0; }
+      .landing-v2 .lp-how-inner h2 { text-align:center; font-size:clamp(32px,4vw,46px); font-weight:500; margin-bottom:42px; }
+      .landing-v2 .lp-profiles { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(24px,8vw,100px); align-items:stretch; }
+      .landing-v2 .lp-profile { border-radius:18px; padding:24px 24px 28px; box-shadow:0 5px 0 rgba(0,33,71,.2); }
+      .landing-v2 .lp-profile-candidate { background:var(--navy); color:var(--green); }
+      .landing-v2 .lp-profile-company { background:var(--green); color:var(--navy); }
+      .landing-v2 .lp-profile h3 { font-size:clamp(23px,2.6vw,34px); line-height:1.15; margin-bottom:14px; text-align:center; }
+      .landing-v2 .lp-profile ul { padding-left:18px; margin:0; display:grid; gap:7px; font-size:14px; line-height:1.35; }
+      .landing-v2 .lp-how-art { display:block; width:min(400px,70%); height:180px; object-fit:contain; margin:24px auto -4px; }
+      .landing-v2 .lp-cta { background:var(--navy); color:var(--gray); padding:76px 0 78px; }
+      .landing-v2 .lp-cta-inner { display:grid; grid-template-columns:.8fr 1.2fr; align-items:center; gap:48px; }
+      .landing-v2 .lp-cta-inner > img { width:100%; max-width:330px; justify-self:center; }
+      .landing-v2 .lp-cta-copy { text-align:right; }
+      .landing-v2 .lp-cta-copy > p:first-child { font-size:16px; margin-bottom:12px; }
+      .landing-v2 .lp-cta-copy h2 { color:var(--green); font-size:clamp(30px,3.7vw,46px); font-weight:500; line-height:1.12; margin-bottom:12px; }
+      .landing-v2 .lp-cta-copy > p:nth-child(3) { font-size:15px; margin-bottom:28px; }
+      .landing-v2 .lp-register { display:grid; gap:14px; text-align:center; }
+      .landing-v2 .lp-register-card { border-radius:14px; padding:10px 14px 12px; }
+      .landing-v2 .lp-register-candidate { background:#7d91a8; color:var(--white); }
+      .landing-v2 .lp-register-company { background:#168866; color:var(--white); }
+      .landing-v2 .lp-register-card h3 { font-size:20px; margin:0 0 8px; }
+      .landing-v2 .lp-register-card a { display:block; border-radius:20px; background:var(--navy); color:var(--white); text-decoration:none; padding:7px 12px; font-size:14px; }
+      .landing-v2 .lp-register-card a:hover { background:#0a3767; }
+      .landing-v2 .lp-footer { background:var(--green); color:var(--navy); padding:34px 0 28px; }
+      .landing-v2 .lp-footer-wrap { width:min(1040px,calc(100% - 64px)); }
+      .landing-v2 .lp-footer-top { display:grid; grid-template-columns:1fr 1fr; gap:42px; padding-bottom:24px; border-bottom:1px solid var(--navy); }
+      .landing-v2 .lp-footer h3 { font-size:19px; margin:0 0 12px; font-weight:600; }
+      .landing-v2 .lp-social { display:flex; flex-wrap:wrap; gap:24px; align-items:center; }
+      .landing-v2 .lp-social a,.landing-v2 .lp-social-secondary,.landing-v2 .lp-email { display:inline-flex; align-items:center; gap:9px; color:var(--navy); text-decoration:none; font-size:13px; }
+      .landing-v2 .lp-social svg,.landing-v2 .lp-email svg { width:22px; height:22px; flex:none; }
+      .landing-v2 .lp-footer-links { display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px 22px; padding:22px 0; border-bottom:1px solid var(--navy); }
+      .landing-v2 .lp-footer-links a { color:var(--navy); font-size:13px; text-decoration:none; }
+      .landing-v2 .lp-footer-links a:hover { text-decoration:underline; }
+      .landing-v2 .lp-footer small { display:block; margin-top:16px; font-size:11px; line-height:1.5; }
+      @media (max-width:760px) {
+        .landing-v2 .lp-wrap,.landing-v2 .lp-footer-wrap { width:calc(100% - 36px); }
+        .landing-v2 .lp-header { height:72px; }
+        .landing-v2 .lp-brand { width:112px; }
+        .landing-v2 .lp-account { gap:16px; }
+        .landing-v2 .lp-account a { font-size:12px; }
+        .landing-v2 .lp-hero { min-height:510px; padding:42px 0 70px; }
+        .landing-v2 .lp-hero-inner { grid-template-columns:1fr; gap:10px; min-height:390px; }
+        .landing-v2 .lp-hero-copy { padding-top:4px; }
+        .landing-v2 .lp-hero h1 { font-size:clamp(34px,9vw,48px); }
+        .landing-v2 .lp-hero-art { width:min(78%,340px); max-height:250px; justify-self:end; }
+        .landing-v2 .lp-scroll { height:52px; padding:0 18px; font-size:15px; }
+        .landing-v2 .lp-about-inner { min-height:0; padding:56px 20px 62px; border-radius:30% 0 0 0 / 10% 0 0 0; }
+        .landing-v2 .lp-about-inner h2 { margin:0 0 18px; font-size:34px; }
+        .landing-v2 .lp-about-copy { width:100%; padding:0; font-size:14px; gap:16px; }
+        .landing-v2 .lp-situation { padding:42px 0 52px; border-radius:0 0 22% 0 / 0 0 5% 0; }
+        .landing-v2 .lp-situation-inner h2 { margin-bottom:24px; }
+        .landing-v2 .lp-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+        .landing-v2 .lp-stat { min-height:170px; padding:16px 10px; }
+        .landing-v2 .lp-stat strong { font-size:36px; margin-bottom:12px; }
+        .landing-v2 .lp-stat p { font-size:12px; }
+        .landing-v2 .lp-situation-art { grid-column:1/-1; width:180px; }
+        .landing-v2 .lp-how { padding-top:44px; }
+        .landing-v2 .lp-how-inner h2 { margin-bottom:28px; }
+        .landing-v2 .lp-profiles { grid-template-columns:1fr; gap:18px; }
+        .landing-v2 .lp-profile { padding:22px 20px; }
+        .landing-v2 .lp-profile ul { font-size:13px; }
+        .landing-v2 .lp-how-art { width:90%; height:150px; margin:14px auto 0; }
+        .landing-v2 .lp-cta { padding:52px 0; }
+        .landing-v2 .lp-cta-inner { grid-template-columns:1fr; gap:26px; }
+        .landing-v2 .lp-cta-inner > img { width:190px; grid-row:2; }
+        .landing-v2 .lp-cta-copy { text-align:center; }
+        .landing-v2 .lp-cta-copy h2 { font-size:34px; }
+        .landing-v2 .lp-register { text-align:left; }
+        .landing-v2 .lp-footer-top { grid-template-columns:1fr; gap:24px; }
+        .landing-v2 .lp-footer-links { justify-content:flex-start; gap:14px 20px; }
+      }
+      @media (max-width:390px) {
+        .landing-v2 .lp-account { gap:10px; }
+        .landing-v2 .lp-account a { font-size:11px; }
+        .landing-v2 .lp-stat { min-height:160px; }
+      }
+
+</style>
   </head>
   <body>
-    <div id="root">
-      <div class="site">
-  <header class="top"><div class="wrap"><a class="lockup" href="#/login" aria-label="Match Empleos, inicio"><img loading="lazy" decoding="async" class="iso" src="img/isotipo.svg" alt=""><span class="words"><img loading="lazy" decoding="async" src="img/logo-match.png" alt=""><img loading="lazy" decoding="async" src="img/logo-empleos.png" alt=""></span></a><nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav></div></header>
+    <div id="root"> 
+      <div class="site landing-v2">
+        <header class="lp-header">
+          <div class="lp-wrap lp-header-inner">
+            <a class="lp-brand lockup" href="#/" aria-label="Match Empleos, inicio">
+              <img src="img/logo-match-empleos.png" alt="Match Empleos">
+            </a>
+            <nav aria-label="Cuenta" class="lp-account">
+              <a href="#/login">Iniciar sesión</a>
+              <a href="#/registro">Registrarse</a>
+            </nav>
+          </div>
+        </header>
 
-  <section class="hero"><div class="hero-in">
-    <img src="img/ilus-hero.png" alt="Dos jóvenes trabajando frente a una computadora">
-    <div class="hero-txt"><h1>¡Conocé aquí los empleos que ofrecemos y comenzá a matchear!</h1>
-    <button class="btn-mas" data-scroll="quienes">Más Información</button></div>
-  </div></section>
-  <div class="green-gap"></div>
+        <main>
+          <section class="lp-hero">
+            <div class="lp-wrap lp-hero-inner">
+              <div class="lp-hero-copy">
+                <h1>Bienvenido a Match Empleos</h1>
+                <p>Tu próxima oportunidad empieza con un MATCH</p>
+              </div>
+              <img class="lp-hero-art" src="img/ilus-hero.png" alt="Jóvenes conectando a través de Match Empleos">
+            </div>
+            <button class="lp-scroll" type="button" data-scroll="quienes">¡Deslizá para conocer más!</button>
+          </section>
 
-  <section class="quienes"><div class="quienes-in" id="quienes">
-    <h2>¿Quiénes somos?</h2>
-    <div class="txt">
-      <p>Somos un equipo de cinco estudiantes que desarrollamos una plataforma digital pensada para facilitar el acceso de los jóvenes al mundo laboral y generar nuevas formas de conexión con empresas y reclutadores.</p>
-      <p>De esta búsqueda nace Match Empleos, una plataforma digital que conecta a jóvenes en búsqueda de sus primeras oportunidades laborales con empresas y reclutadores que buscan nuevos talentos.</p>
-      <p>La propuesta busca transformar la manera tradicional de buscar empleo, haciendo que el proceso sea más simple, dinámico y personalizado. En lugar de enfrentarse a una gran cantidad de ofertas, los usuarios reciben oportunidades relevantes para su perfil y pueden mostrar interés en aquellas que realmente les resulten atractivas.</p>
-    </div>
-  </div></section>
+          <section class="lp-about" aria-labelledby="quienes">
+            <div class="lp-about-shape" aria-hidden="true"></div>
+            <div class="lp-wrap lp-about-inner" id="quienes">
+              <h2>¿Quiénes somos?</h2>
+              <div class="lp-about-copy">
+                <p>Somos un equipo de cinco estudiantes que desarrollamos una plataforma digital pensada para facilitar el acceso de los jóvenes al mundo laboral y generar nuevas formas de conexión con empresas y reclutadores.</p>
+                <p>De esta búsqueda nace Match Empleos, una plataforma digital que conecta a postulantes con empresas y reclutadores que buscan talentos.</p>
+                <p>La propuesta busca transformar la manera tradicional de buscar empleo, haciendo que el proceso sea más simple, dinámico y personalizado. En lugar de enfrentarse a una gran cantidad de ofertas, los usuarios reciben oportunidades relevantes para su perfil y pueden mostrar interés en aquellas que realmente les resulten atractivas.</p>
+              </div>
+            </div>
+          </section>
 
-  <section class="sit"><div class="sit-in" id="situacion">
-    <h2>Situación actual en Argentina</h2>
-    <div class="stats">
-      <div class="stat g"><div class="n">16,5%</div><p>Desocupación en personas<br>entre 14 y 29 años,<br>con un 7,5% general.</p></div>
-      <div class="stat d"><div class="n">43%</div><p>De la generación Z sufrió ghosting al postularse.<br>El 45% dudó de sus capacidades.</p></div>
-      <div class="stat g"><div class="n">0,17%</div><p>Es la tasa de 1.500 inserciones sobre 900.000 beneficiarios.</p></div>
-      <img loading="lazy" decoding="async" class="ilus" src="img/ilus-situacion.png" alt="Joven pensativa sentada sobre su valija con un CV en la mano">
-    </div>
-  </div></section>
-  <div class="navy-gap"></div>
+          <section class="lp-situation" id="situacion" aria-labelledby="situacion-titulo">
+            <div class="lp-wrap lp-situation-inner">
+              <h2 id="situacion-titulo">Situación actual en <strong>Argentina</strong></h2>
+              <div class="lp-stats">
+                <article class="lp-stat lp-stat-light">
+                  <strong>16,5%</strong>
+                  <p>Desocupación en personas entre 14 y 29 años, con un 7,5% general.</p>
+                </article>
+                <article class="lp-stat lp-stat-dark">
+                  <strong>43%</strong>
+                  <p>De la generación Z sufrió ghosting al postularse. El 45% dudó de sus capacidades.</p>
+                </article>
+                <article class="lp-stat lp-stat-light">
+                  <strong>0,17%</strong>
+                  <p>Es la tasa de 1.500 inserciones sobre 900.000 beneficiarios.</p>
+                </article>
+                <img class="lp-situation-art" src="img/ilus-situacion.png" alt="Joven con un currículum y una valija">
+              </div>
+            </div>
+          </section>
 
-  <section class="como"><div class="como-in" id="como">
-    <h2>¿Cómo funciona?</h2>
-    <div class="steps">
-      <div class="step"><div class="num">1.</div><div class="card"><h3>Creá tu perfil</h3><p>Contanos quién sos, qué estudias, qué experiencia tenes, qué habilidades posees.</p></div></div>
-      <div class="step"><div class="num">2.</div><div class="card"><h3>Descubrí oportunidades</h3><p>Te mostramos empleos y empresas que coinciden con tu perfil y tus intereses.</p></div></div>
-      <div class="step"><div class="num">3.</div><div class="card"><h3>Hace MATCH</h3><p>Buscá y comunicá aquellas oportunidades que te interesan o te llaman la atención.</p></div></div>
-      <div class="step"><div class="num">4.</div><div class="card"><h3>Conectá</h3><p>Si hay match, podras ponerte en contacto, interactuar y avanzar en la selección.</p></div></div>
-    </div>
-  </div></section>
+          <section class="lp-how" id="como" aria-labelledby="como-titulo">
+            <div class="lp-wrap lp-how-inner">
+              <h2 id="como-titulo">¿Cómo funciona?</h2>
+              <div class="lp-profiles">
+                <article class="lp-profile lp-profile-candidate">
+                  <h3>Perfil Postulante</h3>
+                  <ul>
+                    <li>Creá tu perfil de postulante verificado.</li>
+                    <li>Escogé categorías de trabajo preferidas.</li>
+                    <li>Podés elegir o no una postulación.</li>
+                    <li>Tenés 5 postulaciones por día.</li>
+                    <li>Posibilidad de dialogar con la empresa.</li>
+                    <li>La empresa está obligada a responderte, vos tenés derecho a saber.</li>
+                    <li>Si te aceptan, felicidades, hay MATCH.</li>
+                  </ul>
+                </article>
+                <article class="lp-profile lp-profile-company">
+                  <h3>Perfil Empresa</h3>
+                  <ul>
+                    <li>Creá tu perfil de empresa verificado.</li>
+                    <li>Ofrecé postulaciones de trabajo, según categoría y cargo.</li>
+                    <li>Podés ver los candidatos que se postularon.</li>
+                    <li>Se muestra tu promedio de respuesta.</li>
+                    <li>Posibilidad de dialogar con el postulante.</li>
+                    <li>Si encontrás el candidato, hay MATCH.</li>
+                  </ul>
+                </article>
+              </div>
+              <img class="lp-how-art" src="img/ilus-oficios.png" alt="Dos personas que se encuentran en una oportunidad laboral">
+            </div>
+          </section>
 
-  <section class="futuro"><h2>¡El futuro no espera, vos tampoco!</h2>
-    <div class="fut-in">
-      <div class="fut-row a"><div class="t"><h3>En Match Empleos creemos que todas las oportunidades cuentan.</h3><p>Buscamos acercarte a trabajos, oficios, comercios y oportunidades reales que puedan coincidir con lo que sabés hacer, lo que te interesa y lo que estás buscando.</p></div><img loading="lazy" decoding="async" src="img/ilus-oficios.png" alt="Jóvenes trabajando en carpintería y en cocina"></div>
-      <div class="fut-row b"><img loading="lazy" decoding="async" src="img/ilus-oficina.png" alt="Dos jóvenes conversando frente a una computadora"><div><h3>Encontrá tu Match.</h3><p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p></div></div>
-    </div>
-  </section>
-  <footer class="foot"><div class="wrap">
-  <div class="foot-cols">
-    <div><h4>Seguinos en:</h4><div class="soc"><span><a href="https://www.instagram.com/matchempleosarg/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>@matchempleosarg</a></span></div></div>
-    <div><h4>Contacto:</h4><div class="soc"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg><a href="mailto:matchempleos@gmail.com">matchempleos@gmail.com</a></span></div></div>
-  </div>
-  <nav class="foot-links" aria-label="Pie de página">
-    <a href="#/" data-scroll="quienes">¿Quiénes somos?</a><a href="#/" data-scroll="como">¿Cómo funciona?</a>
-    <a href="#/privacidad">Centro de Privacidad</a><a href="#/terminos">Términos y Condiciones</a><a href="#/ayuda">Ayuda</a>
-  </nav>
-  <small>2026 – Match Empleos – Todos los derechos reservados.<br>Propuesta presentada para Premios OBRAR Estudiantes 2026.</small>
-  </div></footer>
-  </div>
-    </div>
+          <section class="lp-cta">
+            <div class="lp-wrap lp-cta-inner">
+              <img src="img/ilus-oficina.png" alt="Personas trabajando juntas frente a una computadora">
+              <div class="lp-cta-copy">
+                <p>En Match Empleos creemos que todas las oportunidades cuentan.</p>
+                <h2>¡El futuro no espera, vos tampoco!</h2>
+                <p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p>
+                <div class="lp-register">
+                  <div class="lp-register-card lp-register-candidate">
+                    <h3>Perfil Postulante</h3>
+                    <a href="#/registro/c/1">Registrar usuario</a>
+                  </div>
+                  <div class="lp-register-card lp-register-company">
+                    <h3>Perfil Empresa</h3>
+                    <a href="#/registro/e/1">Registrar empresa</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
 
-    <script src="vendor/supabase.js"></script>
+        <footer class="foot lp-footer">
+          <div class="wrap lp-footer-wrap">
+            <div class="lp-footer-top">
+              <div>
+                <h3>Seguinos en:</h3>
+                <div class="lp-social">
+                  <a href="https://www.instagram.com/matchempleosarg/" target="_blank" rel="noopener" aria-label="Instagram Match Empleos">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+                    @matchempleosarg
+                  </a>
+                  <span class="lp-social-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="m10 9 5 3-5 3z" fill="currentColor" stroke="none"/></svg>
+                    @matchempleos
+                  </span>
+                </div>
+              </div>
+              <div>
+                <h3>Contacto:</h3>
+                <a class="lp-email" href="mailto:matchempleos@gmail.com">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg>
+                  matchempleos@gmail.com
+                </a>
+              </div>
+            </div>
+            <nav class="lp-footer-links" aria-label="Pie de página">
+              <a href="#/" data-scroll="quienes">¿Quiénes somos?</a>
+              <a href="#/" data-scroll="como">¿Cómo funciona?</a>
+              <a href="#/privacidad">Centro de Privacidad</a>
+              <a href="#/terminos">Términos y Condiciones</a>
+              <a href="#/ayuda">Ayuda</a>
+            </nav>
+            <small>2026 – Match Empleos – Todos los derechos reservados.<br>Propuesta presentada para Premios OBRAR Estudiantes 2026.</small>
+          </div>
+        </footer>
+      </div>
+        <script src="vendor/supabase.js"></script>
     <script>
       /* Capa de datos con Supabase. Debe cargarse después de supabase-js y antes del script principal. */
 
