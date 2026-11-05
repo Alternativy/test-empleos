@@ -422,8 +422,8 @@ Referencia visual: archivo **`Match Empleos Landing (copia).pdf`** entregado por
 3. **Perfiles verificados:** las tarjetas hablan de perfiles “verificados”. La documentación actual registra perfiles y roles, pero también señala que la asignación del rol empresa todavía puede iniciarse desde metadata del registro. Confirmar qué significa “verificado” y qué proceso lo respalda antes de presentar esa afirmación como una verificación efectiva.
 4. **Estadísticas:** se conservaron los valores del diseño: 16,5%, 43%, 45% y 0,17%, además de los textos asociados. Falta confirmar fuente, período, universo y redacción exacta de cada indicador. En particular, validar la relación “1.500 inserciones sobre 900.000 beneficiarios” y el dato de ghosting de generación Z.
 5. **Red social secundaria:** el PDF muestra `@matchempleos` junto a un ícono de video, pero no identifica de forma inequívoca la plataforma ni su URL. En la landing quedó como texto no enlazado hasta recibir el enlace oficial.
-6. **Recursos gráficos:** se reutilizaron imágenes que ya existen en `img/` como aproximación. No se recibieron exportaciones individuales de todos los recursos que aparecen en el PDF. Comparar ilustraciones, fotografías, recortes y proporciones con el original de diseño; reemplazar los recursos si el diseñador entrega los archivos finales.
-7. **Curvas y proporciones:** la composición reproduce la jerarquía, paleta y distribución general del PDF mediante CSS adaptable. Las curvas decorativas y algunos recortes pueden diferir del arte original; requieren revisión visual a ancho desktop y mobile.
+6. **Fotografía de “Situación actual”:** el PDF muestra una imagen de multitud teñida de verde. Ese recurso no está entre los 19 archivos de imagen del repositorio. `foto-como.jpg` es una escena de personas trabajando frente a una computadora y no corresponde a esa referencia; no debe usarse como sustituto. Hasta recibir el export correcto, el bloque utiliza únicamente una base verde.
+7. **Curvas, recortes y proporciones:** se ajustaron alturas, anchos, escalas tipográficas y transiciones curvas para acercarse a la composición del PDF. Aun así, CSS no garantiza una réplica exacta del arte exportado; requiere captura en navegador y comparación a escala desktop y mobile.
 8. **Copy institucional:** se tomó el texto visible en el PDF. Confirmar si “equipo de cinco estudiantes” y la leyenda de Premios OBRAR Estudiantes 2026 siguen vigentes para la publicación pública.
 
 ### Criterio para próximas iteraciones
@@ -433,3 +433,23 @@ Referencia visual: archivo **`Match Empleos Landing (copia).pdf`** entregado por
 - Registrar aquí cualquier diferencia entre promesas de comunicación, reglas reales del producto y comportamiento implementado.
 - Antes de publicar, revisar los puntos anteriores con diseño y producto y validar responsive, enlaces de registro, navegación del footer y consola del navegador.
 
+
+
+## 14. Ajuste de fidelidad visual de landing (noviembre 2026)
+
+Segunda iteración sobre la referencia **`Match Empleos Landing (copia).pdf`**, en la rama `design/landing-fidelidad-pdf`.
+
+### Correcciones aplicadas
+- [x] Se amplió el contenedor principal para acercarlo al ancho útil del diseño original.
+- [x] Se recuperó la escala tipográfica de los titulares, las tarjetas de perfiles, las métricas y el pie de página.
+- [x] Se ajustaron los colores principales a los valores muestreados del PDF: azul `#002146`, verde `#38F48C` y gris `#E8E8E8`.
+- [x] Se evitó reutilizar `foto-quienes.jpg` o `foto-como.jpg` como si fueran la fotografía de multitud del bloque estadístico: no corresponden al diseño.
+- [x] El bloque de estadísticas utiliza una base verde temporal, sin una fotografía de fondo incorrecta.
+- [x] Se incorporaron transiciones curvas para la salida del hero, el bloque de estadísticas, “Cómo funciona” y el CTA.
+- [x] Se aumentaron las alturas de las secciones y tarjetas para evitar que la landing quede visualmente comprimida frente al PDF.
+- [x] Se mantuvo el responsive para tablet y mobile y se preservaron rutas, anclas y lógica de la aplicación.
+
+### Control pendiente
+- [ ] Incorporar el export exacto de la fotografía de multitud que aparece en “Situación actual” y ajustar su encuadre/tinte al PDF.
+- [ ] Generar capturas del navegador a 1568 px de ancho y en mobile, y compararlas con el PDF. La actualización se validó a nivel de estructura del CSS y referencias de assets; no se ejecutó una prueba visual con navegador en esta sesión.
+- [ ] Revisar la curva inferior de “Situación actual” y la continuidad visual entre la ilustración de “Cómo funciona” y el panel del CTA.
