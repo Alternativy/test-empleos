@@ -433,3 +433,21 @@ Referencia visual: archivo **`Match Empleos Landing (copia).pdf`** entregado por
 - Registrar aquí cualquier diferencia entre promesas de comunicación, reglas reales del producto y comportamiento implementado.
 - Antes de publicar, revisar los puntos anteriores con diseño y producto y validar responsive, enlaces de registro, navegación del footer y consola del navegador.
 
+
+
+## 14. Ajuste de fidelidad visual de landing (noviembre 2026)
+
+Segunda iteración sobre la referencia **`Match Empleos Landing (copia).pdf`**, en la rama `design/landing-nueva-identidad`.
+
+### Correcciones aplicadas
+- [x] Se amplió el contenedor principal para acercarlo al ancho útil del diseño original.
+- [x] Se recuperó la escala tipográfica de los titulares, las tarjetas de perfiles, las métricas y el pie de página.
+- [x] Se ajustaron los colores principales a los valores muestreados del PDF: azul `#002146`, verde `#38F48C` y gris `#E8E8E8`.
+- [x] Se corrigió la fotografía de “Situación actual”: ahora se utiliza `img/foto-como.jpg` en lugar de reutilizar la fotografía de “¿Quiénes somos?”.
+- [x] Se incorporaron transiciones curvas para la salida del hero, el bloque de estadísticas, “Cómo funciona” y el CTA.
+- [x] Se aumentaron las alturas de las secciones y tarjetas para evitar que la landing quede visualmente comprimida frente al PDF.
+- [x] Se mantuvo el responsive para tablet y mobile y se preservaron rutas, anclas y lógica de la aplicación.
+
+### Control pendiente
+- [ ] Generar capturas del navegador a 1568 px de ancho y en mobile, y compararlas con el PDF. La actualización se validó a nivel de estructura del CSS y referencias de assets; no se ejecutó un navegador visual en esta sesión.
+- [ ] Revisar en particular el encuadre de `foto-como.jpg`, la curva inferior de “Situación actual” y la continuidad visual entre la ilustración de “Cómo funciona” y el panel del CTA.
