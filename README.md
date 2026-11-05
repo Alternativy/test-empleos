@@ -395,3 +395,41 @@ Si sos un agente que trabaja en este repo, seguí estas reglas:
 - [ ] Ejecutar la sección 8 (Storage y Auth) y la configuración de URLs de redirección de producción.
 - [ ] Páginas legales como URLs propias (`privacidad.html`, `terminos.html`, `ayuda.html`), para indexarlas.
 - [ ] Verificar el dominio en Google Search Console después del merge a producción, pedir indexación de `https://matchempleos.com.ar/` y enviar `sitemap.xml`.
+
+---
+
+## 13. Readaptación de landing según nuevo diseño (noviembre 2026)
+
+Referencia visual: archivo **`Match Empleos Landing (copia).pdf`** entregado por diseño. La implementación se realizó en `index.html`, dentro del HTML estático de `#root`. No se modificó el router, la autenticación, Supabase ni las pantallas internas de la aplicación.
+
+### Cambios aplicados
+
+- [x] Encabezado simplificado con marca a la izquierda y accesos de inicio de sesión / registro a la derecha.
+- [x] Hero azul con título “Bienvenido a Match Empleos”, bajada y llamada a deslizar.
+- [x] Sección “¿Quiénes somos?” con fotografía de fondo, overlay azul y composición alineada a la derecha.
+- [x] Sección “Situación actual en Argentina” con tres indicadores y recurso ilustrado.
+- [x] Sección “¿Cómo funciona?” reorganizada en dos tarjetas: Perfil Postulante y Perfil Empresa.
+- [x] CTA final con ilustración, frase de marca y accesos diferenciados de registro para candidato y empresa.
+- [x] Footer verde con redes, contacto, navegación y leyenda institucional.
+- [x] Reglas responsive para desktop y mobile.
+- [x] Estilos nuevos aislados bajo `.landing-v2` para evitar afectar las pantallas de la aplicación.
+- [x] Se preservaron los destinos existentes del router: `#/login`, `#/registro/c/1`, `#/registro/e/1`, páginas legales y navegación por anclas.
+
+### Discrepancias y validaciones pendientes con diseño / producto
+
+1. **Cupo de postulaciones (bloqueante de contenido):** el PDF indica “Tenés 5 postulaciones por día”. La lógica documentada en la sección 8 renueva el cupo de 5 postulaciones los lunes a las 00:00 de Buenos Aires, es decir, semanalmente. Confirmar si el diseño debe decir “por semana” o si producto quiere modificar la regla del sistema. No se cambió la lógica.
+2. **Obligación de respuesta:** el PDF afirma que la empresa “está obligada a responderte”. La aplicación calcula y muestra una tasa de respuesta, pero no se identificó una regla técnica que obligue a responder dentro de un plazo ni una consecuencia por no hacerlo. Producto debe confirmar si es una promesa/compromiso operativo o si debe reformularse el texto.
+3. **Perfiles verificados:** las tarjetas hablan de perfiles “verificados”. La documentación actual registra perfiles y roles, pero también señala que la asignación del rol empresa todavía puede iniciarse desde metadata del registro. Confirmar qué significa “verificado” y qué proceso lo respalda antes de presentar esa afirmación como una verificación efectiva.
+4. **Estadísticas:** se conservaron los valores del diseño: 16,5%, 43%, 45% y 0,17%, además de los textos asociados. Falta confirmar fuente, período, universo y redacción exacta de cada indicador. En particular, validar la relación “1.500 inserciones sobre 900.000 beneficiarios” y el dato de ghosting de generación Z.
+5. **Red social secundaria:** el PDF muestra `@matchempleos` junto a un ícono de video, pero no identifica de forma inequívoca la plataforma ni su URL. En la landing quedó como texto no enlazado hasta recibir el enlace oficial.
+6. **Recursos gráficos:** se reutilizaron imágenes que ya existen en `img/` como aproximación. No se recibieron exportaciones individuales de todos los recursos que aparecen en el PDF. Comparar ilustraciones, fotografías, recortes y proporciones con el original de diseño; reemplazar los recursos si el diseñador entrega los archivos finales.
+7. **Curvas y proporciones:** la composición reproduce la jerarquía, paleta y distribución general del PDF mediante CSS adaptable. Las curvas decorativas y algunos recortes pueden diferir del arte original; requieren revisión visual a ancho desktop y mobile.
+8. **Copy institucional:** se tomó el texto visible en el PDF. Confirmar si “equipo de cinco estudiantes” y la leyenda de Premios OBRAR Estudiantes 2026 siguen vigentes para la publicación pública.
+
+### Criterio para próximas iteraciones
+
+- Mantener la landing estática dentro de `#root` como única fuente de textos y estructura.
+- No alterar pantallas autenticadas ni lógica de negocio al retocar estilos de la landing.
+- Registrar aquí cualquier diferencia entre promesas de comunicación, reglas reales del producto y comportamiento implementado.
+- Antes de publicar, revisar los puntos anteriores con diseño y producto y validar responsive, enlaces de registro, navegación del footer y consola del navegador.
+
