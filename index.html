@@ -2877,6 +2877,24 @@
         .landing-v2 .lp-section {
           position: relative;
         }
+        /* Aparición progresiva de los bloques al entrar en el viewport */
+        .landing-v2 .lp-section.lp-reveal {
+          opacity: 0;
+          transform: translateY(28px);
+          transition: opacity 700ms ease-in, transform 700ms ease-in;
+          will-change: opacity, transform;
+        }
+        .landing-v2 .lp-section.lp-reveal.is-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .landing-v2 .lp-section.lp-reveal {
+            opacity: 1;
+            transform: none;
+            transition: none;
+          }
+        }
         .landing-v2 .lp-panel {
           position: relative;
         }
@@ -5417,10 +5435,33 @@ async function toggleBusqueda(id) {
           if (h.startsWith("#/ayuda")) return "Ayuda" + sufijo;
           return "Match Empleos";
         }
+        let landingRevealObserver = null;
+        function initLandingReveal() {
+          if (landingRevealObserver) landingRevealObserver.disconnect();
+          const blocks = document.querySelectorAll(".landing-v2 main > .lp-section:not(.lp-hero)");
+          if (!blocks.length) return;
+          if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            blocks.forEach((block) => block.classList.add("is-visible"));
+            return;
+          }
+          landingRevealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.12, rootMargin: "0px 0px -5% 0px" });
+          blocks.forEach((block) => {
+            block.classList.add("lp-reveal");
+            landingRevealObserver.observe(block);
+          });
+        }
         function render(keepScroll) {
           document.title = titleFor(location.hash);
           const y = window.scrollY;
           root.innerHTML = route();
+          initLandingReveal();
           ["rg", "rc", "re"].forEach((pfx) => {
             if (
               document.getElementById(pfx + "-mail") &&
