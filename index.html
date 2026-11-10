@@ -4174,7 +4174,7 @@
           if (!(ME.id || ME.demo)) return '<nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>';
           const emp = ME.rol === "e";
           const to = emp ? "#/e/panel" : "#/c/feed";
-          const img = fotoSrc(emp ? "img/logo-cafe-mercado.png" : "img/avatar-tomas.png");
+          const img = ME.demo ? (emp ? "img/logo-cafe-mercado.png" : "img/avatar-tomas.png") : (ME.avatarUrl || phSrc());
           return `<nav aria-label="Cuenta"><a href="${emp ? "#/e/salir" : "#/c/salir"}">Cerrar sesión</a><a href="${to}" class="top-av" aria-label="Ir a ${emp ? "el panel" : "el feed"}"><img loading="lazy" decoding="async" src="${img}" alt="" style="width:48px;height:48px;border-radius:12px;object-fit:cover;background:#fff;display:block"></a></nav>`;
         }
         function home() {
