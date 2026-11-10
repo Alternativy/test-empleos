@@ -4836,7 +4836,7 @@ async function toggleBusqueda(id) {
               r
                 .map(
                   (x) =>
-                    `<div class="ccard"><a href="${x.chat ? "#/e/chat/" + x.chat : "#/e/candidatos"}">${avPh("width:40px;height:40px;border-radius:10px")}<div style="flex:1"><h3>${esc(x.nombre)}</h3><p class="t-note">${x.tipo === "si" ? "Lo quiero conocer · hay match" : x.tipo === "mas" ? "Le pediste más información" : "Por ahora no"}</p></div></a></div>`,
+                    `<div class="ccard"><a href="${x.chat ? "#/e/chat/" + x.chat : "#/e/candidatos"}">${avPh("width:40px;height:40px;border-radius:10px", x.avatar)}<div style="flex:1"><h3>${esc(x.nombre)}</h3><p class="t-note">${x.tipo === "si" ? "Lo quiero conocer · hay match" : x.tipo === "mas" ? "Le pediste más información" : "Por ahora no"}</p></div></a></div>`,
                 )
                 .join("") || '<div class="empty">Todavía no hay candidatos en este filtro.</div>';
           }
@@ -5942,7 +5942,7 @@ async function toggleBusqueda(id) {
             const p = postulantes.find((x) => x.id === r.id);
             const nombre = p?.corto || r.corto;
             const hasChat = r.estado === "si";
-            S.e.resp.unshift({ nombre, tipo: r.estado, chat: hasChat ? r.id : undefined, oid: p?.oferta_id });
+            S.e.resp.unshift({ nombre, avatar: p?.avatar || "", tipo: r.estado, chat: hasChat ? r.id : undefined, oid: p?.oferta_id });
             if (hasChat)
               S.e.chats[r.id] = {
                 con: nombre,
@@ -6347,9 +6347,10 @@ async function toggleBusqueda(id) {
           if (ME.demo) return defecto;
           return ME.avatarUrl || phSrc();
         }
-        function avPh(size) {
-          return ME.demo
-            ? `<span class="avatar" style="${size};background:var(--navy2)"></span>`
+        function avPh(size, avatarUrl) {
+          if (ME.demo) return `<span class="avatar" style="${size};background:var(--navy2)"></span>`;
+          return avatarUrl
+            ? `<img loading="lazy" decoding="async" class="avatar" src="${esc(avatarUrl)}" alt="" style="${size}">`
             : `<img loading="lazy" decoding="async" class="avatar" src="${phSrc()}" alt="" style="${size}">`;
         }
         function subtituloEmpresa() {
