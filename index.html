@@ -64,7 +64,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&display=swap"
     />
     <style>
       /* Sistema tomado de los Figma de Match Empleos (web de escritorio + web app).
@@ -2244,781 +2244,973 @@
         }
       }
     
-      /* Landing: réplica de la composición del PDF de diseño.
-   Se mantienen los estilos aislados para no afectar la aplicación autenticada. */
-      .site.landing-v2 {
-        --navy: #002146;
+      /* ================= LANDING (réplica del PDF "Match Empleos Landing") =================
+         Escritorio (≥1000px): composición fija de 1440px que escala con el ancho de la ventana.
+         Cada medida usa --u (1px del diseño de 1440). Las formas curvas son los trazados exactos
+         del PDF, dibujados en un único SVG de fondo. Móvil (<1000px): la misma información apilada. */
+      .landing-v2 {
+        --navy: #002147;
         --green: #38f48c;
-        --gray: #e8e8e8;
-        --company-green: #1b8968;
-        --register-gray: #738396;
+        --gray: #e9e9e9;
+        --company-green: #1c8a6a;
+        --register-gray: #75818f;
+        container-type: inline-size;
         background: var(--navy);
-        color: #fff;
+        color: var(--gray);
         overflow: hidden;
       }
-
-      .landing-v2 .lp-wrap {
-        width: min(1440px, calc(100% - 128px));
-        margin-inline: auto;
+      .lp-footer {
+        --navy: #002147;
+        --green: #38f48c;
       }
-
-      /* Encabezado */
-      .landing-v2 .lp-header {
-        height: 112px;
-        background: var(--navy);
-        border-bottom: 1px solid rgba(255, 255, 255, .08);
+      .landing-v2 * {
+        --u: calc(100cqw / 1440);
+        --lp-shadow: calc(5 * var(--u)) calc(5 * var(--u)) calc(5 * var(--u)) rgba(0, 0, 0, 0.3);
       }
-      .landing-v2 .lp-header-inner {
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+      .landing-v2 h1,
+      .landing-v2 h2,
+      .landing-v2 h3 {
+        text-wrap: initial;
       }
-      .landing-v2 .lp-brand {
-        display: block;
-        width: 158px;
-        flex: none;
-      }
-      .landing-v2 .lp-brand img {
-        width: 100%;
+      .landing-v2 img {
         height: auto;
       }
-      .landing-v2 .lp-account {
-        display: flex;
-        align-items: center;
-        gap: 58px;
-      }
-      .landing-v2 .lp-account a {
-        color: #fff;
-        font-size: 18px;
-        text-decoration: none;
-        white-space: nowrap;
-      }
-      .landing-v2 .lp-account a:hover {
-        color: var(--green);
-      }
-
-      /* Hero: texto arriba a la izquierda, ilustración apoyada en la curva derecha. */
-      .landing-v2 .lp-hero {
-        position: relative;
-        min-height: 656px;
-        padding: 0 0 74px;
-        background: var(--navy);
-        isolation: isolate;
-      }
-      .landing-v2 .lp-hero::before {
-        content: "";
-        position: absolute;
-        z-index: 0;
-        right: 0;
-        bottom: 0;
-        width: 39%;
-        height: 430px;
-        background: var(--gray);
-        border-top-left-radius: 100% 100%;
-      }
-      .landing-v2 .lp-hero-inner {
-        position: relative;
-        z-index: 1;
-        min-height: 582px;
-        display: grid;
-        grid-template-columns: 1.15fr .85fr;
-        align-items: start;
-        gap: 28px;
-      }
-      .landing-v2 .lp-hero-copy {
-        position: relative;
-        z-index: 1;
-        padding: 100px 0 0 80px;
-      }
-      .landing-v2 .lp-hero h1 {
-        color: var(--gray);
-        font-size: clamp(48px, 4.4vw, 68px);
-        line-height: 1.08;
-        font-weight: 700;
-        letter-spacing: -.035em;
-      }
-      .landing-v2 .lp-hero-copy p {
-        color: var(--green);
-        font-size: clamp(22px, 1.95vw, 30px);
-        line-height: 1.3;
-        margin-top: 12px;
+      .landing-v2 .lp-bg {
+        display: none;
       }
       .landing-v2 .lp-hero-art {
-        position: relative;
-        z-index: 1;
-        width: min(100%, 510px);
-        max-height: 425px;
-        object-fit: contain;
-        object-position: center bottom;
-        justify-self: end;
-        align-self: end;
-        margin-bottom: -56px;
+        display: block;
       }
-      .landing-v2 .lp-scroll {
-        position: absolute;
-        z-index: 3;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 74px;
-        border: 0;
-        background: var(--gray);
-        color: var(--navy);
-        text-align: left;
-        padding: 0 max(80px, calc((100% - 1440px) / 2 + 80px));
-        font-size: 28px;
-        cursor: pointer;
-      }
-      .landing-v2 .lp-scroll:hover {
-        color: var(--company-green);
-      }
-
-      /* Quiénes somos: banda verde superior y fotografía con una curva amplia. */
-      .landing-v2 .lp-about {
-        position: relative;
-        background: var(--green);
-        padding-top: 130px;
-      }
-      .landing-v2 .lp-about-inner {
-        position: relative;
-        width: 100%;
-        min-height: 640px;
-        padding: 70px max(64px, calc((100% - 1440px) / 2 + 64px)) 88px;
-        background:
-          linear-gradient(90deg, rgba(0, 33, 70, .75), rgba(0, 33, 70, .88)),
-          url("img/foto-quienes.jpg") center 48% / cover no-repeat;
-        border-top-left-radius: 82% 240px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        justify-content: center;
-      }
-      .landing-v2 .lp-about-inner h2 {
-        color: var(--gray);
-        font-size: clamp(46px, 4.2vw, 64px);
-        font-weight: 400;
-        line-height: 1.1;
-        margin: 0 0 28px;
-        text-align: right;
-      }
-      .landing-v2 .lp-about-copy {
-        width: min(1120px, 86%);
-        padding-right: 4%;
-        color: var(--gray);
-        text-align: right;
-        font-size: clamp(16px, 1.25vw, 20px);
-        line-height: 1.55;
-        display: grid;
-        gap: 28px;
-      }
-
-      /* Situación actual: foto de multitud, velo verde y tres tarjetas alineadas. */
-      .landing-v2 .lp-situation {
-        position: relative;
-        isolation: isolate;
-        min-height: 720px;
-        padding: 62px 0 180px;
-        color: var(--navy);
-        /* El PDF utiliza una fotografía de multitud que no existe entre los assets del repo.
-           No se sustituye por otra fotografía que altere el sentido visual del diseño. */
-        background: linear-gradient(105deg, rgba(56, 244, 140, .94), rgba(56, 244, 140, .97));
-      }
-      .landing-v2 .lp-situation::after {
-        content: "";
-        position: absolute;
-        z-index: 1;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 180px;
-        background: var(--gray);
-        border-top-right-radius: 100% 100%;
-        pointer-events: none;
-      }
-      .landing-v2 .lp-situation-inner {
-        position: relative;
-        z-index: 2;
-      }
-      .landing-v2 .lp-situation-inner h2 {
-        color: var(--navy);
-        font-size: clamp(42px, 4vw, 62px);
-        line-height: 1.15;
-        font-weight: 400;
-        margin: 0 0 56px;
-      }
-      .landing-v2 .lp-situation-inner h2 strong {
+      .landing-v2 .lp-b {
         font-weight: 700;
       }
-      .landing-v2 .lp-stats {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(220px, 270px)) minmax(260px, 1fr);
-        align-items: center;
-        gap: 24px;
-      }
-      .landing-v2 .lp-stat {
-        min-height: 290px;
-        padding: 25px 18px 24px;
-        border-radius: 22px;
-        text-align: center;
-        box-shadow: 0 10px 0 rgba(0, 33, 70, .18);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-      .landing-v2 .lp-stat-light {
-        background: var(--gray);
-        color: var(--navy);
-      }
-      .landing-v2 .lp-stat-dark {
-        background: var(--navy);
-        color: var(--green);
-      }
-      .landing-v2 .lp-stat strong {
-        font-size: clamp(48px, 4.2vw, 66px);
-        line-height: 1;
-        margin-bottom: 22px;
-        font-weight: 700;
-        white-space: nowrap;
-      }
-      .landing-v2 .lp-stat p {
-        font-size: 17px;
-        line-height: 1.38;
-        font-weight: 600;
-      }
-      .landing-v2 .lp-situation-art {
-        width: min(100%, 390px);
-        max-height: 340px;
-        object-fit: contain;
-        justify-self: center;
+      .landing-v2 .lp-br {
+        display: none;
       }
 
-      /* Cómo funciona: franja azul superior, gran plano gris y salida verde curva. */
-      .landing-v2 .lp-how {
-        position: relative;
-        isolation: isolate;
-        background: var(--green);
-        padding-top: 205px;
-      }
-      .landing-v2 .lp-how::before {
-        content: "";
-        position: absolute;
-        z-index: 0;
-        inset: 0 0 auto;
-        height: 205px;
-        background: var(--navy);
-      }
-      .landing-v2 .lp-how-inner {
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        max-width: none;
-        margin: 0;
-        padding: 54px max(64px, calc((100% - 1440px) / 2 + 64px)) 86px;
-        background: var(--gray);
-        color: var(--navy);
-        border-top-right-radius: 70% 205px;
-        border-bottom-right-radius: 66% 180px;
-      }
-      .landing-v2 .lp-how-inner h2 {
-        max-width: 1440px;
-        margin: 0 auto 56px;
-        text-align: center;
-        color: var(--navy);
-        font-size: clamp(46px, 4vw, 62px);
-        line-height: 1.1;
-        font-weight: 400;
-      }
-      .landing-v2 .lp-profiles {
-        width: min(1050px, 100%);
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 150px;
-        align-items: stretch;
-      }
-      .landing-v2 .lp-profile {
-        min-height: 500px;
-        padding: 24px 32px 34px;
-        border-radius: 20px;
-        box-shadow: 0 8px 0 rgba(0, 33, 70, .22);
-      }
-      .landing-v2 .lp-profile-candidate {
-        background: var(--navy);
-        color: var(--green);
-      }
-      .landing-v2 .lp-profile-company {
-        background: var(--green);
-        color: var(--navy);
-      }
-      .landing-v2 .lp-profile h3 {
-        font-size: clamp(38px, 3.4vw, 54px);
-        line-height: 1.08;
-        margin: 0 0 22px;
-        font-weight: 700;
-        text-align: center;
-      }
-      .landing-v2 .lp-profile ul {
-        margin: 0;
-        padding-left: 24px;
-        display: grid;
-        gap: 8px;
-        font-size: clamp(17px, 1.3vw, 20px);
-        line-height: 1.45;
-        font-weight: 600;
-      }
-      .landing-v2 .lp-how-art {
-        position: relative;
-        z-index: 2;
-        display: block;
-        width: min(520px, 58%);
-        height: 250px;
-        object-fit: contain;
-        margin: 36px auto -30px;
-      }
-
-      /* CTA: separación curva verde/gris y panel azul con ilustración abajo a la izquierda. */
-      .landing-v2 .lp-cta {
-        position: relative;
-        isolation: isolate;
-        background: var(--green);
-        padding-top: 130px;
-      }
-      .landing-v2 .lp-cta::before {
-        content: "";
-        position: absolute;
-        z-index: 0;
-        top: 78px;
-        left: 0;
-        right: 0;
-        height: 210px;
-        background: var(--gray);
-        border-top-left-radius: 83% 100%;
-      }
-      .landing-v2 .lp-cta-inner {
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        max-width: none;
-        min-height: 900px;
-        margin: 70px 0 0;
-        padding: 140px max(64px, calc((100% - 1440px) / 2 + 64px)) 120px;
-        display: grid;
-        grid-template-columns: .8fr 1.2fr;
-        align-items: center;
-        gap: 70px;
-        background: var(--navy);
-        color: var(--gray);
-        border-top-left-radius: 83% 250px;
-      }
-      .landing-v2 .lp-cta-inner > img {
-        width: min(100%, 390px);
-        max-height: 330px;
-        object-fit: contain;
-        justify-self: center;
-        align-self: end;
-        transform: translateY(26px);
-      }
-      .landing-v2 .lp-cta-copy {
-        text-align: right;
-      }
-      .landing-v2 .lp-cta-copy > p:first-child {
-        font-size: 20px;
-        line-height: 1.4;
-        margin-bottom: 18px;
-      }
-      .landing-v2 .lp-cta-copy h2 {
-        color: var(--green);
-        font-size: clamp(40px, 3.6vw, 56px);
-        line-height: 1.1;
-        font-weight: 400;
-        margin: 0 0 18px;
-      }
-      .landing-v2 .lp-cta-copy > p:nth-child(3) {
-        font-size: 19px;
-        line-height: 1.4;
-        margin-bottom: 36px;
-      }
-      .landing-v2 .lp-register {
-        width: min(100%, 760px);
-        margin-left: auto;
-        display: grid;
-        gap: 18px;
-        text-align: center;
-      }
-      .landing-v2 .lp-register-card {
-        border-radius: 20px;
-        padding: 15px 24px 18px;
-      }
-      .landing-v2 .lp-register-candidate {
-        background: var(--register-gray);
-        color: #fff;
-      }
-      .landing-v2 .lp-register-company {
-        background: var(--company-green);
-        color: #fff;
-      }
-      .landing-v2 .lp-register-card h3 {
-        font-size: 28px;
-        line-height: 1.2;
-        margin: 0 0 12px;
-      }
-      .landing-v2 .lp-register-card a {
-        display: block;
-        border-radius: 28px;
-        background: var(--navy);
-        color: #fff;
-        text-decoration: none;
-        padding: 10px 18px;
-        font-size: 18px;
-        line-height: 1.2;
-      }
-      .landing-v2 .lp-register-card a:hover {
-        background: #0a3767;
-      }
-
-      /* Pie de página */
-      .landing-v2 .lp-footer {
-        background: var(--green);
-        color: var(--navy);
-        padding: 50px 0 38px;
-      }
-      .landing-v2 .lp-footer-wrap {
-        width: min(1280px, calc(100% - 128px));
-      }
-      .landing-v2 .lp-footer-top {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 42px;
-        padding-bottom: 28px;
-        border-bottom: 1px solid var(--navy);
-      }
-      .landing-v2 .lp-footer h3 {
-        font-size: 30px;
-        line-height: 1.2;
-        margin: 0 0 18px;
-        font-weight: 600;
-      }
-      .landing-v2 .lp-social {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 30px;
-        align-items: center;
-      }
-      .landing-v2 .lp-social a,
-      .landing-v2 .lp-social-secondary,
-      .landing-v2 .lp-email {
-        display: inline-flex;
-        align-items: center;
-        gap: 14px;
-        color: var(--navy);
-        text-decoration: none;
-        font-size: 16px;
-      }
-      .landing-v2 .lp-social svg,
-      .landing-v2 .lp-email svg {
-        width: 30px;
-        height: 30px;
-        flex: none;
-      }
-      .landing-v2 .lp-footer-links {
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 18px 26px;
-        padding: 28px 0;
-        border-bottom: 1px solid var(--navy);
-      }
-      .landing-v2 .lp-footer-links a {
-        color: var(--navy);
-        font-size: 19px;
-        text-decoration: none;
-      }
-      .landing-v2 .lp-footer-links a:hover {
-        text-decoration: underline;
-      }
-      .landing-v2 .lp-footer small {
-        display: block;
-        margin-top: 20px;
-        font-size: 13px;
-        line-height: 1.55;
-      }
-
-      /* Adaptación tablet */
-      @media (max-width: 1100px) {
-        .landing-v2 .lp-wrap {
-          width: calc(100% - 80px);
+      /* ---------- Escritorio ---------- */
+      @media (min-width: 1000px) {
+        .landing-v2 .lp-canvas {
+          position: relative;
+          height: calc(4703 * var(--u));
         }
-        .landing-v2 .lp-about-inner,
-        .landing-v2 .lp-how-inner,
-        .landing-v2 .lp-cta-inner {
+        .landing-v2 .lp-bg {
+          display: block;
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 0;
+        }
+        .landing-v2 .lp-br {
+          display: inline;
+        }
+        .landing-v2 .lp-hero-art {
+          display: none;
+        }
+        .landing-v2 main > section {
+          position: absolute;
+          z-index: 1;
+          left: 0;
           width: 100%;
         }
-        .landing-v2 .lp-hero-copy {
-          padding-left: 28px;
+        .landing-v2 .lp-panel {
+          display: contents;
+        }
+        .landing-v2 .lp-panel > * {
+          position: absolute;
+          margin: 0;
+        }
+
+        /* Encabezado */
+        .landing-v2 .lp-header {
+          position: absolute;
+          z-index: 2;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: calc(112 * var(--u));
+          background: var(--navy);
+          box-shadow: 0 calc(4 * var(--u)) calc(4 * var(--u)) rgba(0, 0, 0, 0.25);
+        }
+        .landing-v2 .lp-brand {
+          position: absolute;
+          left: calc(246.9 * var(--u));
+          top: calc(23.9 * var(--u));
+          width: calc(155.3 * var(--u));
+          display: block;
+        }
+        .landing-v2 .lp-brand img {
+          width: 100%;
+          height: auto;
+        }
+        .landing-v2 .lp-header nav {
+          position: absolute;
+          left: calc(922 * var(--u));
+          top: 0;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          gap: calc(61 * var(--u));
+        }
+        .landing-v2 .lp-header nav a {
+          color: var(--gray);
+          font-size: calc(20 * var(--u));
+          line-height: calc(24 * var(--u));
+          text-decoration: none;
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-header nav a:hover {
+          color: var(--green);
+        }
+        .landing-v2 .lp-header nav a.top-av img {
+          width: calc(48 * var(--u)) !important;
+          height: calc(48 * var(--u)) !important;
+        }
+
+        /* Hero */
+        .landing-v2 .lp-hero {
+          top: 0;
+          height: calc(800 * var(--u));
+        }
+        .landing-v2 .lp-hero h1 {
+          left: calc(82 * var(--u));
+          top: calc(209 * var(--u));
+          font-size: calc(80 * var(--u));
+          line-height: calc(96 * var(--u));
+          font-weight: 700;
+          color: var(--gray);
+          letter-spacing: 0;
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-hero p {
+          left: calc(82 * var(--u));
+          top: calc(309.2 * var(--u));
+          font-size: calc(30 * var(--u));
+          line-height: calc(36 * var(--u));
+          color: var(--green);
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-scroll {
+          left: calc(81 * var(--u));
+          top: calc(709.7 * var(--u));
+          padding: 0;
+          border: 0;
+          background: none;
+          color: var(--navy);
+          font-size: calc(36 * var(--u));
+          line-height: calc(43 * var(--u));
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-scroll:hover {
+          color: var(--company-green);
+        }
+
+        /* Quiénes somos */
+        .landing-v2 .lp-about {
+          top: calc(800 * var(--u));
+          height: calc(781 * var(--u));
+          scroll-margin-top: 0;
+        }
+        .landing-v2 .lp-about h2 {
+          right: calc(72.2 * var(--u));
+          top: calc(187.2 * var(--u));
+          font-size: calc(64 * var(--u));
+          line-height: calc(77 * var(--u));
+          font-weight: 300;
+          color: var(--gray);
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-about-copy {
+          right: calc(72 * var(--u));
+          top: calc(290.8 * var(--u));
+          width: calc(1060 * var(--u));
+          text-align: right;
+          font-size: calc(22 * var(--u));
+          line-height: calc(35 * var(--u));
+          color: var(--gray);
+          display: flex;
+          flex-direction: column;
+          gap: calc(35 * var(--u));
+        }
+
+        /* Situación actual */
+        .landing-v2 .lp-situation {
+          top: calc(1581 * var(--u));
+          height: calc(919 * var(--u));
+        }
+        .landing-v2 .lp-situation h2 {
+          left: calc(130 * var(--u));
+          top: calc(86.1 * var(--u));
+          font-size: calc(64 * var(--u));
+          line-height: calc(77 * var(--u));
+          font-weight: 300;
+          color: var(--navy);
+          white-space: nowrap;
         }
         .landing-v2 .lp-stats {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          inset: 0;
         }
         .landing-v2 .lp-stat {
-          min-height: 250px;
+          position: absolute;
+          top: calc(214 * var(--u));
+          height: calc(300 * var(--u));
+          border-radius: calc(23 * var(--u));
+          box-shadow: var(--lp-shadow);
+          text-align: center;
+        }
+        .landing-v2 .lp-stat:nth-child(1) {
+          left: calc(128.8 * var(--u));
+          width: calc(260.4 * var(--u));
+        }
+        .landing-v2 .lp-stat:nth-child(2) {
+          left: calc(414 * var(--u));
+          width: calc(275 * var(--u));
+        }
+        .landing-v2 .lp-stat:nth-child(3) {
+          left: calc(714.3 * var(--u));
+          width: calc(258.5 * var(--u));
+        }
+        .landing-v2 .lp-stat-light {
+          background: var(--gray);
+          color: var(--navy);
+        }
+        .landing-v2 .lp-stat-dark {
+          background: var(--navy);
+          color: var(--gray);
+        }
+        .landing-v2 .lp-stat strong {
+          position: absolute;
+          left: 0;
+          right: 0;
+          font-weight: 700;
+          white-space: nowrap;
+          text-shadow: var(--lp-shadow);
+        }
+        .landing-v2 .lp-stat:nth-child(1) strong {
+          top: calc(32 * var(--u));
+          font-size: calc(70 * var(--u));
+          line-height: calc(70 * var(--u));
+        }
+        .landing-v2 .lp-stat:nth-child(2) strong {
+          top: calc(24.5 * var(--u));
+          font-size: calc(80 * var(--u));
+          line-height: calc(80 * var(--u));
+          color: var(--green);
+        }
+        .landing-v2 .lp-stat:nth-child(3) strong {
+          top: calc(25.2 * var(--u));
+          font-size: calc(75 * var(--u));
+          line-height: calc(75 * var(--u));
+        }
+        .landing-v2 .lp-stat p {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: calc(140.2 * var(--u));
+          font-size: calc(20 * var(--u));
+          line-height: calc(25 * var(--u));
+          font-weight: 600;
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-stat:nth-child(3) p {
+          top: calc(145.5 * var(--u));
         }
         .landing-v2 .lp-situation-art {
-          grid-column: 1 / -1;
-          width: 260px;
+          left: calc(1070.1 * var(--u));
+          top: calc(183.3 * var(--u));
+          width: calc(289.7 * var(--u));
+        }
+
+        /* Cómo funciona */
+        .landing-v2 .lp-how {
+          top: calc(2500 * var(--u));
+          height: calc(1253 * var(--u));
+          scroll-margin-top: 0;
+        }
+        .landing-v2 .lp-how h2 {
+          left: 0;
+          width: calc(1438.5 * var(--u));
+          top: calc(122.1 * var(--u));
+          text-align: center;
+          font-size: calc(64 * var(--u));
+          line-height: calc(77 * var(--u));
+          font-weight: 300;
+          color: var(--navy);
+          white-space: nowrap;
         }
         .landing-v2 .lp-profiles {
-          gap: 42px;
+          inset: 0;
         }
         .landing-v2 .lp-profile {
-          min-height: 440px;
-          padding-inline: 24px;
+          position: absolute;
+          top: calc(246 * var(--u));
+          width: calc(517 * var(--u));
+          height: calc(581 * var(--u));
+          border-radius: calc(23 * var(--u));
+          box-shadow: var(--lp-shadow);
         }
-        .landing-v2 .lp-cta-inner {
-          gap: 42px;
+        .landing-v2 .lp-profile-candidate {
+          left: calc(113 * var(--u));
+          background: var(--navy);
+          color: var(--green);
+        }
+        .landing-v2 .lp-profile-company {
+          left: calc(809 * var(--u));
+          background: var(--green);
+          color: var(--navy);
+        }
+        .landing-v2 .lp-profile h3 {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: calc(13.1 * var(--u));
+          text-align: center;
+          font-size: calc(64 * var(--u));
+          line-height: calc(77 * var(--u));
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-profile ul {
+          position: absolute;
+          top: calc(105.3 * var(--u));
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          font-size: calc(24 * var(--u));
+          line-height: calc(40 * var(--u));
+          font-weight: 600;
+        }
+        .landing-v2 .lp-profile-candidate ul {
+          left: calc(62 * var(--u));
+          width: calc(424 * var(--u));
+        }
+        .landing-v2 .lp-profile-company ul {
+          left: calc(65 * var(--u));
+          width: calc(428 * var(--u));
+        }
+        .landing-v2 .lp-profile li {
+          position: relative;
+        }
+        .landing-v2 .lp-profile li::before {
+          content: "\2022";
+          position: absolute;
+          left: calc(-22.2 * var(--u));
+          top: 0;
+        }
+        .landing-v2 .lp-how-art {
+          left: calc(511.7 * var(--u));
+          top: calc(871.3 * var(--u));
+          width: calc(413.4 * var(--u));
+        }
+
+        /* Llamado final */
+        .landing-v2 .lp-cta {
+          top: calc(3753 * var(--u));
+          height: calc(950 * var(--u));
+        }
+        .landing-v2 .lp-cta-art {
+          left: calc(171 * var(--u));
+          top: calc(450.1 * var(--u));
+          width: calc(303.1 * var(--u));
+        }
+        .landing-v2 .lp-cta-copy {
+          inset: 0;
+        }
+        .landing-v2 .lp-cta-copy > p,
+        .landing-v2 .lp-cta-copy > h2 {
+          position: absolute;
+          right: calc(61.5 * var(--u));
+          margin: 0;
+          white-space: nowrap;
+          text-align: right;
+        }
+        .landing-v2 .lp-cta-copy > p:first-child {
+          top: calc(184.5 * var(--u));
+          font-size: calc(30 * var(--u));
+          line-height: calc(36 * var(--u));
+          font-weight: 500;
+        }
+        .landing-v2 .lp-cta-copy > h2 {
+          top: calc(240.1 * var(--u));
+          font-size: calc(64 * var(--u));
+          line-height: calc(77 * var(--u));
+          font-weight: 300;
+          color: var(--green);
+        }
+        .landing-v2 .lp-cta-copy > p:nth-of-type(2) {
+          top: calc(338 * var(--u));
+          font-size: calc(28 * var(--u));
+          line-height: calc(34 * var(--u));
+        }
+        .landing-v2 .lp-register-card {
+          position: absolute;
+          border-radius: calc(23 * var(--u));
+          box-shadow: var(--lp-shadow);
+          color: var(--gray);
+          text-align: center;
+        }
+        .landing-v2 .lp-register-candidate {
+          left: calc(636 * var(--u));
+          top: calc(473 * var(--u));
+          width: calc(739 * var(--u));
+          height: calc(160 * var(--u));
+          background: var(--register-gray);
+        }
+        .landing-v2 .lp-register-company {
+          left: calc(637 * var(--u));
+          top: calc(653 * var(--u));
+          width: calc(740 * var(--u));
+          height: calc(156 * var(--u));
+          background: var(--company-green);
+        }
+        .landing-v2 .lp-register-card h3 {
+          position: absolute;
+          left: calc(16 * var(--u));
+          right: 0;
+          font-size: calc(40 * var(--u));
+          line-height: calc(48 * var(--u));
+          font-weight: 600;
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-register-candidate h3 {
+          top: calc(19 * var(--u));
+        }
+        .landing-v2 .lp-register-company h3 {
+          top: calc(13 * var(--u));
+        }
+        .landing-v2 .lp-register-card a {
+          position: absolute;
+          width: calc(685 * var(--u));
+          height: calc(50 * var(--u));
+          border-radius: calc(23 * var(--u));
+          background: var(--navy);
+          color: var(--gray);
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: calc(24 * var(--u));
+          line-height: calc(29 * var(--u));
+        }
+        .landing-v2 .lp-register-candidate a {
+          left: calc(27 * var(--u));
+          top: calc(80 * var(--u));
+          padding-left: calc(18 * var(--u));
+        }
+        .landing-v2 .lp-register-company a {
+          left: calc(35 * var(--u));
+          top: calc(84 * var(--u));
+          padding-bottom: calc(6 * var(--u));
+        }
+        .landing-v2 .lp-register-card a:hover {
+          background: #0a3767;
+        }
+
+        /* Pie */
+        .landing-v2 .lp-footer {
+          position: relative;
+          height: calc(408 * var(--u));
+          padding: 0;
+          background: var(--green);
+          color: var(--navy);
+        }
+        .landing-v2 .lp-footer-wrap,
+        .landing-v2 .lp-footer-top,
+        .landing-v2 .lp-footer-top > div,
+        .landing-v2 .lp-social {
+          display: contents;
+        }
+        .landing-v2 .lp-footer h3 {
+          position: absolute;
+          top: calc(48.9 * var(--u));
+          margin: 0;
+          font-size: calc(36 * var(--u));
+          line-height: calc(43 * var(--u));
+          font-weight: 600;
+        }
+        .landing-v2 .lp-footer-top > div:first-child h3 {
+          left: calc(142.5 * var(--u));
+        }
+        .landing-v2 .lp-footer-top > div:last-child h3 {
+          left: calc(650 * var(--u));
+        }
+        .landing-v2 .lp-social a,
+        .landing-v2 .lp-social-secondary,
+        .landing-v2 .lp-email {
+          position: absolute;
+          top: calc(120.9 * var(--u));
+          height: calc(19 * var(--u));
+          display: block;
+          color: var(--navy);
+          text-decoration: none;
+          font-size: calc(16 * var(--u));
+          line-height: calc(19 * var(--u));
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-social svg,
+        .landing-v2 .lp-email svg {
+          position: absolute;
+          color: #000;
+        }
+        .landing-v2 .lp-social a {
+          left: calc(198.1 * var(--u));
+        }
+        .landing-v2 .lp-social a svg {
+          left: calc(-56.1 * var(--u));
+          top: calc(-6.9 * var(--u));
+          width: calc(35 * var(--u));
+          height: calc(35 * var(--u));
+        }
+        .landing-v2 .lp-social-secondary {
+          left: calc(449.1 * var(--u));
+        }
+        .landing-v2 .lp-social-secondary svg {
+          left: calc(-69.1 * var(--u));
+          top: calc(-9.9 * var(--u));
+          width: calc(41 * var(--u));
+          height: calc(41 * var(--u));
+        }
+        .landing-v2 .lp-email {
+          left: calc(702.4 * var(--u));
+        }
+        .landing-v2 .lp-email svg {
+          left: calc(-52.4 * var(--u));
+          top: calc(-10.9 * var(--u));
+          width: calc(43 * var(--u));
+          height: calc(43 * var(--u));
+        }
+        .landing-v2 .lp-footer-top::after,
+        .landing-v2 .lp-footer-links::after {
+          content: none;
+        }
+        .landing-v2 .lp-footer::before,
+        .landing-v2 .lp-footer::after {
+          content: "";
+          position: absolute;
+          height: calc(2 * var(--u));
+          width: calc(1154 * var(--u));
+          background: var(--navy);
+        }
+        .landing-v2 .lp-footer::before {
+          left: calc(139 * var(--u));
+          top: calc(185 * var(--u));
+        }
+        .landing-v2 .lp-footer::after {
+          left: calc(141 * var(--u));
+          top: calc(297 * var(--u));
+        }
+        .landing-v2 .lp-footer-links {
+          display: contents;
+        }
+        .landing-v2 .lp-footer-links a {
+          position: absolute;
+          top: calc(226.8 * var(--u));
+          color: var(--navy);
+          font-size: calc(24 * var(--u));
+          line-height: calc(29 * var(--u));
+          font-weight: 600;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-footer-links a:nth-child(1) {
+          left: calc(139.3 * var(--u));
+        }
+        .landing-v2 .lp-footer-links a:nth-child(2) {
+          left: calc(380.3 * var(--u));
+        }
+        .landing-v2 .lp-footer-links a:nth-child(3) {
+          left: calc(620.4 * var(--u));
+        }
+        .landing-v2 .lp-footer-links a:nth-child(4) {
+          left: calc(901.3 * var(--u));
+        }
+        .landing-v2 .lp-footer-links a:nth-child(5) {
+          left: calc(1214.3 * var(--u));
+        }
+        .landing-v2 .lp-footer-links a:hover {
+          text-decoration: underline;
+        }
+        .landing-v2 .lp-footer small {
+          position: absolute;
+          left: calc(139 * var(--u));
+          top: calc(323.9 * var(--u));
+          margin: 0;
+          font-size: calc(16 * var(--u));
+          line-height: calc(25 * var(--u));
         }
       }
 
-      /* Adaptación mobile: conserva la jerarquía y evita forzar las curvas de desktop. */
-      @media (max-width: 760px) {
-        .landing-v2 .lp-wrap,
-        .landing-v2 .lp-footer-wrap {
-          width: calc(100% - 36px);
-        }
-        .landing-v2 .lp-about-inner,
-        .landing-v2 .lp-how-inner,
-        .landing-v2 .lp-cta-inner {
-          width: 100%;
-        }
+      /* ---------- Móvil y tablet (<1000px) ---------- */
+      @media (max-width: 999px) {
         .landing-v2 .lp-header {
           height: 72px;
+          background: var(--navy);
+          box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+          position: relative;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 0 18px;
         }
         .landing-v2 .lp-brand {
           width: 112px;
+          flex: none;
         }
-        .landing-v2 .lp-account {
-          gap: 14px;
-        }
-        .landing-v2 .lp-account a {
-          font-size: 12px;
-        }
-        .landing-v2 .lp-hero {
-          min-height: 510px;
-          padding-bottom: 58px;
-        }
-        .landing-v2 .lp-hero::before {
-          bottom: -28px;
-          width: 48%;
-          height: 210px;
-        }
-        .landing-v2 .lp-hero-inner {
-          min-height: 452px;
-          grid-template-columns: 1fr;
-          gap: 0;
-        }
-        .landing-v2 .lp-hero-copy {
-          padding: 48px 0 0;
-        }
-        .landing-v2 .lp-hero h1 {
-          font-size: clamp(36px, 9vw, 48px);
-        }
-        .landing-v2 .lp-hero-copy p {
-          font-size: 17px;
-        }
-        .landing-v2 .lp-hero-art {
-          width: min(78%, 320px);
-          max-height: 235px;
-          margin: -8px 0 -36px auto;
-        }
-        .landing-v2 .lp-scroll {
-          height: 58px;
-          padding: 0 18px;
-          font-size: 16px;
-        }
-        .landing-v2 .lp-about {
-          padding-top: 62px;
-        }
-        .landing-v2 .lp-about-inner {
-          min-height: 0;
-          padding: 52px 20px 58px;
-          border-top-left-radius: 42% 110px;
-        }
-        .landing-v2 .lp-about-inner h2 {
-          font-size: 36px;
-          margin-bottom: 20px;
-        }
-        .landing-v2 .lp-about-copy {
+        .landing-v2 .lp-brand img {
           width: 100%;
-          padding: 0;
-          font-size: 14px;
+          height: auto;
+        }
+        .landing-v2 .lp-header nav {
+          display: flex;
+          align-items: center;
           gap: 16px;
         }
+        .landing-v2 .lp-header nav a {
+          color: var(--gray);
+          font-size: 14px;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+        .landing-v2 .lp-section {
+          position: relative;
+        }
+        .landing-v2 .lp-panel {
+          position: relative;
+        }
+
+        /* Hero */
+        .landing-v2 .lp-hero {
+          background: var(--green);
+        }
+        .landing-v2 .lp-hero .lp-panel {
+          background: var(--navy);
+          padding: 44px 18px 0;
+          border-bottom-right-radius: 0;
+        }
+        .landing-v2 .lp-hero h1 {
+          font-size: clamp(34px, 9vw, 60px);
+          line-height: 1.1;
+          font-weight: 700;
+          color: var(--gray);
+        }
+        .landing-v2 .lp-hero p {
+          margin-top: 10px;
+          font-size: clamp(17px, 4.4vw, 24px);
+          color: var(--green);
+        }
+        .landing-v2 .lp-hero-art {
+          width: min(62%, 300px);
+          margin: 18px 0 0 auto;
+        }
+        .landing-v2 .lp-scroll {
+          display: block;
+          width: calc(100% + 36px);
+          margin: -36px -18px 0;
+          position: relative;
+          border: 0;
+          background: var(--gray);
+          color: var(--navy);
+          text-align: left;
+          padding: 18px 18px 14px;
+          font-size: 18px;
+          border-bottom-right-radius: 70% 26px;
+        }
+
+        /* Quiénes somos */
+        .landing-v2 .lp-about {
+          background: var(--green);
+          padding-top: 36px;
+        }
+        .landing-v2 .lp-about .lp-panel {
+          background:
+            linear-gradient(rgba(0, 33, 71, 0.85), rgba(0, 33, 71, 0.85)),
+            url("img/landing/foto-quienes.jpg") center / cover no-repeat;
+          border-top-left-radius: 78% 90px;
+          padding: 74px 18px 56px;
+        }
+        .landing-v2 .lp-about h2 {
+          font-size: 36px;
+          font-weight: 300;
+          text-align: right;
+          color: var(--gray);
+          margin-bottom: 18px;
+        }
+        .landing-v2 .lp-about-copy {
+          color: var(--gray);
+          text-align: right;
+          font-size: 15px;
+          line-height: 1.6;
+          display: grid;
+          gap: 16px;
+        }
+
+        /* Situación actual */
         .landing-v2 .lp-situation {
-          min-height: 0;
-          padding: 42px 0 112px;
+          background: var(--navy);
         }
-        .landing-v2 .lp-situation::after {
-          height: 105px;
-          border-top-right-radius: 100% 90%;
+        .landing-v2 .lp-situation .lp-panel {
+          padding: 40px 18px 56px;
+          color: var(--navy);
+          background:
+            linear-gradient(rgba(56, 244, 140, 0.85), rgba(56, 244, 140, 0.85)),
+            url("img/landing/foto-situacion.jpg") center / cover no-repeat;
+          border-bottom-left-radius: 60% 70px;
+          border-bottom: 18px solid var(--gray);
         }
-        .landing-v2 .lp-situation-inner h2 {
-          font-size: 32px;
-          margin-bottom: 26px;
+        .landing-v2 .lp-situation h2 {
+          font-size: 30px;
+          font-weight: 300;
+          margin-bottom: 24px;
         }
         .landing-v2 .lp-stats {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 14px;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+          gap: 16px;
         }
         .landing-v2 .lp-stat {
-          min-height: 175px;
-          padding: 16px 10px;
-          border-radius: 14px;
+          border-radius: 18px;
+          padding: 22px 12px;
+          text-align: center;
+          box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+        }
+        .landing-v2 .lp-stat-light {
+          background: var(--gray);
+          color: var(--navy);
+        }
+        .landing-v2 .lp-stat-dark {
+          background: var(--navy);
+          color: var(--gray);
         }
         .landing-v2 .lp-stat strong {
-          font-size: 36px;
-          margin-bottom: 12px;
+          display: block;
+          font-size: 48px;
+          line-height: 1;
+          font-weight: 700;
+          margin-bottom: 14px;
+          text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+        }
+        .landing-v2 .lp-stat-dark strong {
+          color: var(--green);
         }
         .landing-v2 .lp-stat p {
-          font-size: 12px;
+          font-size: 15px;
+          line-height: 1.35;
+          font-weight: 600;
         }
         .landing-v2 .lp-situation-art {
-          grid-column: 1 / -1;
-          width: 180px;
+          width: 190px;
+          margin: 26px auto 0;
         }
+
+        /* Cómo funciona */
         .landing-v2 .lp-how {
-          padding-top: 100px;
+          background: var(--navy);
+          padding-top: 34px;
         }
-        .landing-v2 .lp-how::before {
-          height: 100px;
+        .landing-v2 .lp-how .lp-panel {
+          background: var(--gray);
+          color: var(--navy);
+          padding: 60px 18px 0;
+          border-top-right-radius: 80% 70px;
         }
-        .landing-v2 .lp-how-inner {
-          padding: 38px 18px 58px;
-          border-top-right-radius: 42% 90px;
-          border-bottom-right-radius: 42% 90px;
-        }
-        .landing-v2 .lp-how-inner h2 {
+        .landing-v2 .lp-how h2 {
           font-size: 34px;
+          font-weight: 300;
+          text-align: center;
           margin-bottom: 26px;
         }
         .landing-v2 .lp-profiles {
-          width: 100%;
-          grid-template-columns: 1fr;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
           gap: 18px;
+          max-width: 760px;
+          margin: 0 auto;
         }
         .landing-v2 .lp-profile {
-          min-height: 0;
-          padding: 22px 20px 26px;
-          border-radius: 16px;
+          border-radius: 18px;
+          padding: 20px 20px 24px;
+          box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+        }
+        .landing-v2 .lp-profile-candidate {
+          background: var(--navy);
+          color: var(--green);
+        }
+        .landing-v2 .lp-profile-company {
+          background: var(--green);
+          color: var(--navy);
         }
         .landing-v2 .lp-profile h3 {
-          font-size: 30px;
-          margin-bottom: 16px;
+          font-size: 32px;
+          font-weight: 700;
+          text-align: center;
+          margin-bottom: 14px;
         }
         .landing-v2 .lp-profile ul {
-          font-size: 14px;
-          gap: 7px;
+          margin: 0;
+          padding-left: 20px;
+          display: grid;
+          gap: 6px;
+          font-size: 15px;
+          line-height: 1.45;
+          font-weight: 600;
         }
         .landing-v2 .lp-how-art {
-          width: 90%;
-          height: 160px;
-          margin: 18px auto -12px;
+          width: min(80%, 340px);
+          margin: 26px auto 0;
+          position: relative;
+          bottom: -40px;
+          z-index: 1;
         }
+
+        /* Llamado final */
         .landing-v2 .lp-cta {
-          padding-top: 72px;
+          background: var(--green);
+          padding-top: 30px;
         }
-        .landing-v2 .lp-cta::before {
-          top: 34px;
-          height: 120px;
-          border-top-left-radius: 70% 100%;
+        .landing-v2 .lp-cta .lp-panel {
+          background: var(--navy);
+          padding: 70px 18px 50px;
+          border-top-left-radius: 80% 70px;
+          box-shadow: inset 0 18px 0 var(--gray);
+          display: flex;
+          flex-direction: column;
         }
-        .landing-v2 .lp-cta-inner {
-          min-height: 0;
-          margin-top: 44px;
-          padding: 78px 18px 54px;
-          grid-template-columns: 1fr;
-          gap: 26px;
-          border-top-left-radius: 54% 120px;
-        }
-        .landing-v2 .lp-cta-inner > img {
-          grid-row: 2;
-          width: 190px;
-          max-height: 190px;
-          transform: none;
+        .landing-v2 .lp-cta-art {
+          order: 2;
+          width: 220px;
+          margin: 30px auto 0;
         }
         .landing-v2 .lp-cta-copy {
           text-align: center;
         }
         .landing-v2 .lp-cta-copy > p:first-child {
-          font-size: 14px;
+          font-size: 16px;
+          font-weight: 500;
+          margin-bottom: 12px;
         }
-        .landing-v2 .lp-cta-copy h2 {
+        .landing-v2 .lp-cta-copy > h2 {
           font-size: 34px;
+          line-height: 1.15;
+          font-weight: 300;
+          color: var(--green);
+          margin-bottom: 12px;
         }
-        .landing-v2 .lp-cta-copy > p:nth-child(3) {
-          font-size: 14px;
-          margin-bottom: 22px;
-        }
-        .landing-v2 .lp-register {
-          text-align: center;
-          gap: 12px;
+        .landing-v2 .lp-cta-copy > p:nth-of-type(2) {
+          font-size: 16px;
+          margin-bottom: 26px;
         }
         .landing-v2 .lp-register-card {
+          border-radius: 16px;
           padding: 12px 14px 14px;
-          border-radius: 14px;
+          margin-bottom: 14px;
+          color: var(--gray);
+          text-align: center;
+          box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+        }
+        .landing-v2 .lp-register-candidate {
+          background: var(--register-gray);
+        }
+        .landing-v2 .lp-register-company {
+          background: var(--company-green);
         }
         .landing-v2 .lp-register-card h3 {
-          font-size: 20px;
+          font-size: 24px;
+          font-weight: 600;
+          margin-bottom: 10px;
         }
         .landing-v2 .lp-register-card a {
-          font-size: 14px;
-          padding: 8px 12px;
-        }
-        .landing-v2 .lp-footer {
-          padding: 32px 0 28px;
-        }
-        .landing-v2 .lp-footer-top {
-          grid-template-columns: 1fr;
-          gap: 24px;
-        }
-        .landing-v2 .lp-footer h3 {
-          font-size: 22px;
-        }
-        .landing-v2 .lp-social {
-          gap: 16px;
-        }
-        .landing-v2 .lp-social a,
-        .landing-v2 .lp-social-secondary,
-        .landing-v2 .lp-email {
-          font-size: 12px;
-          gap: 8px;
-        }
-        .landing-v2 .lp-social svg,
-        .landing-v2 .lp-email svg {
-          width: 22px;
-          height: 22px;
-        }
-        .landing-v2 .lp-footer-links {
-          justify-content: flex-start;
-          gap: 14px 20px;
-          padding: 20px 0;
-        }
-        .landing-v2 .lp-footer-links a {
-          font-size: 13px;
-        }
-        .landing-v2 .lp-footer small {
-          font-size: 10px;
+          display: block;
+          border-radius: 23px;
+          background: var(--navy);
+          color: var(--gray);
+          text-decoration: none;
+          padding: 10px 12px;
+          font-size: 16px;
         }
       }
 
-      @media (max-width: 390px) {
-        .landing-v2 .lp-account {
-          gap: 10px;
+      /* Pie de página: también lo usan las páginas legales (siteFooter). */
+      .lp-footer {
+        background: var(--green);
+        color: var(--navy);
+      }
+      .site .lp-footer {
+        padding: 36px 0 30px;
+      }
+      @media (min-width: 1000px) {
+        .landing-v2 .lp-footer {
+          padding: 0;
         }
-        .landing-v2 .lp-account a {
-          font-size: 11px;
-        }
-        .landing-v2 .lp-stat {
-          min-height: 160px;
+      }
+      .lp-footer-wrap {
+        width: min(1154px, calc(100% - 36px));
+        margin-inline: auto;
+      }
+      .lp-footer-top {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px 120px;
+        padding-bottom: 26px;
+        border-bottom: 2px solid var(--navy);
+      }
+      .lp-footer h3 {
+        font-size: 26px;
+        font-weight: 600;
+        margin: 0 0 14px;
+      }
+      .lp-social {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px 36px;
+      }
+      .lp-social a,
+      .lp-social-secondary,
+      .lp-email {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        color: var(--navy);
+        text-decoration: none;
+        font-size: 15px;
+      }
+      .lp-social svg,
+      .lp-email svg {
+        width: 32px;
+        height: 32px;
+        flex: none;
+        color: #000;
+      }
+      .lp-footer-links {
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 12px 24px;
+        padding: 22px 0;
+        border-bottom: 2px solid var(--navy);
+      }
+      .lp-footer-links a {
+        color: var(--navy);
+        font-size: 17px;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .lp-footer-links a:hover {
+        text-decoration: underline;
+      }
+      .lp-footer small {
+        display: block;
+        margin-top: 18px;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      @media (min-width: 1000px) {
+        .landing-v2 .lp-footer-top,
+        .landing-v2 .lp-footer-links {
+          border: 0;
+          padding: 0;
         }
       }
 
@@ -3027,103 +3219,121 @@
   <body>
     <div id="root"> 
       <div class="site landing-v2">
-        <header class="lp-header">
-          <div class="lp-wrap lp-header-inner">
+        <div class="lp-canvas">
+          <svg class="lp-bg" viewBox="0 0 1440 4703" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <defs>
+              <clipPath id="lp-clip-quienes"><rect x="-6.8" y="820" width="1460" height="760"/></clipPath>
+            </defs>
+            <path fill="#002147" d="M 0 0 L 1440 0 L 1440 501 C 1440 666.68 1305.68 801 1140 801 L 0 801 Z"/>
+            <path fill="#e9e9e9" d="M -12.05 698.56 C 1332.74 686.21 1360.8 745.33 1442 401 L 1442 835.28 C 138.13 835.28 -0.42 1059.27 -12.05 1367.7 L -12.05 1545 C -12.05 1483.64 -14.18 1424.25 -12.05 1367.7 Z"/>
+            <image href="img/landing/foto-situacion.jpg" x="-6.33" y="1581" width="1448.7" height="815" preserveAspectRatio="none"/>
+            <image href="img/landing/ilus-hero.webp" x="900.62" y="396.46" width="351.22" height="379.54" preserveAspectRatio="none"/>
+            <image href="img/landing/foto-quienes.jpg" x="-6.8" y="819.8" width="1460" height="760.4" preserveAspectRatio="none" clip-path="url(#lp-clip-quienes)"/>
+            <rect fill="#002147" fill-opacity="0.85" x="0" y="896" width="1442" height="685"/>
+            <path fill="#38f48c" fill-opacity="0.85" d="M -2 1581 L 1440 1581 L 1440 2348 L 498 2348 C 221.86 2348 -2 2124.14 -2 1848 Z"/>
+            <rect fill="#e9e9e9" x="-26" y="2564" width="1511" height="1072"/>
+            <path fill="#38f48c" d="M -1.06 772.56 C 1334.49 760.21 1362.36 819.33 1443 475 L 1443 909.28 C 148.09 909.28 10.5 1133.27 -1.06 1441.7 L -1.06 1619 C -1.06 1557.64 -3.18 1498.25 -1.06 1441.7 Z"/>
+            <rect fill="#002147" x="0" y="3753" width="1440" height="950"/>
+            <path fill="#e9e9e9" d="M -5.05 3643.56 C 1336.97 3631.21 1364.96 3690.33 1446 3346 L 1446 3780.28 C 144.82 3780.28 6.55 4004.27 -5.05 4312.7 L -5.05 4490 C -5.05 4428.64 -7.18 4369.25 -5.05 4312.7 Z"/>
+            <path fill="#e9e9e9" d="M -4.05 2477.44 C 1340.74 2489.79 1368.8 2430.67 1450 2775 L 1450 2340.72 C 146.13 2340.72 7.58 2116.73 -4.05 1808.3 L -4.05 1631 C -4.05 1692.36 -6.18 1751.75 -4.05 1808.3 Z"/>
+            <ellipse fill="#002147" fill-opacity="0.75" cx="1197.5" cy="2073" rx="180.5" ry="49"/>
+            <path fill="#002147" d="M -9.04 2563.44 C 1345.92 2575.79 1374.18 2516.67 1456 2861 L 1456 2426.72 C 142.27 2426.72 2.68 2202.73 -9.04 1894.3 L -9.04 1717 C -9.04 1778.36 -11.2 1837.75 -9.04 1894.3 Z"/>
+            <path fill="#38f48c" d="M -5.06 3559.56 C 1331.42 3547.21 1359.3 3606.33 1440 3262 L 1440 3696.28 C 144.2 3696.28 6.5 3920.27 -5.06 4228.7 L -5.06 4406 C -5.06 4344.64 -7.18 4285.25 -5.06 4228.7 Z"/>
+            <ellipse fill="#002147" fill-opacity="0.5" cx="720" cy="3632" rx="302" ry="58"/>
+            <ellipse fill="#38f48c" fill-opacity="0.5" cx="319" cy="4470" rx="217" ry="58"/>
+          </svg>
+
+          <header class="lp-header">
             <a class="lp-brand lockup" href="#/" aria-label="Match Empleos, inicio">
-              <img src="img/logo-match-empleos.png" alt="Match Empleos">
+              <img src="img/landing/logo-match-empleos.webp" alt="Match Empleos" width="155" height="57">
             </a>
             <nav aria-label="Cuenta" class="lp-account">
               <a href="#/login">Iniciar sesión</a>
               <a href="#/registro">Registrarse</a>
             </nav>
-          </div>
-        </header>
+          </header>
 
-        <main>
-          <section class="lp-hero">
-            <div class="lp-wrap lp-hero-inner">
-              <div class="lp-hero-copy">
+          <main>
+            <section class="lp-section lp-hero">
+              <div class="lp-panel">
                 <h1>Bienvenido a Match Empleos</h1>
                 <p>Tu próxima oportunidad empieza con un MATCH</p>
+                <img class="lp-hero-art" src="img/landing/ilus-hero.webp" alt="Dos jóvenes mirando juntos un celular" width="351" height="380">
+                <button class="lp-scroll" type="button" data-scroll="quienes">¡Deslizá para conocer más!</button>
               </div>
-              <img class="lp-hero-art" src="img/ilus-hero.png" alt="Jóvenes conectando a través de Match Empleos">
-            </div>
-            <button class="lp-scroll" type="button" data-scroll="quienes">¡Deslizá para conocer más!</button>
-          </section>
+            </section>
 
-          <section class="lp-about" aria-labelledby="quienes">
-            <div class="lp-about-shape" aria-hidden="true"></div>
-            <div class="lp-wrap lp-about-inner" id="quienes">
-              <h2>¿Quiénes somos?</h2>
-              <div class="lp-about-copy">
-                <p>Somos un equipo de cinco estudiantes que desarrollamos una plataforma digital pensada para facilitar el acceso de los jóvenes al mundo laboral y generar nuevas formas de conexión con empresas y reclutadores.</p>
-                <p>De esta búsqueda nace Match Empleos, una plataforma digital que conecta a postulantes con empresas y reclutadores que buscan talentos.</p>
-                <p>La propuesta busca transformar la manera tradicional de buscar empleo, haciendo que el proceso sea más simple, dinámico y personalizado. En lugar de enfrentarse a una gran cantidad de ofertas, los usuarios reciben oportunidades relevantes para su perfil y pueden mostrar interés en aquellas que realmente les resulten atractivas.</p>
+            <section class="lp-section lp-about" id="quienes" aria-labelledby="quienes-titulo">
+              <div class="lp-panel">
+                <h2 id="quienes-titulo"><span class="lp-b">¿</span>Quiénes somos<span class="lp-b">?</span></h2>
+                <div class="lp-about-copy">
+                  <p>Somos un equipo de cinco estudiantes que desarrollamos una plataforma digital pensada para facilitar el acceso de los jóvenes al mundo laboral y generar nuevas formas de conexión con empresas y reclutadores.</p>
+                  <p>De esta búsqueda nace Match Empleos, una plataforma digital que conecta a postulantes con empresas y reclutadores que buscan talentos.</p>
+                  <p>La propuesta busca transformar la manera tradicional de buscar empleo, haciendo que el proceso sea más simple, dinámico y personalizado. En lugar de enfrentarse a una gran cantidad de ofertas, los usuarios reciben oportunidades relevantes para su perfil y pueden mostrar interés en aquellas que realmente les resulten atractivas.</p>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section class="lp-situation" id="situacion" aria-labelledby="situacion-titulo">
-            <div class="lp-wrap lp-situation-inner">
-              <h2 id="situacion-titulo">Situación actual en <strong>Argentina</strong></h2>
-              <div class="lp-stats">
-                <article class="lp-stat lp-stat-light">
-                  <strong>16,5%</strong>
-                  <p>Desocupación en personas entre 14 y 29 años, con un 7,5% general.</p>
-                </article>
-                <article class="lp-stat lp-stat-dark">
-                  <strong>43%</strong>
-                  <p>De la generación Z sufrió ghosting al postularse. El 45% dudó de sus capacidades.</p>
-                </article>
-                <article class="lp-stat lp-stat-light">
-                  <strong>0,17%</strong>
-                  <p>Es la tasa de 1.500 inserciones sobre 900.000 beneficiarios.</p>
-                </article>
-                <img class="lp-situation-art" src="img/ilus-situacion.png" alt="Joven con un currículum y una valija">
+            <section class="lp-section lp-situation" id="situacion" aria-labelledby="situacion-titulo">
+              <div class="lp-panel">
+                <h2 id="situacion-titulo">Situación actual en <span class="lp-b">Argentina</span></h2>
+                <div class="lp-stats">
+                  <article class="lp-stat lp-stat-light">
+                    <strong>16,5%</strong>
+                    <p>Desocupación en personas <br class="lp-br">entre 14 y 29 años, <br class="lp-br">con un 7,5% general.</p>
+                  </article>
+                  <article class="lp-stat lp-stat-dark">
+                    <strong>43%</strong>
+                    <p>De la generación Z sufrió <br class="lp-br">ghosting al postularse. <br class="lp-br">El 45% dudó de sus <br class="lp-br">capacidades.</p>
+                  </article>
+                  <article class="lp-stat lp-stat-light">
+                    <strong>0,17%</strong>
+                    <p>Es la tasa de 1.500 <br class="lp-br">inserciones sobre <br class="lp-br">900.000 beneficiarios.</p>
+                  </article>
+                </div>
+                <img class="lp-situation-art" src="img/landing/ilus-situacion.webp" alt="Joven sentada con un currículum en la mano junto a un maletín" width="290" height="326" loading="lazy">
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section class="lp-how" id="como" aria-labelledby="como-titulo">
-            <div class="lp-wrap lp-how-inner">
-              <h2 id="como-titulo">¿Cómo funciona?</h2>
-              <div class="lp-profiles">
-                <article class="lp-profile lp-profile-candidate">
-                  <h3>Perfil Postulante</h3>
-                  <ul>
-                    <li>Creá tu perfil de postulante verificado.</li>
-                    <li>Escogé categorías de trabajo preferidas.</li>
-                    <li>Podés elegir o no una postulación.</li>
-                    <li>Tenés 5 postulaciones por día.</li>
-                    <li>Posibilidad de dialogar con la empresa.</li>
-                    <li>La empresa está obligada a responderte, vos tenés derecho a saber.</li>
-                    <li>Si te aceptan, felicidades, hay MATCH.</li>
-                  </ul>
-                </article>
-                <article class="lp-profile lp-profile-company">
-                  <h3>Perfil Empresa</h3>
-                  <ul>
-                    <li>Creá tu perfil de empresa verificado.</li>
-                    <li>Ofrecé postulaciones de trabajo, según categoría y cargo.</li>
-                    <li>Podés ver los candidatos que se postularon.</li>
-                    <li>Se muestra tu promedio de respuesta.</li>
-                    <li>Posibilidad de dialogar con el postulante.</li>
-                    <li>Si encontrás el candidato, hay MATCH.</li>
-                  </ul>
-                </article>
+            <section class="lp-section lp-how" id="como" aria-labelledby="como-titulo">
+              <div class="lp-panel">
+                <h2 id="como-titulo"><span class="lp-b">¿</span>Cómo funciona<span class="lp-b">?</span></h2>
+                <div class="lp-profiles">
+                  <article class="lp-profile lp-profile-candidate">
+                    <h3>Perfil Postulante</h3>
+                    <ul>
+                      <li>Creá tu perfil de postulante verificado.</li>
+                      <li>Escogé categorías de trabajo preferidas.</li>
+                      <li>Podés elegir o no una postulación.</li>
+                      <li>Tenés 5 Postulaciones por día.</li>
+                      <li>Posibilidad de dialogar con la empresa.</li>
+                      <li>La empresa está obligada a responderte, vos tenés derecho a saber.</li>
+                      <li>Si te aceptan, felicidades, hay MATCH.</li>
+                    </ul>
+                  </article>
+                  <article class="lp-profile lp-profile-company">
+                    <h3>Perfil Empresa</h3>
+                    <ul>
+                      <li>Creá tu perfil de empresa verificado.</li>
+                      <li>Ofrecé postulaciones de trabajo, <br class="lp-br">según categoría y cargo.</li>
+                      <li>Podés ver los candidatos que se postularon.</li>
+                      <li>Se muestra tu promedio de respuesta.</li>
+                      <li>Posibilidad de dialogar con el postulante.</li>
+                      <li>Si encontrás el candidato, hay MATCH.</li>
+                    </ul>
+                  </article>
+                </div>
+                <img class="lp-how-art" src="img/landing/ilus-encuentro.webp" alt="Una joven con su currículum y un reclutador que se acercan a darse la mano" width="413" height="293" loading="lazy">
               </div>
-              <img class="lp-how-art" src="img/ilus-oficios.png" alt="Dos personas que se encuentran en una oportunidad laboral">
-            </div>
-          </section>
+            </section>
 
-          <section class="lp-cta">
-            <div class="lp-wrap lp-cta-inner">
-              <img src="img/ilus-oficina.png" alt="Personas trabajando juntas frente a una computadora">
-              <div class="lp-cta-copy">
-                <p>En Match Empleos creemos que todas las oportunidades cuentan.</p>
-                <h2>¡El futuro no espera, vos tampoco!</h2>
-                <p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p>
-                <div class="lp-register">
+            <section class="lp-section lp-cta" aria-labelledby="cta-titulo">
+              <div class="lp-panel">
+                <img class="lp-cta-art" src="img/landing/ilus-oficina.webp" alt="Dos personas trabajando juntas frente a una computadora" width="303" height="278" loading="lazy">
+                <div class="lp-cta-copy">
+                  <p>En Match Empleos creemos que todas las oportunidades cuentan.</p>
+                  <h2 id="cta-titulo"><span class="lp-b">¡</span>El futuro no espera, vos tampoco<span class="lp-b">!</span></h2>
+                  <p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p>
                   <div class="lp-register-card lp-register-candidate">
                     <h3>Perfil Postulante</h3>
                     <a href="#/registro/c/1">Registrar usuario</a>
@@ -3134,22 +3344,22 @@
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
-        </main>
+            </section>
+          </main>
+        </div>
 
         <footer class="foot lp-footer">
-          <div class="wrap lp-footer-wrap">
+          <div class="lp-footer-wrap">
             <div class="lp-footer-top">
               <div>
                 <h3>Seguinos en:</h3>
                 <div class="lp-social">
-                  <a href="https://www.instagram.com/matchempleosarg/" target="_blank" rel="noopener" aria-label="Instagram Match Empleos">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+                  <a href="https://www.instagram.com/matchempleosarg/" target="_blank" rel="noopener" aria-label="Instagram de Match Empleos: @matchempleosarg">
+                    <svg viewBox="0 0 35 35" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><rect x="1.5" y="1.5" width="32" height="32" rx="8"/><circle cx="17.5" cy="17.5" r="7.2"/><circle cx="26.3" cy="8.7" r="1.9" fill="currentColor" stroke="none"/></svg>
                     @matchempleosarg
                   </a>
                   <span class="lp-social-secondary">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="m10 9 5 3-5 3z" fill="currentColor" stroke="none"/></svg>
+                    <svg viewBox="0 0 41 41" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><rect x="1.5" y="8.5" width="38" height="24" rx="5.5"/><path d="M16.5 14.5 L26.5 20.5 L16.5 26.5 Z" stroke-linejoin="round"/></svg>
                     @matchempleos
                   </span>
                 </div>
@@ -3157,7 +3367,7 @@
               <div>
                 <h3>Contacto:</h3>
                 <a class="lp-email" href="mailto:matchempleos@gmail.com">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg>
+                  <svg viewBox="0 0 43 43" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="1" y="7.5" width="41" height="28" rx="2.5"/><path d="M1.5 9 L21.5 26 L41.5 9 M1.5 34.5 L16 21 M41.5 34.5 L27 21"/></svg>
                   matchempleos@gmail.com
                 </a>
               </div>
@@ -3169,7 +3379,7 @@
               <a href="#/terminos">Términos y Condiciones</a>
               <a href="#/ayuda">Ayuda</a>
             </nav>
-            <small>2026 – Match Empleos – Todos los derechos reservados.<br>Propuesta presentada para Premios OBRAR Estudiantes 2026.</small>
+            <small>2026 - Match Empleos - Todos los derechos reservados.<br>Propuesta presentada para Premios OBRAR Estudiantes 2026.</small>
           </div>
         </footer>
       </div>
