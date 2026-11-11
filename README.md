@@ -453,3 +453,58 @@ Segunda iteración sobre la referencia **`Match Empleos Landing (copia).pdf`**, 
 - [ ] Incorporar el export exacto de la fotografía de multitud que aparece en “Situación actual” y ajustar su encuadre/tinte al PDF.
 - [ ] Generar capturas del navegador a 1568 px de ancho y en mobile, y compararlas con el PDF. La actualización se validó a nivel de estructura del CSS y referencias de assets; no se ejecutó una prueba visual con navegador en esta sesión.
 - [ ] Revisar la curva inferior de “Situación actual” y la continuidad visual entre la ilustración de “Cómo funciona” y el panel del CTA.
+
+---
+
+## 15. Auditoría previa a producción (11 de noviembre de 2026)
+
+**Resultado: NO APTO PARA MERGE / PUBLICACIÓN.** Esta revisión fue estática y de configuración remota; no reemplaza la prueba funcional completa en navegador con cuentas reales.
+
+### Estado del código y repositorios
+
+- [x] test-empleos/main contiene la versión actual de la aplicación y la landing rediseñada.
+- [x] Se verificó que los cuatro bloques script ejecutables de index.html compilan sintácticamente. Esto no demuestra que todos los flujos funcionen en ejecución.
+- [x] La selección de entorno del frontend apunta a staging para hosts de prueba y a producción solo para matchempleos.com.ar y www.matchempleos.com.ar.
+- [x] DEMO_VISIBLE oculta el acceso demo cuando el entorno es producción.
+- [ ] Ejecutar node --test tests/real-user-offers.test.mjs en un entorno Node y registrar el resultado. La existencia del test no equivale a una ejecución aprobada.
+- [ ] Completar el checklist manual de la sección 10 con dos cuentas reales y validar los flujos de registro, recuperación, postulaciones, respuestas, chat, CV, Storage y Realtime.
+- [ ] Comparar visualmente la landing en navegador desktop y mobile contra el diseño aprobado.
+- [ ] Revisar el diff completo del pull request entre Alternativy/test-empleos:main y Alternativy/MatchEmpleos:main antes de aprobarlo. Los repositorios tienen historiales y contenidos distintos; no asumir que una sincronización previa equivale al estado actual.
+
+### Animaciones de la landing: implementación no aprobada
+
+Las animaciones de scroll **no se pudieron implementar de manera correcta**. En index.html hay reglas CSS, atributos data-reveal y un IntersectionObserver, pero la presencia de ese código no significa que el resultado visual cumpla lo pedido. No se consideran terminadas ni aprobadas para producción.
+
+- [ ] Rehacer o corregir las entradas al viewport y comprobarlas visualmente en desktop y mobile.
+- [ ] Verificar las direcciones solicitadas: llamada a deslizar desde la izquierda; texto de “Quiénes somos” desde abajo; encabezado de “Situación actual” desde la izquierda; bloques porcentuales desde la derecha; tarjetas de perfiles con una entrada sutil.
+- [ ] Comprobar que las animaciones no se reinicien incorrectamente al renderizar, navegar o recuperar una sesión.
+- [ ] Mantener el comportamiento accesible para prefers-reduced-motion.
+
+### Verificación de Supabase
+
+Se inspeccionaron los proyectos remotos identificados en la sección 8:
+
+| Control | Staging | Producción |
+|---|---|---|
+| Estado del proyecto | ACTIVE_HEALTHY | ACTIVE_HEALTHY |
+| Migración más reciente registrada | 011_pausar_busquedas | 011_pausar_busquedas |
+| RLS en tablas públicas inspeccionadas | Activo | Activo |
+| Bucket avatars | Público, 2 MB, JPG/PNG/WEBP | Público, 2 MB, JPG/PNG/WEBP |
+| Bucket cvs | Privado, 5 MB, PDF | Privado, 5 MB, PDF |
+
+La estructura observada en producción incluye las tablas y columnas principales usadas por la versión actual. Las migraciones registradas en producción siguen su historial consolidado (000, 000b, 000c, 008, 010, 011); staging conserva su historial incremental. Ambos proyectos tienen registradas las migraciones funcionales hasta la 011.
+
+### Bloqueantes y advertencias que siguen abiertos
+
+1. **Asignación del rol empresa — bloqueante de seguridad/producto.** El flujo de registro envía rol dentro de user_metadata y el trigger de creación de perfil utiliza esos datos. Un usuario puede solicitar el rol de empresa desde el cliente. Antes de habilitar el registro público, definir y aplicar una asignación/verificación del rol desde un mecanismo confiable del servidor y revisar las políticas RLS que dependen de ese rol.
+2. **Configuración de Auth en producción — pendiente de comprobación operativa.** Confirmar Site URL y Redirect URLs exactas, confirmación de correo, plantillas en español y flujo de recuperación desde el dominio definitivo. La inspección de base de datos no acredita esta configuración del dashboard.
+3. **SMTP y entregabilidad — pendiente.** La documentación de producto indica que se utiliza el SMTP compartido de Supabase, con límites bajos. Verificar el proveedor, SPF, DKIM, DMARC, remitente y entrega real antes de abrir el registro al público.
+4. **Protección de contraseñas filtradas — advertencia activa.** El advisor de Supabase reporta deshabilitada la protección contra contraseñas comprometidas en ambos proyectos.
+5. **Funciones SECURITY DEFINER — revisar, no revocar a ciegas.** Los advisors detectan que borrar_busqueda, cupo_actual y postular son ejecutables por authenticated. El cliente necesita invocar las RPC correspondientes, por lo que hay que verificar sus comprobaciones internas de identidad/propiedad y sus permisos; no quitar EXECUTE sin revisar el flujo.
+6. **Rendimiento — mejoras recomendadas.** Los advisors señalan claves foráneas sin índices de cobertura, expresiones de Auth que se reevalúan en políticas RLS y políticas permisivas múltiples. No se detectó una falla funcional derivada de estos avisos, pero conviene corregirlos antes de escalar.
+7. **Copy y promesas públicas — pendiente de producto.** Resolver las discrepancias documentadas en la sección 13: cinco postulaciones por día versus cinco por semana, obligación de respuesta, perfiles “verificados” y fuentes/periodos de las estadísticas. No publicar promesas que el comportamiento actual no respalde.
+8. **SEO y recursos de publicación — pendiente.** Completar Search Console, imagen social definitiva, manifest corregido y URLs independientes para páginas legales, según la sección 12.
+
+### Decisión de publicación
+
+No abrir todavía el pull request de producción ni hacer merge. Primero resolver los bloqueantes de seguridad y configuración, corregir las animaciones, completar las pruebas manuales y validar el diff entre ambos repositorios. Una vez cumplidos esos puntos, volver a comparar test-empleos/main con MatchEmpleos/main y abrir el pull request para revisión; este documento debe actualizarse con los resultados de esa nueva validación.
