@@ -4100,7 +4100,8 @@
           return `<div class="ai-assist">
             <p class="ai-explainer">Podés mejorar la claridad y presentación de tu descripción sin agregar experiencias que no hayas mencionado.</p>
             <button class="btn out sm ai-generate" id="${outputId}-toggle" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
-            <p class="ai-count" id="${outputId}-count">${initialLength} / 4.000 caracteres · Límite: 5 por día y 50 por mes</p>
+            <p class="ai-count" id="${outputId}-count">${initialLength} / 4.000 caracteres</p>
+            <p class="ai-count ai-quota" id="${outputId}-quota">Límite: 5 mejoras por día y 50 por mes</p>
             <p class="ai-privacy">Tu texto se envía al servicio de IA para generar una propuesta. Tu perfil no cambia hasta que elijas usarla.</p>
             <p class="hint ai-status" id="${outputId}-status" role="status" aria-live="polite"></p>
             <div class="ai-result" id="${outputId}-wrap" hidden>
@@ -5441,7 +5442,7 @@ async function toggleBusqueda(id) {
             output.value = data.improvedText;
             output.dataset.source = texto;
             actualizarCuotaIA(
-              document.getElementById(outputId + "-count"),
+              document.getElementById(outputId + "-quota"),
               data.dailyRemaining,
               data.monthlyRemaining,
             );
@@ -5459,7 +5460,7 @@ async function toggleBusqueda(id) {
             console.error("[ia] mejorar-sobre", err);
             const detail = await leerDetalleErrorIA(err);
             actualizarCuotaIA(
-              document.getElementById(outputId + "-count"),
+              document.getElementById(outputId + "-quota"),
               detail?.dailyRemaining,
               detail?.monthlyRemaining,
             );
