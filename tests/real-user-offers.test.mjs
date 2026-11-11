@@ -72,6 +72,10 @@ test("el campo Sobre vos ofrece mejora con IA tanto en el registro como en edici
   assert.match(html, /4\.000 caracteres/);
   assert.match(html, /Tu texto se envía al servicio de IA/);
   assert.match(html, /originalSigueIgual/);
+  assert.match(html, /button\.textContent = "Mantener original"/);
+  assert.match(html, /data-action = "mantener-original"/);
+  assert.match(html, /Versión aplicada\. La sugerencia de IA se cerró\./);
+  assert.match(html, /Se mantuvo tu texto original\./);
   assert.match(html, /aria-live="polite"/);
 });
 
