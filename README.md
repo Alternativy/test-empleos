@@ -301,7 +301,7 @@ Esto no se puede versionar con SQL. Hay que hacerlo en cada proyecto.
 Estos puntos **bloquean o condicionan producción**. Están documentados para que nadie los pase por alto.
 
 1. **El rol se toma de la metadata del registro.** Cualquiera con la anon key puede llamar a `signUp` con `rol: 'e'`. Solución propuesta: asignar el rol de empresa desde el servidor (verificación manual o función protegida).
-2. **Datos de ejemplo en el código.** `freshState()`, `offerById` y las plantillas siguen teniendo datos ficticios. Las sesiones reales no los mezclan en los listados principales, pero el código sigue cargándolos para el modo demo.
+2. **Datos de ejemplo en el código.** `freshState()` conserva ofertas ficticias para el modo demo. En sesiones reales, el feed del candidato se limpia antes de hidratar y se reemplaza exclusivamente por búsquedas reales (`real === true`); `apply()` rechaza cualquier oferta no real antes de modificar el estado o intentar guardar.
 3. **Historial de chats demo.** `hidratar()` todavía lee las claves históricas `c:<oferta>` y `e:<candidato>`. Solo tiene sentido en staging, donde están esos datos.
 4. **Contraseñas filtradas y CAPTCHA.** La protección contra contraseñas filtradas requiere plan Pro. Mientras tanto, la longitud mínima de contraseña se controla en el cliente (8 caracteres) y puede subirse en Auth.
 5. **SMTP de Supabase.** Tiene límites bajos. Antes de escalar, usar un proveedor propio.
@@ -309,7 +309,7 @@ Estos puntos **bloquean o condicionan producción**. Están documentados para qu
 7. **Correo no editable desde la app.** Los datos de "Datos personales" (candidato) y "Datos empresariales" (empresa) se editan todos, salvo el correo, que es el usuario de acceso. Cambiarlo requiere el flujo de cambio de correo de Auth, que todavía no está implementado.
 8. **Notificaciones.** Las notificaciones del candidato no se persisten en una tabla; son estado de UI. Las notificaciones base filtran Farmacia Sur y Supermercado Norte.
 9. **El CV se sube solo con sesión.** Si el registro requiere confirmar el correo, el archivo elegido en el paso 5 no se puede guardar; el usuario tiene que subirlo después desde "Datos personales".
-10. **Sin pruebas automatizadas.** Todo se prueba a mano. Ver checklist en la sección 10.
+10. **Pruebas automatizadas parciales.** `tests/real-user-offers.test.mjs` verifica el aislamiento entre ofertas demo y reales y las protecciones de `apply()`. Ejecutar con `node --test tests/real-user-offers.test.mjs`. El resto de los flujos sigue requiriendo el checklist manual de la sección 10.
 11. **Respuestas automáticas.** Los temporizadores de `apply()` y `enviarResp()` solo corren para ofertas demo. Las cuentas reales no reciben respuestas automáticas.
 12. **Métodos heredados.** `DB.setCupo` y `DB.setTasa` son no-ops; la app ya no escribe esos valores desde el cliente.
 13. **Columnas heredadas en staging.** `mensajes.de` y `mensajes.chat_key` siguen en staging por el historial demo. No se replican en producción.
