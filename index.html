@@ -3431,11 +3431,10 @@
       const VINO_DE_CORREO = /[#&]type=(signup|email)/.test(location.hash);
       const sb = supabase.createClient(ENTORNOS[ENTORNO].url, ENTORNOS[ENTORNO].key);
 
-      let ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null, demo: false }; // demo: sesión local, nunca escribe en la base
+      let ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null };
 
       // Ejecuta una escritura y avisa si falla, sin romper la UI
       function persistir(query, etiqueta) {
-        if (ME.demo) return Promise.resolve(null); // modo demo: no se escribe en la base
         return query
           .then(({ data, error }) => {
             if (error) throw error;
@@ -3805,273 +3804,15 @@
           },
         };
 
-        /* ---------- Estado simulado ---------- */
+        /* ---------- Estado inicial vacío ---------- */
         function freshState() {
           return {
-            c: {
-              cupo: 3,
-              idx: 0,
-              ofertas: [
-                {
-                  id: "cafe",
-                  emp: "Café Mercado",
-                  meta: "Gastronomía · 12 empleados",
-                  puesto: ePuestoActual(),
-                  chips: ["Lomas de Zamora", "Medio tiempo", "Sin experiencia"],
-                  fchips: ["Lomas de Zamora", "Part Time", "Sin experiencia"],
-                  tasa: 94,
-                  dias: 3,
-                  foto: "img/oferta-cafe.jpg",
-                  logo: "img/logo-cafe-mercado.png",
-                  match: true,
-                  desc: "Buscamos a alguien para sumarse a la cocina por la tarde. No hace falta experiencia: te enseñamos. Sí pedimos ganas, puntualidad y trabajo en equipo.",
-                },
-                {
-                  id: "libreria",
-                  emp: "Librería Laprida",
-                  meta: "Comercio · 6 empleados",
-                  puesto: "Atención al público",
-                  chips: ["Lomas de Zamora", "Part Time", "Sin experiencia"],
-                  fchips: ["Lomas de Zamora", "Part Time", "Sin experiencia"],
-                  tasa: 91,
-                  dias: 4,
-                  desc: "Atención en mostrador y armado de pedidos escolares. Buscamos alguien amable y ordenado. Te capacitamos en el sistema de ventas.",
-                },
-                {
-                  id: "logis",
-                  emp: "Distribuidora Sur",
-                  meta: "Logística · 40 empleados",
-                  puesto: "Auxiliar de depósito",
-                  chips: ["Banfield", "Full Time", "Sin experiencia"],
-                  fchips: ["Banfield", "Full Time", "Sin experiencia"],
-                  tasa: 88,
-                  dias: 5,
-                  desc: "Recepción de mercadería, control de stock y preparación de envíos. Valoramos responsabilidad y ganas de aprender.",
-                },
-                {
-                  id: "estudio",
-                  emp: "Estudio Contable Ruiz",
-                  meta: "Administración · 8 empleados",
-                  puesto: "Asistente administrativo",
-                  chips: ["Lomas de Zamora", "Pasantía", "Estudiantes"],
-                  fchips: ["Lomas de Zamora", "Pasantía", "Estudiantes"],
-                  tasa: 97,
-                  dias: 2,
-                  desc: "Carga de comprobantes, archivo y atención telefónica. Ideal si estudiás Ciencias Económicas o algo afín.",
-                },
-              ],
-              posts: [
-                {
-                  id: "p1",
-                  puesto: "Repositor",
-                  emp: "Supermercado Norte",
-                  estado: "Vista",
-                  pie: "La vieron hace 1 día",
-                },
-                {
-                  id: "p2",
-                  puesto: "Atención al cliente",
-                  emp: "Tienda Ruiz",
-                  estado: "Enviada",
-                  pie: "Enviada hace 3 días",
-                },
-                {
-                  id: "p3",
-                  puesto: "Cadete",
-                  emp: "Farmacia Sur",
-                  estado: "Respondida",
-                  pie: "Te contestaron ayer",
-                  chat: "farmacia",
-                },
-              ],
-              chats: {
-                farmacia: {
-                  con: "Farmacia Sur",
-                  puesto: "Cadete",
-                  tasa: 89,
-                  match: false,
-                  msgs: [
-                    {
-                      de: "them",
-                      t: "Hola Tomás, gracias por postularte. Buscamos a alguien que pueda arrancar el lunes. ¿Tenés bici o moto?",
-                      h: "10:24",
-                    },
-                  ],
-                },
-              },
-              notifs: [
-                {
-                  t: "Te contestaron",
-                  d: "Farmacia Sur respondió tu postulación a Cadete.",
-                  cuando: "1 día",
-                  go: "#/c/chat/farmacia",
-                  nuevo: true,
-                },
-                {
-                  t: "Tu postulación fue vista",
-                  d: "Supermercado Norte abrió tu perfil. Tiene 7 días para contestarte.",
-                  cuando: "1 día",
-                  go: "#/c/postulaciones",
-                  nuevo: true,
-                },
-                {
-                  t: "Se libera tu cupo",
-                  d: "El lunes volvés a tener 5 postulaciones disponibles.",
-                  cuando: "3 días",
-                  go: "#/c/feed",
-                  nuevo: false,
-                },
-                {
-                  t: "Sumá tu experiencia",
-                  d: "Los perfiles completos reciben el doble de respuestas.",
-                  cuando: "5 días",
-                  go: "#/c/datos",
-                  nuevo: false,
-                },
-              ],
-            },
-            e: {
-              tasa: 87,
-              demora: 4,
-              plazo: 3,
-              busquedas: [
-                { id: "b1", puesto: "Ayudante de cocina", total: 12, estado: "Activa" },
-                { id: "b2", puesto: "Cajero fin de semana", total: 5, estado: "Activa" },
-              ],
-              pend: [
-                {
-                  id: "tomas",
-                  nombre: "Tomás Ferreyra",
-                  corto: "Tomás F.",
-                  edad: 20,
-                  zona: "Lomas de Zamora",
-                  linea: "Primer trabajo · Lomas",
-                  busca: "Busca su primer trabajo",
-                  hace: 5,
-                  quedan: 2,
-                  avatar: "img/avatar-tomas.png",
-                  porque:
-                    "«Trabajé ayudando en el kiosco de mi tía los fines de semana. Me gusta la cocina y quiero aprender en serio. Vivo a diez cuadras del local.»",
-                  sabe: [
-                    "Atención al público",
-                    "Manipulación de alimentos",
-                    "Trabajo en equipo",
-                    "Disponibilidad tarde",
-                  ],
-                  estudios: "Secundario completo · Escuela Técnica N.º 4, Lomas de Zamora",
-                },
-                {
-                  id: "aylen",
-                  nombre: "Aylén Ríos",
-                  corto: "Aylén R.",
-                  edad: 22,
-                  zona: "Banfield",
-                  linea: "Ya trabajó · Banfield",
-                  busca: "Ya trabajó en atención al público",
-                  hace: 4,
-                  quedan: 3,
-                  porque:
-                    "«Trabajé seis meses en una panadería atendiendo el mostrador. Quiero aprender cocina y el horario de la tarde me queda perfecto.»",
-                  sabe: ["Atención al público", "Manipulación de alimentos", "Puntualidad"],
-                  estudios: "Secundario completo",
-                },
-                {
-                  id: "nicolas",
-                  nombre: "Nicolás Pereyra",
-                  corto: "Nicolás P.",
-                  edad: 19,
-                  zona: "Temperley",
-                  linea: "Primer trabajo · Temperley",
-                  busca: "Busca su primer trabajo",
-                  hace: 2,
-                  quedan: 5,
-                  porque:
-                    "«Siempre cocino en casa y me encantaría hacerlo en un lugar de verdad. Aprendo rápido y no tengo problema con los horarios.»",
-                  sabe: ["Trabajo en equipo", "Disponibilidad tarde", "Ganas de aprender"],
-                  estudios: "Secundario completo",
-                },
-                {
-                  id: "sofia",
-                  nombre: "Sofía Romero",
-                  corto: "Sofía R.",
-                  edad: 21,
-                  zona: "Lomas de Zamora",
-                  linea: "Estudia Gastronomía · Lomas",
-                  busca: "Estudia Gastronomía",
-                  hace: 1,
-                  quedan: 6,
-                  porque:
-                    "«Estoy en primer año de Gastronomía y busco mi primera experiencia en una cocina real.»",
-                  sabe: ["Pastelería básica", "Atención al público", "Disponibilidad tarde"],
-                  estudios: "Tecnicatura en Gastronomía · en curso",
-                },
-              ],
-              chats: {
-                malena: {
-                  con: "Malena T.",
-                  puesto: "Ayudante de cocina",
-                  match: true,
-                  msgs: [
-                    {
-                      de: "me",
-                      t: "Hola Malena, nos interesó tu perfil. ¿Podés venir el jueves a las 16?",
-                      h: "Hoy",
-                    },
-                    { de: "them", t: "Perfecto, el jueves a las 16 estoy", h: "hace 1 h" },
-                  ],
-                },
-                lucia: {
-                  con: "Lucía M.",
-                  puesto: "Cajero fin de semana",
-                  match: true,
-                  msgs: [
-                    {
-                      de: "them",
-                      t: "¡Hola! Gracias por responder. ¿Qué día puedo pasar?",
-                      h: "hace 3 días",
-                    },
-                    { de: "me", t: "Te esperamos el martes", h: "hace 3 días" },
-                  ],
-                },
-              },
-              resp: [
-                { nombre: "Malena T.", tipo: "si", chat: "malena" },
-                { nombre: "Lucía M.", tipo: "si", chat: "lucia" },
-                { nombre: "Joaquín D.", tipo: "no" },
-                { nombre: "Brenda S.", tipo: "no" },
-              ],
-              notifs: [
-                {
-                  t: "La postulación más vieja vence en 2 días",
-                  d: "Tomás F. se postuló a Ayudante de cocina hace 5 días.",
-                  go: "#/e/candidato/tomas",
-                  nuevo: true,
-                },
-                {
-                  t: "Malena T. te escribió",
-                  d: "Ayudante de cocina: «Perfecto, el jueves a las 16 estoy»",
-                  go: "#/e/chat/malena",
-                  nuevo: true,
-                },
-                {
-                  t: "Tu tasa bajó a 87%",
-                  d: "Respondé a tiempo para volver a superar el 90% y aparecer entre las destacadas.",
-                  go: "#/e/empresa",
-                  nuevo: false,
-                },
-                {
-                  t: "Nueva postulación",
-                  d: "Sofía R. se postuló a Ayudante de cocina.",
-                  go: "#/e/candidato/sofia",
-                  nuevo: false,
-                },
-              ],
-            },
+            c: { cupo: 3, idx: 0, ofertas: [], posts: [], chats: {}, notifs: [] },
+            e: { tasa: 0, demora: 0, plazo: 3, busquedas: [], pend: [], chats: {}, resp: [], notifs: [] },
             reg: { chips: {} },
           };
         }
         let S = freshState();
-        const timers = [];
         let cargandoSesion = false;
         let editandoPerfil = false;
         let EDIT_BACKUP = null; // datos guardados al entrar en edición, para poder cancelar
@@ -4171,13 +3912,13 @@
         }
         // La landing vive en el HTML (#root). home() reutiliza ese HTML y solo ajusta lo que depende de la sesión.
         function landingHref() {
-          return (ME.id || ME.demo) ? (ME.rol === "e" ? "#/e/panel" : "#/c/feed") : "#/login";
+          return ME.id ? (ME.rol === "e" ? "#/e/panel" : "#/c/feed") : "#/login";
         }
         function navCuenta() {
-          if (!(ME.id || ME.demo)) return '<nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>';
+          if (!ME.id) return '<nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>';
           const emp = ME.rol === "e";
           const to = emp ? "#/e/panel" : "#/c/feed";
-          const img = ME.demo ? (emp ? "img/logo-cafe-mercado.png" : "img/avatar-tomas.png") : (ME.avatarUrl || phSrc());
+          const img = ME.avatarUrl || phSrc();
           return `<nav aria-label="Cuenta"><a href="${emp ? "#/e/salir" : "#/c/salir"}">Cerrar sesión</a><a href="${to}" class="top-av" aria-label="Ir a ${emp ? "el panel" : "el feed"}"><img loading="lazy" decoding="async" src="${img}" alt="" style="width:48px;height:48px;border-radius:12px;object-fit:cover;background:#fff;display:block"></a></nav>`;
         }
         function home() {
@@ -4210,7 +3951,7 @@
       <button class="btn out" type="button" data-go="#/recuperar">¿Has olvidado tu contraseña?</button>
     </div>
   </form>
-  <p class="linkline" style="margin-top:56px">¿Aún no te has registrado?<button data-go="#/registro">Registraté</button></p>${DEMO_VISIBLE ? `<p class="linkline" style="margin-top:14px">Demo (sin base de datos):<button data-action="demo" data-kind="c">Entrar como candidato</button><button data-action="demo" data-kind="e">Entrar como empresa</button></p>` : ""}
+  <p class="linkline" style="margin-top:56px">¿Aún no te has registrado?<button data-go="#/registro">Registraté</button></p>
   `);
         }
         function recuperar() {
@@ -4339,12 +4080,6 @@
         }
 
         /* ================= CANDIDATO ================= */
-        function ofertasVisiblesParaUsuario(ofertas, demo) {
-          return demo ? ofertas : ofertas.filter((o) => o.real === true);
-        }
-        function puedeAplicarOferta(oferta, demo) {
-          return !!oferta && (demo || oferta.real === true);
-        }
         function offerById(id) {
           return S.c.ofertas.find((o) => o.id === id);
         }
@@ -4385,7 +4120,7 @@
           const o = S.c.ofertas[S.c.idx];
           let inner = hdr(WM);
           if (!o) {
-            const sinBusquedasReales = !ME.demo && S.c.ofertas.length === 0;
+            const sinBusquedasReales = S.c.ofertas.length === 0;
             inner += `<div class="empty"><p style="font-size:18px;color:var(--white);font-weight:600">${sinBusquedasReales ? "Todavía no hay búsquedas publicadas" : "Viste todas las búsquedas de hoy"}</p><p>${sinBusquedasReales ? "Cuando una empresa publique una oportunidad, vas a poder encontrarla acá." : "Mañana te mostramos nuevas oportunidades para tu perfil. Mientras tanto, seguí tus postulaciones."}</p><button class="btn out sm" data-go="#/c/postulaciones">Ver mis postulaciones</button>${sinBusquedasReales ? "" : '<button class="btn out sm" data-action="feed-reset">Volver a ver las búsquedas</button>'}</div>`;
             return shell("c", "#/c/feed", inner);
           }
@@ -4407,7 +4142,7 @@
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
     <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
-    <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || (ME.demo ? "img/logo-cafe-mercado.png" : phSrc())}" alt="${esc(o.emp)}"></div>
+    <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || phSrc()}" alt="${esc(o.emp)}"></div>
     <p class="note-match" style="max-width:342px">Ya podés coordinar los próximos pasos en el chat.</p>
   </div>
   <div class="stack" style="margin-top:60px"><button class="btn pri" data-go="#/c/chat/${o.id}">Escribirle ahora</button><button class="btn out" data-go="#/c/feed">Seguir viendo búsquedas</button></div>
@@ -4441,16 +4176,7 @@
         }
         function avatarOf(kind, k) {
           const ch = (kind === "e" ? S.e.chats : S.c.chats)[k];
-          if (ch?.avatar)
-            return `<img loading="lazy" decoding="async" class="avatar" src="${esc(ch.avatar)}" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">`;
-          if (!ME.demo) return avPh("width:44px;height:44px;border-radius:12px");
-          if (kind === "e")
-            return k === "tomas"
-              ? '<img loading="lazy" decoding="async" class="avatar" src="img/avatar-tomas.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
-              : '<span class="avatar" style="width:44px;height:44px;border-radius:12px;background:var(--navy2)"></span>';
-          return k === "cafe"
-            ? '<img loading="lazy" decoding="async" class="avatar" src="img/logo-cafe-mercado.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
-            : '<span class="sq" style="width:44px;height:44px;border-radius:12px"></span>';
+          return avPh("width:44px;height:44px;border-radius:12px", ch?.avatar);
         }
         function convItems(kind, active) {
           const chats = kind === "e" ? S.e.chats : S.c.chats;
@@ -4512,7 +4238,7 @@
           const env = S.c.posts.length,
             resp = S.c.posts.filter((p) => p.estado === "Respondida").length,
             mt = S.c.posts.filter((p) => p.match).length;
-          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
+          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">${[
     [env, "enviadas"],
     [resp, "respuestas"],
@@ -4535,9 +4261,9 @@
         }
         function profHead(kind) {
           if (kind === "e") {
-            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
+            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
           }
-          return `<div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
+          return `<div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
         }
         function configScreen(kind) {
           const e = kind === "e";
@@ -4552,30 +4278,8 @@
           return shell(kind, e ? "#/e/empresa" : "#/c/perfil", inner);
         }
         function cDatos() {
-          const EJEMPLO = [
-            ["Edad", "20"],
-            ["Ubicación", "Lomas de Zamora"],
-            ["Experiencia", "Sin experiencia"],
-            ["Tipo de empleo", "Part Time"],
-            ["Modalidad", "Presencial"],
-            ["Horario", "Mañana"],
-          ];
-          const campos = ME.demo
-            ? {
-                "rc-edad": "20",
-                "rc-ubi": "Lomas de Zamora",
-                "rc-puesto": "Ayudante de cocina",
-                "rc-sobre": "Soy Tomás Ferreyra, busco mis primeras experiencias.",
-              }
-            : ME.datos?.campos || {};
-          const chips = ME.demo
-            ? {
-                tipo: ["Part Time"],
-                modo: ["Presencial"],
-                hora: ["Mañana"],
-                rubros: ["Gastronomía", "Ventas"],
-              }
-            : ME.datos?.chips || {};
+          const campos = ME.datos?.campos || {};
+          const chips = ME.datos?.chips || {};
           if (editandoPerfil) {
             const inner = `<div style="max-width:720px"><div class="hdr"><button class="back" data-action="cancelar-edicion">‹&nbsp;&nbsp;Cancelar</button></div>
       <h1 class="t-title" style="margin-bottom:18px">Editar datos personales</h1>
@@ -4600,9 +4304,7 @@
           const exp = [campos["rx-puesto"], campos["rx-emp"], campos["rx-dur"]]
             .filter((x) => x && String(x).trim())
             .join(" · ");
-          const filas = ME.demo
-            ? EJEMPLO
-            : [
+          const filas = [
                 ["Correo", ME.email],
                 ["Edad", campos["rc-edad"]],
                 ["Ubicación", campos["rc-ubi"]],
@@ -4617,18 +4319,13 @@
             const txt = Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
             return txt.trim() ? esc(txt) : '<span style="color:var(--t3)">Sin completar</span>';
           };
-          const subt = ME.demo
-            ? "Lomas de Zamora · Busco mi primer trabajo"
-            : campos["rc-ubi"]
+          const subt = campos["rc-ubi"]
               ? esc(campos["rc-ubi"])
               : "";
-          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
+          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${campos["rc-sobre"] ? `<p class="t-sec">Sobre mí</p><p style="color:var(--t2);line-height:1.6">${esc(campos["rc-sobre"])}</p>` : ""}
-  ${
-    ME.demo
-      ? ""
-      : `<div class="rowline"><span>Currículum (PDF)</span><span class="v">${ME.datos?.cv ? esc(ME.datos.cv.nombre) : '<span style="color:var(--t3)">Sin cargar</span>'}</span></div>
+  ${`<div class="rowline"><span>Currículum (PDF)</span><span class="v">${ME.datos?.cv ? esc(ME.datos.cv.nombre) : '<span style="color:var(--t3)">Sin cargar</span>'}</span></div>
   <div class="stack" style="margin-top:12px">${ME.datos?.cv ? `<button class="btn out sm" data-action="ver-cv" data-cv="${esc(ME.datos.cv.path)}">Ver mi CV</button>` : ""}<label class="btn out sm" for="cv-up" style="cursor:pointer">${ME.datos?.cv ? "Reemplazar CV" : "Subir CV"}</label><input id="cv-up" type="file" accept=".pdf,application/pdf" hidden></div>`
   }
   <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar mis datos</button></div>`;
@@ -4658,19 +4355,7 @@
           const pendCard = p
             ? `<a class="card" data-bsel="all" href="#/e/candidatos" style="display:block;text-decoration:none"><h2 style="font-size:20px;font-weight:500;line-height:1.3;margin-bottom:10px">Te faltan responder ${p} postulaci${p === 1 ? "ón" : "ones"}</h2><p class="t-note">La más vieja lleva ${vieja.hace} días esperando. Te quedan ${vieja.quedan} para contestarla sin que baje tu tasa.</p></a>`
             : `<div class="card"><h2 style="font-size:20px;font-weight:500;margin-bottom:8px">Estás al día</h2><p class="t-note">Respondiste todas las postulaciones. Ya podés publicar una búsqueda nueva.</p></div>`;
-          const camposEmpresa = ME.demo ? {} : ME.datos?.campos || {};
-          const busquedasEmpresa = ME.demo
-            ? S.e.busquedas
-            : S.e.busquedas.length
-              ? S.e.busquedas
-              : [
-                  {
-                    id: "registro",
-                    puesto: camposEmpresa["re-puesto"] || "Búsqueda de empleo",
-                    total: 0,
-                    estado: "Activa",
-                  },
-                ];
+          const busquedasEmpresa = S.e.busquedas;
           const inner = `<div class="hdr">${WM_INV}<span class="side">${esc(miNombre("e"))}</span></div>
   <h1 class="t-title only-d" style="margin-bottom:20px">Búsquedas</h1>
   <div class="grid2" style="gap:12px">${pendCard}
@@ -4714,14 +4399,12 @@
         }
         let candFilter = "pend";
         let candBusqueda = "all"; // 'all' o id de búsqueda
-        // Postulación -> búsqueda. En demo, los postulantes sin oferta pertenecen a b1.
+        // Postulación -> búsqueda asociada en Supabase.
         function ofertaDe(c) {
-          return c.oferta_id || (ME.demo ? "b1" : null);
+          return c.oferta_id || null;
         }
         function ePuestoActual() {
-          return ME.demo
-            ? "Ayudante de cocina"
-            : (ME.datos?.campos || {})["re-puesto"] || "Búsqueda de empleo";
+          return (ME.datos?.campos || {})["re-puesto"] || "Búsqueda de empleo";
         }
 let EDIT_BUSQUEDA = null; // id de la búsqueda en edición
         function eBusqueda(id) {
@@ -4770,7 +4453,7 @@ let EDIT_BUSQUEDA = null; // id de la búsqueda en edición
           b.jornada = [...(S.reg.chips.pjor || [])];
           b.turno = [...(S.reg.chips.ptur || [])];
           EDIT_BUSQUEDA = null;
-          if (!ME.demo) await DB.guardarBusqueda(b);
+          await DB.guardarBusqueda(b);
           toast("Búsqueda actualizada.");
           render(true);
         }
@@ -4778,10 +4461,8 @@ async function toggleBusqueda(id) {
           const b = S.e.busquedas.find((x) => x.id === id);
           if (!b) return;
           const nuevo = b.estado === "Pausada" ? "Activa" : "Pausada";
-          if (!ME.demo) {
-            const ok = await DB.cambiarEstadoBusqueda(b.id, nuevo);
-            if (!ok) return;
-          }
+          const ok = await DB.cambiarEstadoBusqueda(b.id, nuevo);
+          if (!ok) return;
           b.estado = nuevo;
           toast(nuevo === "Pausada" ? "Búsqueda pausada." : "Búsqueda reactivada.");
           render(true);
@@ -4790,11 +4471,9 @@ async function toggleBusqueda(id) {
           const b = S.e.busquedas.find((x) => x.id === id);
           if (!b) return;
           if (!window.confirm(`¿Eliminar “${b.puesto}”? Se borran también sus postulaciones y chats.`)) return;
-          if (!ME.demo) {
-            const ok = await DB.borrarBusqueda(id);
-            if (!ok) return;
-            await hidratar();
-          }
+          const ok = await DB.borrarBusqueda(id);
+          if (!ok) return;
+          await hidratar();
           S.e.busquedas = S.e.busquedas.filter((x) => x.id !== id);
           S.e.pend = S.e.pend.filter((p) => ofertaDe(p) !== id);
           S.e.resp = S.e.resp.filter((r) => r.oid !== id);
@@ -4927,7 +4606,7 @@ async function toggleBusqueda(id) {
             .format(new Date())
             .replace(/^./, (c) => c.toUpperCase());
           const inner = `<div style="max-width:720px"><h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
   <div class="card"><div class="row2"><div><p class="bignum">${S.e.tasa}%</p><p class="t-note">de respuesta</p></div><div><p class="bignum">${S.e.demora} días</p><p class="t-note">de demora</p></div></div><div class="progress" style="margin:14px 0"><i style="width:${S.e.tasa}%"></i></div><p class="t-note">Con 90% o más entrás en el grupo de empresas destacadas y tus búsquedas aparecen primero.</p></div>
   <h2 class="t-sec">Historial de respuesta</h2>
   ${[[mesActual, S.e.tasa]].map(([m, v]) => `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>${m}</span><span>${v}%</span></div><div class="progress"><i style="width:${v}%;background:var(--navy)"></i></div></div>`).join("")}
@@ -4936,18 +4615,8 @@ async function toggleBusqueda(id) {
           return shell("e", "#/e/empresa", inner);
         }
         function eDatos() {
-          const campos = ME.demo
-            ? {
-                "re-resp": "Carolina Gómez",
-                "re-puesto": "Ayudante de cocina",
-                "re-rubro": "Gastronomía",
-                "re-tam": "12 empleados",
-                "re-ubi": "Lomas de Zamora",
-                "re-desc":
-                  "Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.",
-              }
-            : ME.datos?.campos || {};
-          const chips = ME.demo ? {} : ME.datos?.chips || {};
+          const campos = ME.datos?.campos || {};
+          const chips = ME.datos?.chips || {};
           if (editandoPerfil) {
             const inner = `<div style="max-width:720px"><div class="hdr"><button class="back" data-action="cancelar-edicion">‹&nbsp;&nbsp;Cancelar</button></div>
       <h1 class="t-title" style="margin-bottom:18px">Editar datos de la empresa</h1>
@@ -4968,35 +4637,25 @@ async function toggleBusqueda(id) {
       </form></div>`;
             return shell("e", "#/e/empresa", inner);
           }
-          const filas = ME.demo
-            ? [
-                ["Rubro", "Gastronomía"],
-                ["Ubicación", "Lomas de Zamora"],
-                ["Tamaño", "12 empleados"],
-              ]
-            : [
-                ["Responsable", campos["re-resp"]],
-                ["Puesto a cubrir", campos["re-puesto"]],
-                ["Rubro", campos["re-rubro"]],
-                ["Tamaño", campos["re-tam"]],
-                ["Ubicación", campos["re-ubi"]],
-                ["Sector", chips.esector],
-                ["Tipo de empleo", chips.etipo],
-                ["Experiencia requerida", chips.eexp],
-                ["Modalidad", chips.emodo],
-                ["Horario", chips.ehora],
-              ];
+          const filas = [
+            ["Responsable", campos["re-resp"]],
+            ["Puesto a cubrir", campos["re-puesto"]],
+            ["Rubro", campos["re-rubro"]],
+            ["Tamaño", campos["re-tam"]],
+            ["Ubicación", campos["re-ubi"]],
+            ["Sector", chips.esector],
+            ["Tipo de empleo", chips.etipo],
+            ["Experiencia requerida", chips.eexp],
+            ["Modalidad", chips.emodo],
+            ["Horario", chips.ehora],
+          ];
           const fmt = (v) => {
             const t = Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
             return t.trim() ? esc(t) : '<span style="color:var(--t3)">Sin completar</span>';
           };
-          const descr = ME.demo
-            ? "Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.<br>No es necesario contar con experiencia previa: valoramos principalmente la responsabilidad, las ganas de aprender, el compromiso y la buena predisposición."
-            : campos["re-desc"]
-              ? esc(campos["re-desc"]).replace(/\n/g, "<br>")
-              : "";
+          const descr = campos["re-desc"] ? esc(campos["re-desc"]).replace(/\n/g, "<br>") : "";
           const inner = `<div style="max-width:720px">${hdr(backBtn("#/e/empresa"), '<button class="back" data-action="editar-perfil" style="color:var(--navy);font-weight:700">Editar</button>')}<h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${descr ? `<h2 class="t-sec">Descripción</h2><p style="line-height:1.6">${descr}</p>` : ""}
   <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar datos empresariales</button></div>`;
@@ -5063,14 +4722,6 @@ async function toggleBusqueda(id) {
           card.addEventListener("pointercancel", endDrag);
         }
 
-        function later(ms, fn) {
-          timers.push(
-            setTimeout(() => {
-              fn();
-              softRender();
-            }, ms),
-          );
-        }
         function softRender() {
           // re-render sin perder lo que se está escribiendo
           const a = document.activeElement;
@@ -5088,147 +4739,32 @@ async function toggleBusqueda(id) {
         async function apply(oid) {
           const o = offerById(oid);
           if (!o || applied(oid) || S.c.cupo <= 0) return;
-          if (!puedeAplicarOferta(o, ME.demo)) {
+          if (o.real !== true) {
             toast("Esta búsqueda ya no está disponible.");
             return;
           }
-          if (!ME.demo) {
-            const post = {
-              id: "p" + crypto.randomUUID(),
-              oid,
-              puesto: o.puesto,
-              emp: o.emp,
-              estado: "Enviada",
-              pie: "Enviada recién",
-            };
-            const restante = await DB.postular(post, oid);
-            if (restante === null) {
-              render();
-              return;
-            }
-            S.c.cupo = restante;
-            S.c.posts.unshift(post);
-            S.c.idx++;
-            toast(
-              `Te postulaste a ${o.puesto}. ${S.c.cupo > 0 ? `Te quedan ${S.c.cupo}.` : "Usaste tu cupo semanal."}`,
-            );
-            render();
-            return;
-          }
-          S.c.cupo--;
-          DB.setCupo(S.c.cupo);
-          if (o.match) {
-            const post = {
-              id: "p" + Date.now(),
-              oid,
-              puesto: o.puesto,
-              emp: o.emp,
-              estado: "Respondida",
-              pie: "Te contestaron recién",
-              match: true,
-              chat: oid,
-            };
-            const msg = {
-              de: "them",
-              t: `¡Hola ${miPrimerNombre()}! Vimos tu perfil y nos interesa. ¿Podés venir el jueves a las 16?`,
-              h: now(),
-            };
-            S.c.posts.unshift(post);
-            S.c.chats[oid] = {
-              con: o.emp,
-              puesto: o.puesto,
-              tasa: o.tasa,
-              match: true,
-              msgs: [msg],
-              auto: [
-                "Av. Meeks 250, Lomas. Preguntá por Caro en el mostrador.",
-                "¡Genial! Nos vemos el jueves.",
-                "Perfecto, cualquier cosa escribinos por acá.",
-              ],
-            };
-            DB.guardarPostulacion(post, oid, chatMeta(S.c.chats[oid]));
-            DB.nuevoMensaje("c:" + oid, msg.de, msg.t, msg.h);
-            S.c.notifs.unshift({
-              t: "¡Hay match!",
-              cuando: "ahora",
-              d: `${o.emp} también quiere hablar con vos por ${o.puesto}.`,
-              go: "#/c/chat/" + oid,
-              nuevo: true,
-            });
-            S.c.idx++;
-            go("#/c/match/" + oid);
-            return;
-          }
           const post = {
-            id: "p" + Date.now(),
+            id: "p" + crypto.randomUUID(),
             oid,
             puesto: o.puesto,
             emp: o.emp,
             estado: "Enviada",
             pie: "Enviada recién",
           };
+          const restante = await DB.postular(post, oid);
+          if (restante === null) {
+            render();
+            return;
+          }
+          S.c.cupo = restante;
           S.c.posts.unshift(post);
-          DB.guardarPostulacion(post, oid, null);
           S.c.idx++;
           toast(
             `Te postulaste a ${o.puesto}. ${S.c.cupo > 0 ? `Te quedan ${S.c.cupo}.` : "Usaste tu cupo semanal."}`,
           );
-          if (S.c.cupo === 0)
-            S.c.notifs.unshift({
-              t: "Usaste tus 5 postulaciones",
-              d: "Se libera tu cupo el lunes. Mientras tanto, seguí tus postulaciones.",
-              go: "#/c/postulaciones",
-              nuevo: true,
-            });
-          later(6000, () => {
-            post.estado = "Vista";
-            post.pie = "La vieron recién";
-            DB.guardarPostulacion(post, oid, null);
-            S.c.notifs.unshift({
-              t: "Tu postulación fue vista",
-              cuando: "ahora",
-              d: `${o.emp} abrió tu perfil. Tiene 7 días para contestarte.`,
-              go: "#/c/postulaciones",
-              nuevo: true,
-            });
-            toast(`${o.emp} vio tu postulación`);
-          });
-          later(14000, () => {
-            post.estado = "Respondida";
-            post.pie = "Te contestaron recién";
-            post.chat = oid;
-            const msg = {
-              de: "them",
-              t: `Hola ${miPrimerNombre()}, gracias por postularte a ${o.puesto}. Nos gustaría conocerte. ¿Te queda bien pasar el miércoles a las 15?`,
-              h: now(),
-            };
-            S.c.chats[oid] = { con: o.emp, puesto: o.puesto, tasa: o.tasa, match: false, msgs: [msg] };
-            DB.guardarPostulacion(post, oid, chatMeta(S.c.chats[oid]));
-            DB.nuevoMensaje("c:" + oid, msg.de, msg.t, msg.h);
-            S.c.notifs.unshift({
-              t: "Te contestaron",
-              cuando: "ahora",
-              d: `${o.emp} respondió tu postulación a ${o.puesto}.`,
-              go: "#/c/chat/" + oid,
-              nuevo: true,
-            });
-            toast(`${o.emp} te respondió`);
-          });
           render();
         }
 
-        const AUTO = {
-          c: [
-            "¡Genial! Te esperamos. Cualquier duda escribinos por acá.",
-            "Perfecto, lo anotamos. Traé el DNI el día de la entrevista.",
-            "Gracias por responder rápido. Te confirmamos mañana.",
-          ],
-          e: [
-            "¡Dale! Muchas gracias por la oportunidad.",
-            "Perfecto, ahí estaré. ¿Tengo que llevar algo?",
-            "Buenísimo, cualquier cosa les escribo por acá.",
-          ],
-        };
         async function sendChat(kind, id, text) {
           const chats = kind === "e" ? S.e.chats : S.c.chats;
           const c = chats[id];
@@ -5241,23 +4777,6 @@ async function toggleBusqueda(id) {
           const saved = await DB.nuevoMensaje(key, "me", body, h);
           if (saved?.id) c.msgs[c.msgs.length - 1].dbId = saved.id;
           render(true);
-          if (ME.demo) {
-            timers.push(
-              setTimeout(() => {
-                c.typing = true;
-                softRender();
-              }, 700),
-            );
-            timers.push(
-              setTimeout(() => {
-                c.typing = false;
-                const m = { de: "them", t: (c.auto || AUTO[kind])[(c.n - 1) % 3], h: now() };
-                c.msgs.push(m);
-                DB.nuevoMensaje(key, "them", m.t, m.h);
-                softRender();
-              }, 2400),
-            );
-          }
         }
 
         async function enviarResp(id, tipo, text) {
@@ -5270,7 +4789,7 @@ async function toggleBusqueda(id) {
           S.e.resp.unshift(rec);
           S.e.tasa = calcTasa();
           DB.setTasa(S.e.tasa);
-          const abreChat = tipo === "si" || (ME.demo && tipo === "mas");
+          const abreChat = tipo === "si";
           if (abreChat) {
             rec.chat = c.id;
             const key = "chat:" + c.id;
@@ -5306,27 +4825,6 @@ async function toggleBusqueda(id) {
               go: "#/e/chat/" + c.id,
               nuevo: true,
             });
-          if (ME.demo && abreChat)
-            later(3500, () => {
-              const ch = S.e.chats[c.id];
-              if (ch) {
-                const t =
-                  tipo === "si"
-                    ? "¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?"
-                    : "¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.";
-                const m = { de: "them", t, h: now() };
-                ch.msgs.push(m);
-                DB.nuevoMensaje("chat:" + c.id, "them", t, m.h);
-                S.e.notifs.unshift({
-                  t: `${c.corto} te escribió`,
-                  cuando: "ahora",
-                  d: ePuestoActual(),
-                  go: "#/e/chat/" + c.id,
-                  nuevo: true,
-                });
-                toast(`${c.corto} te respondió`);
-              }
-            });
           tplSel = null;
           toast(`Respuesta enviada a ${c.corto}. Tu tasa de respuesta es ahora ${S.e.tasa}%.`);
           if (!S.e.pend.length)
@@ -5357,8 +4855,8 @@ async function toggleBusqueda(id) {
             "registro",
             "confirmar",
           ];
-          if (!ME.id && !ME.demo && a && !PUBLICAS.includes(a)) return login();
-          if ((ME.id || ME.demo) && ((a === "c" && ME.rol !== "c") || (a === "e" && ME.rol !== "e"))) {
+          if (!ME.id && a && !PUBLICAS.includes(a)) return login();
+          if (ME.id && ((a === "c" && ME.rol !== "c") || (a === "e" && ME.rol !== "e"))) {
             go(ME.rol === "e" ? "#/e/panel" : "#/c/feed");
             return "";
           }
@@ -5674,17 +5172,10 @@ async function toggleBusqueda(id) {
             return;
           }
           if (act === "logout") {
-            timers.forEach(clearTimeout);
-            timers.length = 0;
-            const eraDemo = ME.demo;
-            ME = { id: null, rol: null, nombre: null, demo: false };
+            ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null };
             S = freshState();
-            if (!eraDemo) sb.auth.signOut();
+            sb.auth.signOut();
             go("#/login");
-            return;
-          }
-          if (act === "demo") {
-            entrarDemo(t.dataset.kind);
             return;
           }
           if (act === "pub-next") {
@@ -5768,7 +5259,7 @@ async function toggleBusqueda(id) {
             };
             ME.nombre = nom;
             ME.datos = { ...(ME.datos || {}), campos: nuevosCampos, chips: { ...S.reg.chips } };
-            if (!ME.demo) await DB.guardarDatosPerfil(nom, ME.datos);
+            await DB.guardarDatosPerfil(nom, ME.datos);
           } else {
             const nom = (document.getElementById("ede-nom")?.value || "").trim() || miNombre("e");
             const nuevosCampos = {
@@ -5783,7 +5274,7 @@ async function toggleBusqueda(id) {
             };
             ME.nombre = nom;
             ME.datos = { ...(ME.datos || {}), campos: nuevosCampos, chips: { ...S.reg.chips } };
-            if (!ME.demo) await DB.guardarDatosPerfil(nom, ME.datos);
+            await DB.guardarDatosPerfil(nom, ME.datos);
           }
           EDIT_BACKUP = null;
           S.reg.chips = {};
@@ -5843,7 +5334,7 @@ async function toggleBusqueda(id) {
         }
         let mensajesChannel = null;
         function suscribirMensajesRealtime() {
-          if (mensajesChannel || ME.demo || !ME.id) return;
+          if (mensajesChannel || !ME.id) return;
           mensajesChannel = sb
             .channel("mensajes-" + ME.id)
             .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensajes" }, (payload) => {
@@ -5876,16 +5367,17 @@ async function toggleBusqueda(id) {
             return null;
           });
           if (!d) return;
-          const base = freshState();
           const perf = d.perfiles[0];
           if (ME.rol === "c" && d.cupo != null) S.c.cupo = d.cupo;
-          if (perf && ME.rol === "e") S.e.tasa = perf.tasa;
+          if (perf && ME.rol === "e") {
+            S.e.tasa = perf.tasa ?? 0;
+            S.e.demora = perf.demora ?? 0;
+            S.e.plazo = perf.plazo ?? 3;
+          }
           // Candidato: postulaciones y chats creados
           const dbPosts = d.postulaciones.map((r) => ({ ...r.datos.post, estado: r.estado }));
-          const postIds = new Set(dbPosts.map((p) => p.id));
-          S.c.posts =
-            ME.rol === "c" ? dbPosts : [...dbPosts, ...base.c.posts.filter((p) => !postIds.has(p.id))];
-          S.c.chats = ME.rol === "c" ? {} : { ...base.c.chats };
+          S.c.posts = dbPosts;
+          S.c.chats = {};
           if (ME.rol === "c")
             (d.chats || []).forEach((ch) => {
               const r = d.postulaciones.find((p) => p.id === ch.postulacion_id);
@@ -5902,12 +5394,9 @@ async function toggleBusqueda(id) {
               };
               if (post) post.chat = ch.id;
             });
-          if (ME.rol === "c")
-            S.c.notifs = base.c.notifs.filter(
-              (n) => !/(Farmacia Sur|Supermercado Norte)/i.test((n.t || "") + " " + (n.d || "")),
-            );
+          S.c.notifs = [];
+          S.e.notifs = [];
           // Empresa: búsquedas y candidatos respondidos
-          if (ME.rol === "e") S.e.notifs = [];
           const dbBus = d.busquedas.map((b) => ({
             id: b.id,
             puesto: b.puesto,
@@ -5917,9 +5406,7 @@ async function toggleBusqueda(id) {
             jornada: b.jornada || [],
             turno: b.turno || [],
           }));
-          const busIds = new Set(dbBus.map((b) => b.id));
-          S.e.busquedas =
-            ME.rol === "e" ? dbBus : [...dbBus, ...base.e.busquedas.filter((b) => !busIds.has(b.id))];
+          S.e.busquedas = dbBus;
           const estados = new Map(d.candidatosEstado.map((r) => [r.id, r]));
           const perfilesPorId = new Map((d.candidatos || []).map((p) => [p.id, p]));
           const postulantes = d.postulaciones.map((r) => {
@@ -5994,7 +5481,7 @@ async function toggleBusqueda(id) {
             };
           });
           if (ME.rol === "c") {
-            S.c.ofertas = ofertasVisiblesParaUsuario(ofertasReales, ME.demo);
+            S.c.ofertas = ofertasReales;
             S.c.idx = 0;
           }
           Object.keys(S.c.chats).forEach((k) => {
@@ -6099,10 +5586,6 @@ async function toggleBusqueda(id) {
         let ultimoCorreo = "";
         let inputFoto = null;
         function abrirSelectorFoto() {
-          if (ME.demo) {
-            toast("En modo demo no se guardan cambios. Iniciá sesión para cambiar tu foto.");
-            return;
-          }
           if (!ME.id) return;
           if (!inputFoto) {
             inputFoto = document.createElement("input");
@@ -6350,12 +5833,7 @@ async function toggleBusqueda(id) {
           );
         }
 
-        // Demo: sin login y sin escrituras en la base. Para quitarla, poner en false o borrar este bloque.
-        const DEMO_HABILITADO = true;
-        // Las cuentas de demo no se ofrecen en el dominio de producción
-        const DEMO_VISIBLE = DEMO_HABILITADO && ENTORNO !== "prod";
-        function miNombre(kind) {
-          if (ME.demo) return kind === "e" ? "Café Mercado" : "Tomás Ferreyra";
+        function miNombre() {
           return ME.nombre || "";
         }
         function phSrc() {
@@ -6363,18 +5841,15 @@ async function toggleBusqueda(id) {
           const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${fill}"/><circle cx="50" cy="40" r="18" fill="#FFFFFF" fill-opacity=".35"/><path d="M20 100Q20 64 50 64Q80 64 80 100Z" fill="#FFFFFF" fill-opacity=".35"/></svg>`;
           return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
         }
-        function fotoSrc(defecto) {
-          if (ME.demo) return defecto;
+        function fotoSrc() {
           return ME.avatarUrl || phSrc();
         }
         function avPh(size, avatarUrl) {
-          if (ME.demo) return `<span class="avatar" style="${size};background:var(--navy2)"></span>`;
           return avatarUrl
             ? `<img loading="lazy" decoding="async" class="avatar" src="${esc(avatarUrl)}" alt="" style="${size}">`
             : `<img loading="lazy" decoding="async" class="avatar" src="${phSrc()}" alt="" style="${size}">`;
         }
         function subtituloEmpresa() {
-          if (ME.demo) return "Gastronomía · 12 empleados · Lomas de Zamora";
           const c = ME.datos?.campos || {};
           return [c["re-rubro"], c["re-tam"], c["re-ubi"]]
             .filter((x) => x && String(x).trim())
@@ -6382,19 +5857,12 @@ async function toggleBusqueda(id) {
             .join(" · ");
         }
         function subtituloCandidato() {
-          if (ME.demo) return "Lomas de Zamora · Busco mi primer trabajo";
           const u = (ME.datos?.campos || {})["rc-ubi"];
           return u ? esc(u) : "";
         }
         const formatoFotoOK = ["image/jpeg", "image/png", "image/webp"];
         function miPrimerNombre() {
           return miNombre().split(" ")[0] || "";
-        }
-        function entrarDemo(kind) {
-          if (!DEMO_VISIBLE) return;
-          ME = { id: null, rol: kind, nombre: null, demo: true };
-          S = freshState();
-          go(kind === "e" ? "#/e/panel" : "#/c/feed");
         }
         async function asegurarBusquedaEmpresa() {
           if (ME.rol !== "e" || !ME.id) return;
@@ -6417,17 +5885,16 @@ async function toggleBusqueda(id) {
         async function setSesion(session) {
           if (!session) {
             cargandoSesion = false;
-            ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null, demo: false };
+            ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null };
             S = freshState();
             return;
           }
-          const yaCargado = ME.id === session.user.id && !!ME.rol && !ME.demo;
+          const yaCargado = ME.id === session.user.id && !!ME.rol;
           if (!yaCargado) {
             cargandoSesion = true;
             render();
           }
           ME.id = session.user.id;
-          ME.demo = false;
           const { data: perfil } = await sb
             .from("perfiles")
             .select("rol,nombre,datos,avatar_url")
@@ -6447,7 +5914,6 @@ async function toggleBusqueda(id) {
           if (ME.rol === "e" && !yaCargado) await asegurarBusquedaEmpresa();
           if (!yaCargado) {
             S = freshState();
-            if (ME.rol === "c") S.c.ofertas = [];
           }
           await hidratar();
           cargandoSesion = false;

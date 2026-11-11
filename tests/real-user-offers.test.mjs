@@ -1,86 +1,64 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import vm from "node:vm";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 
-function loadFunction(name) {
-  const match = html.match(new RegExp(`function ${name}\\([^)]*\\) \\{[\\s\\S]*?\\n        \\}`));
-  assert.ok(match, `No se encontró la función ${name} en index.html`);
-  return vm.runInNewContext(`(${match[0]})`);
+function extractFunction(name) {
+  const start = html.indexOf(`function ${name}(`);
+  assert.notEqual(start, -1, `No se encontró la función ${name}`);
+  const next = html.indexOf("\n        }", start);
+  assert.notEqual(next, -1, `No se pudo delimitar ${name}`);
+  return html.slice(start, next + "\n        }".length);
 }
 
-const ofertasVisiblesParaUsuario = loadFunction("ofertasVisiblesParaUsuario");
-const puedeAplicarOferta = loadFunction("puedeAplicarOferta");
-
-test("una cuenta real solo ve ofertas provenientes de Supabase", () => {
-  const ofertas = [
-    { id: "db-1", real: true },
-    { id: "demo-1" },
-    { id: "demo-2", real: false },
-  ];
-  assert.deepEqual(
-    Array.from(ofertasVisiblesParaUsuario(ofertas, false), (o) => o.id),
-    ["db-1"],
-  );
+test("el frontend ya no contiene un modo de acceso demo", () => {
+  assert.doesNotMatch(html, /ME\.demo|DEMO_VISIBLE|DEMO_HABILITADO|entrarDemo|data-action=["']demo/);
+  assert.doesNotMatch(html, /Café Mercado|Tomás Ferreyra|Farmacia Sur|Supermercado Norte/);
 });
 
-test("el modo demo conserva sus ofertas de ejemplo", () => {
-  const ofertas = [{ id: "demo-1" }, { id: "db-1", real: true }];
-  assert.deepEqual(
-    Array.from(ofertasVisiblesParaUsuario(ofertas, true), (o) => o.id),
-    ["demo-1", "db-1"],
-  );
+test("freshState comienza sin ofertas, postulaciones, chats ni notificaciones ficticias", () => {
+  const freshState = extractFunction("freshState");
+  assert.match(freshState, /ofertas:\s*\[\]/);
+  assert.match(freshState, /posts:\s*\[\]/);
+  assert.match(freshState, /chats:\s*\{\}/);
+  assert.match(freshState, /notifs:\s*\[\]/);
+  assert.match(freshState, /busquedas:\s*\[\]/);
+  assert.match(freshState, /pend:\s*\[\]/);
+  assert.doesNotMatch(freshState, /Café Mercado|Tomás Ferreyra|Ayudante de cocina/);
 });
 
-test("una cuenta real recibe una lista vacía si no hay ofertas reales", () => {
-  assert.equal(ofertasVisiblesParaUsuario([], false).length, 0);
-});
-
-test("una cuenta real no puede postularse a una oferta demo ni inexistente", () => {
-  assert.equal(puedeAplicarOferta({ id: "demo-1" }, false), false);
-  assert.equal(puedeAplicarOferta({ id: "demo-2", real: false }, false), false);
-  assert.equal(puedeAplicarOferta(null, false), false);
-  assert.equal(puedeAplicarOferta({ id: "db-1", real: true }, false), true);
-});
-
-test("apply bloquea ofertas no reales antes de modificar estado o guardar", () => {
-  const start = html.indexOf("async function apply(oid)");
-  assert.notEqual(start, -1);
-  const end = html.indexOf("\n        }", start);
-  const apply = html.slice(start, end);
-  const guard = apply.indexOf("if (!puedeAplicarOferta(o, ME.demo))");
-  assert.notEqual(guard, -1);
-  assert.ok(guard < apply.indexOf("S.c.cupo--"));
-  assert.ok(guard < apply.indexOf("DB.guardarPostulacion"));
-  assert.match(apply, /if \(!ME\.demo\)\s*\{/);
-});
-
-test("la hidratación reemplaza el feed con ofertas reales, sin anexar datos demo", () => {
+test("el feed del candidato se carga exclusivamente desde las búsquedas de Supabase", () => {
   const start = html.indexOf("async function hidratar()");
   const end = html.indexOf("\n        /* ---------- Autenticación", start);
-  const hydrate = html.slice(start, end);
-  assert.match(hydrate, /S\.c\.ofertas\s*=\s*ofertasVisiblesParaUsuario\(ofertasReales, ME\.demo\)/);
-  assert.doesNotMatch(hydrate, /\.\.\.S\.c\.ofertas/);
-});
-
-test("el login de un candidato real limpia las ofertas demo antes de hidratar", () => {
-  assert.match(html, /if \(!yaCargado\) \{\s*S = freshState\(\);\s*if \(ME\.rol === "c"\) S\.c\.ofertas = \[\];\s*\}\s*await hidratar\(\);/);
-});
-
-test("el feed informa cuando todavía no hay búsquedas reales", () => {
-  assert.match(html, /Todavía no hay búsquedas publicadas/);
-  assert.match(html, /const sinBusquedasReales = !ME\.demo && S\.c\.ofertas\.length === 0/);
-});
-
-test("la landing vuelve a renderizarse al recuperar una sesión con avatar", () => {
-  const start = html.indexOf("async function setSesion(session)");
-  const end = html.indexOf("\\n        document.addEventListener(\"db-error\"", start);
   assert.notEqual(start, -1);
-  const setSesion = html.slice(start, end);
-  assert.match(setSesion, /select\\("rol,nombre,datos,avatar_url"\\)/);
-  assert.match(setSesion, /ME\\.avatarUrl = perfil\\?\\.avatar_url \\|\\| null/);
-  assert.match(setSesion, /await hidratar\\(\\);\\s*cargandoSesion = false;[\\s\\S]{0,220}render\\(true\\);/);
-  assert.match(html, /const img = ME\\.demo \\?[\\s\\S]{0,180}ME\\.avatarUrl \\|\\| phSrc\\(\\)/);
+  const hydrate = html.slice(start, end);
+  assert.match(hydrate, /S\.c\.ofertas\s*=\s*ofertasReales/);
+  assert.match(hydrate, /S\.c\.posts\s*=\s*dbPosts/);
+  assert.match(hydrate, /S\.e\.busquedas\s*=\s*dbBus/);
+  assert.doesNotMatch(hydrate, /freshState|datos demo|ofertasVisiblesParaUsuario/);
+});
+
+test("apply valida que la oferta provenga de Supabase antes de ejecutar la postulación", () => {
+  const start = html.indexOf("async function apply(oid)");
+  const end = html.indexOf("\n        }", start);
+  assert.notEqual(start, -1);
+  const apply = html.slice(start, end);
+  const guard = apply.indexOf("if (o.real !== true)");
+  const postular = apply.indexOf("DB.postular(post, oid)");
+  const updateCupo = apply.indexOf("S.c.cupo = restante");
+  assert.notEqual(guard, -1);
+  assert.ok(guard < postular);
+  assert.ok(postular < updateCupo);
+  assert.doesNotMatch(apply, /ME\.demo|puedeAplicarOferta|setTimeout|later\(/);
+});
+
+test("el cierre de sesión siempre invalida la sesión de Supabase", () => {
+  assert.match(html, /sb\.auth\.signOut\(\)/);
+  assert.doesNotMatch(html, /salvo en demo|eraDemo/);
+});
+
+test("el acceso y la identidad ya no contemplan sesiones sin usuario", () => {
+  assert.match(html, /if \(!ME\.id && a && !PUBLICAS\.includes\(a\)\)/);
+  assert.doesNotMatch(html, /DEMO_VISIBLE|DEMO_HABILITADO|ME\.demo/);
 });
