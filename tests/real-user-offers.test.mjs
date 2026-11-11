@@ -85,6 +85,9 @@ test("el campo Sobre vos ofrece mejora con IA tanto en el registro como en edici
   assert.match(html, /if \(toggle\) toggle\.hidden = true/);
   assert.match(html, /ai: \{ sobreAplicado: regDraftAIUsed \}/);
   assert.match(html, /sobreAplicado: true/);
+  assert.match(html, /button\.dataset\.quotaExhausted = String\(d === 0 \|\| m === 0\)/);
+  assert.match(html, /button\.disabled = button\.dataset\.action === "mejorar-sobre"/);
+  assert.match(html, /toggle\.disabled = toggle\.dataset\.quotaExhausted === "true"/);
 });
 
 test("la integración no expone la clave de OpenAI en el frontend", () => {
