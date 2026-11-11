@@ -3235,6 +3235,26 @@
         }
       }
 
+      .ai-assist {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .ai-assist .ai-status {
+        margin: 0;
+      }
+      .ai-assist [id$="-wrap"] {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .ai-assist [id$="-wrap"][hidden] {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -4009,7 +4029,21 @@
             ? `<div class="hdr">${WM}${backBtn(back)}</div>`
             : `<div class="reg-top"><span class="reg-bar"></span>${backBtn(back)}</div>`;
         }
+        function sobreIA(inputId) {
+          const outputId = inputId + "-ia";
+          return `<div class="ai-assist">
+            <button class="btn out sm" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
+            <p class="hint ai-status" id="${outputId}-status" role="status" aria-live="polite"></p>
+            <div id="${outputId}-wrap" hidden>
+              <label class="flabel" for="${outputId}">Versión sugerida por IA</label>
+              <textarea class="field" id="${outputId}" aria-label="Versión sugerida por IA"></textarea>
+              <button class="btn pri sm" type="button" data-action="usar-sobre-ia" data-target="${inputId}" data-output="${outputId}">Usar esta versión</button>
+            </div>
+          </div>`;
+        }
         function writeHere(id) {
+          if (id === "rc-sobre")
+            return `<textarea class="field" id="${id}" placeholder="Escribí aquí">${esc(regDraft[id] || "")}</textarea>${sobreIA(id)}`;
           if (regDraft[id])
             return `<textarea class="field" id="${id}" placeholder="Escribí aquí">${esc(regDraft[id])}</textarea>`;
           return `<button class="btn pri" data-action="write" data-target="${id}">Escribí aquí</button>`;
@@ -4296,7 +4330,7 @@
         <p class="reg-lbl">Tipo de empleo</p>${chipToggles("tipo", TIPO)}
         <p class="reg-lbl">Modalidad</p>${chipToggles("modo", MODO)}
         <p class="reg-lbl">Horario</p>${chipToggles("hora", HORA)}
-        <div class="rf"><label class="flabel" for="ed-sobre">Sobre vos</label><textarea class="field" id="ed-sobre">${esc(campos["rc-sobre"] || "")}</textarea></div>
+        <div class="rf"><label class="flabel" for="ed-sobre">Sobre vos</label><textarea class="field" id="ed-sobre">${esc(campos["rc-sobre"] || "")}</textarea>${sobreIA("ed-sobre")}</div>
         <button class="btn pri" type="submit">Guardar cambios</button>
       </form></div>`;
             return shell("c", "#/c/perfil", inner);
@@ -5119,6 +5153,21 @@ async function toggleBusqueda(id) {
             render(true);
             return;
           }
+          if (act === "mejorar-sobre") {
+            mejorarSobre(t);
+            return;
+          }
+          if (act === "usar-sobre-ia") {
+            const original = document.getElementById(t.dataset.target);
+            const sugerido = document.getElementById(t.dataset.output);
+            if (original && sugerido && sugerido.value.trim()) {
+              original.value = sugerido.value.trim();
+              original.dispatchEvent(new Event("input", { bubbles: true }));
+              original.focus();
+              toast("Versión aplicada al campo original.");
+            }
+            return;
+          }
           if (act === "write") {
             const ta = document.createElement("textarea");
             ta.className = "field";
@@ -5237,6 +5286,44 @@ async function toggleBusqueda(id) {
             return;
           }
         });
+        async function mejorarSobre(button) {
+          const input = document.getElementById(button.dataset.target);
+          const outputId = button.dataset.output;
+          const output = document.getElementById(outputId);
+          const wrap = document.getElementById(outputId + "-wrap");
+          const status = document.getElementById(outputId + "-status");
+          const texto = (input?.value || "").trim();
+          if (!texto) {
+            toast("Escribí primero algo sobre vos para que la IA pueda mejorarlo.");
+            input?.focus();
+            return;
+          }
+          if (texto.length > 4000) {
+            toast("El texto no puede superar los 4.000 caracteres.");
+            return;
+          }
+          button.disabled = true;
+          button.classList.add("cargando");
+          button.setAttribute("aria-busy", "true");
+          if (status) status.textContent = "La IA está trabajando sobre tu texto…";
+          try {
+            const { data, error } = await sb.functions.invoke("mejorar-sobre", { body: { text: texto } });
+            if (error) throw error;
+            if (!data?.improvedText) throw new Error("Respuesta vacía del servicio de IA.");
+            output.value = data.improvedText;
+            wrap.hidden = false;
+            if (status) status.textContent = "Revisá la sugerencia. Podés editarla antes de usarla.";
+          } catch (err) {
+            console.error("[ia] mejorar-sobre", err);
+            if (status) status.textContent = "No pudimos mejorar el texto. Intentá nuevamente en unos minutos.";
+            toast("No se pudo conectar con la IA.");
+          } finally {
+            button.disabled = false;
+            button.classList.remove("cargando");
+            button.removeAttribute("aria-busy");
+          }
+        }
+
         function savePub() {
           const a = document.getElementById("pb-puesto"),
             b = document.getElementById("pb-desc");
