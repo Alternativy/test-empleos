@@ -62,3 +62,34 @@ test("el acceso y la identidad ya no contemplan sesiones sin usuario", () => {
   assert.match(html, /if \(!ME\.id && a && !PUBLICAS\.includes\(a\)\)/);
   assert.doesNotMatch(html, /DEMO_VISIBLE|DEMO_HABILITADO|ME\.demo/);
 });
+
+test("el campo Sobre vos ofrece mejora con IA tanto en el registro como en edición", () => {
+  assert.match(html, /Mejorar con IA/);
+  assert.match(html, /sobreIA\("ed-sobre"(?:,[^)]+)?\)/);
+  assert.match(html, /writeHere\("rc-sobre"\)/);
+  assert.match(html, /sb\.functions\.invoke\("mejorar-sobre"/);
+  assert.match(html, /usar-sobre-ia/);
+  assert.match(html, /4\.000 caracteres/);
+  assert.match(html, /Tu texto se envía al servicio de IA/);
+  assert.match(html, /originalSigueIgual/);
+  assert.match(html, /button\.textContent = "Mantener original"/);
+  assert.match(html, /data-action = "mantener-original"/);
+  assert.match(html, /Versión aplicada\. La sugerencia de IA se cerró\./);
+  assert.match(html, /Se mantuvo tu texto original\./);
+  assert.match(html, /aria-live="polite"/);
+  assert.match(html, /Límite: 5 mejoras por día y 50 por mes/);
+  assert.match(html, /data\.dailyRemaining/);
+  assert.match(html, /data\.monthlyRemaining/);
+  assert.match(html, /leerDetalleErrorIA\(err\)/);
+  assert.match(html, /detail\?\.dailyRemaining/);
+  assert.match(html, /if \(toggle\) toggle\.hidden = true/);
+  assert.match(html, /ai: \{ sobreAplicado: regDraftAIUsed \}/);
+  assert.match(html, /sobreAplicado: true/);
+  assert.match(html, /button\.dataset\.quotaExhausted = String\(d === 0 \|\| m === 0\)/);
+  assert.match(html, /button\.disabled = button\.dataset\.action === "mejorar-sobre"/);
+  assert.match(html, /toggle\.disabled = toggle\.dataset\.quotaExhausted === "true"/);
+});
+
+test("la integración no expone la clave de OpenAI en el frontend", () => {
+  assert.doesNotMatch(html, /OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
+});

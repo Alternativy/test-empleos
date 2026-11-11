@@ -3235,6 +3235,85 @@
         }
       }
 
+      .ai-assist {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 12px;
+        width: 100%;
+      }
+      .ai-assist .ai-explainer,
+      .ai-assist .ai-privacy,
+      .ai-assist .ai-result-note,
+      .ai-assist .ai-count {
+        color: var(--sub);
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0;
+      }
+      .ai-assist .ai-privacy {
+        opacity: .85;
+      }
+      .ai-assist .ai-count {
+        align-self: flex-end;
+        font-variant-numeric: tabular-nums;
+      }
+      .ai-assist .ai-count[data-over-limit="true"] {
+        color: #f0a36c;
+        font-weight: 600;
+      }
+      .ai-assist .ai-status {
+        margin: 0;
+        min-height: 18px;
+      }
+      .ai-assist .ai-result {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 14px;
+        border: 1px solid var(--bd);
+        border-radius: 14px;
+        background: color-mix(in srgb, var(--fg) 4%, transparent);
+      }
+      .ai-assist .ai-result[hidden] {
+        display: none;
+      }
+      .ai-assist .ai-result-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+      }
+      .ai-assist .ai-result-head .flabel {
+        padding-left: 0;
+        margin: 0;
+      }
+      .ai-assist .ai-tag {
+        border: 1px solid var(--bd);
+        border-radius: 99px;
+        padding: 2px 8px;
+        color: var(--sub);
+        font-size: 11px;
+      }
+      .ai-assist .ai-result textarea {
+        min-height: 150px;
+      }
+      .ai-assist .btn.cargando {
+        color: var(--fg) !important;
+        padding-right: 42px;
+      }
+      .ai-assist .btn.cargando::after {
+        right: 14px;
+      }
+      @media (max-width: 520px) {
+        .ai-assist .ai-result {
+          padding: 12px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -4009,7 +4088,36 @@
             ? `<div class="hdr">${WM}${backBtn(back)}</div>`
             : `<div class="reg-top"><span class="reg-bar"></span>${backBtn(back)}</div>`;
         }
+        function sobreIA(inputId, initialValue = "") {
+          // La asistencia con IA solo está disponible en staging.
+          if (ENTORNO !== "staging") return "";
+          const yaAplicada = inputId === "rc-sobre"
+            ? regDraftAIUsed
+            : inputId === "ed-sobre" && !!ME.datos?.ai?.sobreAplicado;
+          if (yaAplicada) return "";
+          const outputId = inputId + "-ia";
+          const initialLength = String(initialValue || "").length;
+          return `<div class="ai-assist">
+            <p class="ai-explainer">Podés mejorar la claridad y presentación de tu descripción sin agregar experiencias que no hayas mencionado.</p>
+            <button class="btn out sm ai-generate" id="${outputId}-toggle" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
+            <p class="ai-count" id="${outputId}-count">${initialLength} / 4.000 caracteres</p>
+            <p class="ai-count ai-quota" id="${outputId}-quota">Límite: 5 mejoras por día y 50 por mes</p>
+            <p class="ai-privacy">Tu texto se envía al servicio de IA para generar una propuesta. Tu perfil no cambia hasta que elijas usarla.</p>
+            <p class="hint ai-status" id="${outputId}-status" role="status" aria-live="polite"></p>
+            <div class="ai-result" id="${outputId}-wrap" hidden>
+              <div class="ai-result-head">
+                <label class="flabel" for="${outputId}">Sugerencia editable</label>
+                <span class="ai-tag">Borrador</span>
+              </div>
+              <textarea class="field" id="${outputId}" aria-label="Sugerencia editable de IA"></textarea>
+              <p class="ai-result-note">Compará esta propuesta con tu texto original y corregí lo que haga falta antes de aplicarla.</p>
+              <button class="btn pri sm" id="${outputId}-use" type="button" data-action="usar-sobre-ia" data-target="${inputId}" data-output="${outputId}" disabled>Usar esta versión</button>
+            </div>
+          </div>`;
+        }
         function writeHere(id) {
+          if (id === "rc-sobre")
+            return `<textarea class="field" id="${id}" data-ai-source="true" placeholder="Escribí aquí">${esc(regDraft[id] || "")}</textarea>${sobreIA(id, regDraft[id] || "")}`;
           if (regDraft[id])
             return `<textarea class="field" id="${id}" placeholder="Escribí aquí">${esc(regDraft[id])}</textarea>`;
           return `<button class="btn pri" data-action="write" data-target="${id}">Escribí aquí</button>`;
@@ -4296,7 +4404,7 @@
         <p class="reg-lbl">Tipo de empleo</p>${chipToggles("tipo", TIPO)}
         <p class="reg-lbl">Modalidad</p>${chipToggles("modo", MODO)}
         <p class="reg-lbl">Horario</p>${chipToggles("hora", HORA)}
-        <div class="rf"><label class="flabel" for="ed-sobre">Sobre vos</label><textarea class="field" id="ed-sobre">${esc(campos["rc-sobre"] || "")}</textarea></div>
+        <div class="rf"><label class="flabel" for="ed-sobre">Sobre vos</label><textarea class="field" id="ed-sobre" data-ai-source="true">${esc(campos["rc-sobre"] || "")}</textarea>${sobreIA("ed-sobre", campos["rc-sobre"] || "")}</div>
         <button class="btn pri" type="submit">Guardar cambios</button>
       </form></div>`;
             return shell("c", "#/c/perfil", inner);
@@ -5119,6 +5227,50 @@ async function toggleBusqueda(id) {
             render(true);
             return;
           }
+          if (act === "mejorar-sobre") {
+            mejorarSobre(t);
+            return;
+          }
+          if (act === "usar-sobre-ia") {
+            const original = document.getElementById(t.dataset.target);
+            const sugerido = document.getElementById(t.dataset.output);
+            const wrap = document.getElementById(t.dataset.output + "-wrap");
+            const toggle = document.getElementById(t.dataset.output + "-toggle");
+            if (original && sugerido && sugerido.value.trim() && sugerido.dataset.source === (original.value || "").trim()) {
+              original.value = sugerido.value.trim();
+              original.dispatchEvent(new Event("input", { bubbles: true }));
+              if (wrap) wrap.hidden = true;
+              if (toggle) toggle.hidden = true;
+              if (t.dataset.target === "rc-sobre") {
+                regDraftAIUsed = true;
+              } else if (t.dataset.target === "ed-sobre") {
+                ME.datos = { ...(ME.datos || {}), ai: { ...(ME.datos?.ai || {}), sobreAplicado: true } };
+              }
+              const status = document.getElementById(t.dataset.output + "-status");
+              if (status) status.textContent = "Versión aplicada. La sugerencia se cerró y la mejora con IA quedó desactivada para este campo.";
+              original.focus();
+              toast("Versión aplicada. La sugerencia de IA se cerró.");
+            } else {
+              toast("El texto original cambió. Generá una nueva sugerencia antes de aplicarla.");
+            }
+            return;
+          }
+          if (act === "mantener-original") {
+            const wrap = document.getElementById(t.dataset.output + "-wrap");
+            const toggle = document.getElementById(t.dataset.output + "-toggle");
+            if (wrap) wrap.hidden = true;
+            if (toggle) {
+              toggle.textContent = "Mejorar con IA";
+              toggle.dataset.action = "mejorar-sobre";
+              toggle.disabled = toggle.dataset.quotaExhausted === "true" ||
+                (document.getElementById(t.dataset.target)?.value || "").length > 4000;
+            }
+            const status = document.getElementById(t.dataset.output + "-status");
+            if (status) status.textContent = toggle?.dataset.quotaExhausted === "true"
+              ? "Se mantuvo tu texto original, pero alcanzaste tu límite de mejoras con IA."
+              : "Se mantuvo tu texto original.";
+            return;
+          }
           if (act === "write") {
             const ta = document.createElement("textarea");
             ta.className = "field";
@@ -5237,6 +5389,108 @@ async function toggleBusqueda(id) {
             return;
           }
         });
+        function actualizarCuotaIA(count, daily, monthly, button) {
+          if (daily == null || monthly == null) return;
+          const d = Math.max(0, Number(daily));
+          const m = Math.max(0, Number(monthly));
+          if (!Number.isFinite(d) || !Number.isFinite(m)) return;
+          if (count) {
+            count.textContent = `Te quedan ${d} mejoras hoy y ${m} este mes.`;
+            count.dataset.dailyRemaining = String(d);
+            count.dataset.monthlyRemaining = String(m);
+          }
+          if (button) button.dataset.quotaExhausted = String(d === 0 || m === 0);
+        }
+
+        async function leerDetalleErrorIA(error) {
+          const response = error?.context;
+          if (!response || typeof response.clone !== "function") return null;
+          try {
+            return await response.clone().json();
+          } catch {
+            return null;
+          }
+        }
+
+        async function mejorarSobre(button) {
+          const input = document.getElementById(button.dataset.target);
+          const outputId = button.dataset.output;
+          const output = document.getElementById(outputId);
+          const wrap = document.getElementById(outputId + "-wrap");
+          const status = document.getElementById(outputId + "-status");
+          const useButton = document.getElementById(outputId + "-use");
+          const texto = (input?.value || "").trim();
+          if (!texto) {
+            if (status) status.textContent = "Escribí primero una descripción para poder mejorarla.";
+            input?.focus();
+            return;
+          }
+          if (texto.length > 4000) {
+            if (status) status.textContent = "El texto supera el límite de 4.000 caracteres. Acortalo para continuar.";
+            return;
+          }
+          button.disabled = true;
+          button.classList.add("cargando");
+          button.setAttribute("aria-busy", "true");
+          const labelOriginal = button.textContent;
+          button.textContent = "Procesando…";
+          if (useButton) useButton.disabled = true;
+          if (status) status.textContent = "Estamos revisando tu texto y preparando una propuesta…";
+          let progresoA = setTimeout(() => {
+            if (status) status.textContent = "La generación está tardando un poco más. Seguimos intentando obtener una respuesta…";
+          }, 9000);
+          let progresoB = setTimeout(() => {
+            if (status) status.textContent = "Estamos probando una alternativa disponible. No cierres esta pantalla todavía…";
+          }, 22000);
+          try {
+            const { data, error } = await sb.functions.invoke("mejorar-sobre", { body: { text: texto } });
+            if (error) throw error;
+            if (!data?.improvedText) throw new Error("Respuesta vacía del servicio de IA.");
+            output.value = data.improvedText;
+            output.dataset.source = texto;
+            actualizarCuotaIA(
+              document.getElementById(outputId + "-quota"),
+              data.dailyRemaining,
+              data.monthlyRemaining,
+              button,
+            );
+            wrap.hidden = false;
+            const originalSigueIgual = (input?.value || "").trim() === texto;
+            if (useButton) useButton.disabled = !originalSigueIgual;
+            if (originalSigueIgual && button.dataset.action === "mejorar-sobre") {
+              button.textContent = "Mantener original";
+              button.dataset.action = "mantener-original";
+            }
+            if (status) status.textContent = originalSigueIgual
+              ? "Propuesta lista. Revisala y editá lo que necesites; el texto original sigue intacto."
+              : "La propuesta se generó sobre una versión anterior del texto. Volvé a generarla para poder aplicarla.";
+          } catch (err) {
+            console.error("[ia] mejorar-sobre", err);
+            const detail = await leerDetalleErrorIA(err);
+            actualizarCuotaIA(
+              document.getElementById(outputId + "-quota"),
+              detail?.dailyRemaining,
+              detail?.monthlyRemaining,
+              button,
+            );
+            const mensaje = detail?.error || "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
+            if (status) status.textContent = mensaje;
+            toast(mensaje);
+          } finally {
+            clearTimeout(progresoA);
+            clearTimeout(progresoB);
+            button.disabled = button.dataset.action === "mejorar-sobre" &&
+              ((input?.value || "").length > 4000 || button.dataset.quotaExhausted === "true");
+            button.classList.remove("cargando");
+            if (button.dataset.action === "mejorar-sobre" || button.dataset.action === "mantener-original") {
+              button.textContent = button.dataset.action === "mantener-original" ? "Mantener original" : "Mejorar con IA";
+            } else {
+              button.textContent = labelOriginal;
+            }
+            button.removeAttribute("aria-busy");
+          }
+        }
+
         function savePub() {
           const a = document.getElementById("pb-puesto"),
             b = document.getElementById("pb-desc");
@@ -5500,6 +5754,7 @@ async function toggleBusqueda(id) {
 
         /* ---------- Autenticación ---------- */
         let regDraft = {};
+        let regDraftAIUsed = false;
         const SOLO_LETRAS = /[^\p{Script=Latin}\s]/gu;
         document.addEventListener("input", (e) => {
           const id = e.target.id || "";
@@ -5515,6 +5770,31 @@ async function toggleBusqueda(id) {
             if (limpio !== e.target.value) {
               e.target.value = limpio;
               toast("La edad se escribe solo con números.");
+            }
+          }
+          if (e.target.matches("[data-ai-source]")) {
+            const outputId = id + "-ia";
+            const count = document.getElementById(outputId + "-count");
+            const status = document.getElementById(outputId + "-status");
+            const useButton = document.getElementById(outputId + "-use");
+            const generateButton = document.getElementById(outputId + "-toggle");
+            const length = e.target.value.length;
+            if (count) {
+              count.textContent = length.toLocaleString("es-AR") + " / 4.000 caracteres";
+              count.dataset.overLimit = String(length > 4000);
+            }
+            if (generateButton) {
+              generateButton.disabled = length > 4000 ||
+                (generateButton.dataset.action === "mejorar-sobre" && generateButton.dataset.quotaExhausted === "true");
+            }
+            const suggestion = document.getElementById(outputId);
+            if (suggestion && suggestion.value && suggestion.dataset.source !== e.target.value.trim()) {
+              if (useButton) useButton.disabled = true;
+              if (generateButton && generateButton.dataset.action === "mantener-original") {
+                generateButton.dataset.action = "mejorar-sobre";
+                generateButton.textContent = "Mejorar con IA";
+              }
+              if (status) status.textContent = "El texto original cambió. Generá una nueva sugerencia para mantener ambas versiones sincronizadas.";
             }
           }
           if (/^(rg|rc|re|rx)-/.test(id)) regDraft[id] = e.target.value;
@@ -5688,7 +5968,7 @@ async function toggleBusqueda(id) {
             if (/^(rc|re|rx)-/.test(k) && !/(pass|mail|cv|cv-name)$/.test(k) && regDraft[k])
               campos[k] = regDraft[k];
           });
-          return { campos, chips: { ...S.reg.chips } };
+          return { campos, chips: { ...S.reg.chips }, ai: { sobreAplicado: regDraftAIUsed } };
         }
         async function reenviarConfirmacion() {
           const email = (ultimoCorreo || document.getElementById("lg-mail")?.value || "").trim();
@@ -5735,6 +6015,7 @@ async function toggleBusqueda(id) {
           const cvPend = regCvFile;
           regCvFile = null;
           regDraft = {};
+          regDraftAIUsed = false;
           S.reg = { chips: {} };
           if (data.session) {
             if (cvPend && kind === "c") await subirCV(cvPend, data.user.id);

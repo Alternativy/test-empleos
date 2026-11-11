@@ -47,6 +47,7 @@ index.html                              App completa (estilos, datos, routing, U
 vendor/supabase.js                      Cliente de Supabase 2.45.4 (código de terceros, no editar)
 img/                                    Logos, avatares, ilustraciones y favicons
   favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png, site.webmanifest
+supabase/functions/mejorar-sobre/index.ts  Edge Function para mejorar el campo “Sobre vos” con IA
 supabase/migrations/
   000_esquema_produccion.sql            Esquema base completo, consolidado (ver sección 8)
   001_crud_inicial.sql                  Histórica, superada
@@ -115,6 +116,18 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 - `freshState()` comienza con listas y objetos vacíos. Los perfiles, búsquedas, postulaciones, conversaciones y datos de empresa se obtienen de Supabase.
 - Se quitaron los perfiles y ofertas ficticios, las notificaciones precargadas y las respuestas automáticas simuladas.
 - Este cambio afecta al código del frontend. **No se borraron datos ni se aplicaron migraciones en Supabase**: staging conserva datos y columnas históricas de pruebas. No deben confundirse con datos actuales de usuarios ni mostrarse en la aplicación.
+
+## 6c. Mejora del campo “Sobre vos” con IA
+
+- El registro de postulante (paso 5) y la edición de datos personales muestran el botón **“Mejorar con IA”** debajo del texto original.
+- El botón envía el texto a la Edge Function `mejorar-sobre`. La sugerencia aparece en un segundo campo editable; no reemplaza el original automáticamente.
+- **“Usar esta versión”** copia la sugerencia al campo original. La persona puede editarla antes de guardarla o crear la cuenta.
+- La función usa OpenAI Responses API con el modelo predeterminado `gpt-4.1-mini` (se puede cambiar con `OPENAI_MODEL`). Sus instrucciones prohíben inventar experiencia, estudios, habilidades o logros que no estén en el texto original.
+- La clave `OPENAI_API_KEY` se configura como secreto de la Edge Function en Supabase. Nunca debe guardarse en `index.html`, el repositorio ni el navegador. `store: false` se envía en la solicitud al proveedor.
+- La función valida el cuerpo y limita el texto a 4.000 caracteres. Tiene un límite de frecuencia en memoria por IP como protección básica; no reemplaza un rate limiter persistente para producción.
+- La función acepta el JWT público del proyecto (`verify_jwt: true`); puede utilizarse durante el onboarding, antes de que el usuario cree su cuenta. No escribe información en la base de datos.
+- La integración se desarrolla únicamente en el proyecto Supabase **Match Empleos** (staging). No desplegar ni configurar en **Match Empleos prod** sin un cambio separado y aprobado.
+- Para habilitarla en un entorno Supabase, desplegar `mejorar-sobre` y configurar el secreto `OPENAI_API_KEY` en Edge Functions > Secrets. Si se utiliza una rama de desarrollo de Supabase, el secreto debe configurarse también en esa rama.
 
 ---
 
