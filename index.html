@@ -4789,7 +4789,7 @@ async function toggleBusqueda(id) {
           S.e.resp.unshift(rec);
           S.e.tasa = calcTasa();
           DB.setTasa(S.e.tasa);
-          const abreChat = tipo === "si" || (false && tipo === "mas");
+          const abreChat = tipo === "si";
           if (abreChat) {
             rec.chat = c.id;
             const key = "chat:" + c.id;
@@ -5334,7 +5334,7 @@ async function toggleBusqueda(id) {
         }
         let mensajesChannel = null;
         function suscribirMensajesRealtime() {
-          if (mensajesChannel || false || !ME.id) return;
+          if (mensajesChannel || !ME.id) return;
           mensajesChannel = sb
             .channel("mensajes-" + ME.id)
             .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensajes" }, (payload) => {
@@ -5369,7 +5369,11 @@ async function toggleBusqueda(id) {
           if (!d) return;
           const perf = d.perfiles[0];
           if (ME.rol === "c" && d.cupo != null) S.c.cupo = d.cupo;
-          if (perf && ME.rol === "e") S.e.tasa = perf.tasa;
+          if (perf && ME.rol === "e") {
+            S.e.tasa = perf.tasa ?? 0;
+            S.e.demora = perf.demora ?? 0;
+            S.e.plazo = perf.plazo ?? 3;
+          }
           // Candidato: postulaciones y chats creados
           const dbPosts = d.postulaciones.map((r) => ({ ...r.datos.post, estado: r.estado }));
           S.c.posts = dbPosts;
