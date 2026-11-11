@@ -4091,12 +4091,16 @@
         function sobreIA(inputId, initialValue = "") {
           // La asistencia con IA solo está disponible en staging.
           if (ENTORNO !== "staging") return "";
+          const yaAplicada = inputId === "rc-sobre"
+            ? regDraftAIUsed
+            : inputId === "ed-sobre" && !!ME.datos?.ai?.sobreAplicado;
+          if (yaAplicada) return "";
           const outputId = inputId + "-ia";
           const initialLength = String(initialValue || "").length;
           return `<div class="ai-assist">
             <p class="ai-explainer">Podés mejorar la claridad y presentación de tu descripción sin agregar experiencias que no hayas mencionado.</p>
             <button class="btn out sm ai-generate" id="${outputId}-toggle" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
-            <p class="ai-count" id="${outputId}-count">${initialLength} / 4.000 caracteres</p>
+            <p class="ai-count" id="${outputId}-count">${initialLength} / 4.000 caracteres · Límite: 5 por día y 50 por mes</p>
             <p class="ai-privacy">Tu texto se envía al servicio de IA para generar una propuesta. Tu perfil no cambia hasta que elijas usarla.</p>
             <p class="hint ai-status" id="${outputId}-status" role="status" aria-live="polite"></p>
             <div class="ai-result" id="${outputId}-wrap" hidden>
@@ -5235,10 +5239,14 @@ async function toggleBusqueda(id) {
               original.value = sugerido.value.trim();
               original.dispatchEvent(new Event("input", { bubbles: true }));
               if (wrap) wrap.hidden = true;
-              if (toggle) {
-                toggle.textContent = "Mejorar con IA";
-                toggle.dataset.action = "mejorar-sobre";
+              if (toggle) toggle.hidden = true;
+              if (t.dataset.target === "rc-sobre") {
+                regDraftAIUsed = true;
+              } else if (t.dataset.target === "ed-sobre") {
+                ME.datos = { ...(ME.datos || {}), ai: { ...(ME.datos?.ai || {}), sobreAplicado: true } };
               }
+              const status = document.getElementById(t.dataset.output + "-status");
+              if (status) status.textContent = "Versión aplicada. La sugerencia se cerró y la mejora con IA quedó desactivada para este campo.";
               original.focus();
               toast("Versión aplicada. La sugerencia de IA se cerró.");
             } else {
@@ -5376,6 +5384,26 @@ async function toggleBusqueda(id) {
             return;
           }
         });
+        function actualizarCuotaIA(count, daily, monthly) {
+          if (!count || daily == null || monthly == null) return;
+          const d = Math.max(0, Number(daily));
+          const m = Math.max(0, Number(monthly));
+          if (!Number.isFinite(d) || !Number.isFinite(m)) return;
+          count.textContent = `Te quedan ${d} mejoras hoy y ${m} este mes.`;
+          count.dataset.dailyRemaining = String(d);
+          count.dataset.monthlyRemaining = String(m);
+        }
+
+        async function leerDetalleErrorIA(error) {
+          const response = error?.context;
+          if (!response || typeof response.clone !== "function") return null;
+          try {
+            return await response.clone().json();
+          } catch {
+            return null;
+          }
+        }
+
         async function mejorarSobre(button) {
           const input = document.getElementById(button.dataset.target);
           const outputId = button.dataset.output;
@@ -5412,6 +5440,11 @@ async function toggleBusqueda(id) {
             if (!data?.improvedText) throw new Error("Respuesta vacía del servicio de IA.");
             output.value = data.improvedText;
             output.dataset.source = texto;
+            actualizarCuotaIA(
+              document.getElementById(outputId + "-count"),
+              data.dailyRemaining,
+              data.monthlyRemaining,
+            );
             wrap.hidden = false;
             const originalSigueIgual = (input?.value || "").trim() === texto;
             if (useButton) useButton.disabled = !originalSigueIgual;
@@ -5424,8 +5457,15 @@ async function toggleBusqueda(id) {
               : "La propuesta se generó sobre una versión anterior del texto. Volvé a generarla para poder aplicarla.";
           } catch (err) {
             console.error("[ia] mejorar-sobre", err);
-            if (status) status.textContent = "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
-            toast("No se pudo generar la sugerencia. Intentá nuevamente.");
+            const detail = await leerDetalleErrorIA(err);
+            actualizarCuotaIA(
+              document.getElementById(outputId + "-count"),
+              detail?.dailyRemaining,
+              detail?.monthlyRemaining,
+            );
+            const mensaje = detail?.error || "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
+            if (status) status.textContent = mensaje;
+            toast(mensaje);
           } finally {
             clearTimeout(progresoA);
             clearTimeout(progresoB);
@@ -5703,6 +5743,7 @@ async function toggleBusqueda(id) {
 
         /* ---------- Autenticación ---------- */
         let regDraft = {};
+        let regDraftAIUsed = false;
         const SOLO_LETRAS = /[^\p{Script=Latin}\s]/gu;
         document.addEventListener("input", (e) => {
           const id = e.target.id || "";
@@ -5913,7 +5954,7 @@ async function toggleBusqueda(id) {
             if (/^(rc|re|rx)-/.test(k) && !/(pass|mail|cv|cv-name)$/.test(k) && regDraft[k])
               campos[k] = regDraft[k];
           });
-          return { campos, chips: { ...S.reg.chips } };
+          return { campos, chips: { ...S.reg.chips }, ai: { sobreAplicado: regDraftAIUsed } };
         }
         async function reenviarConfirmacion() {
           const email = (ultimoCorreo || document.getElementById("lg-mail")?.value || "").trim();
@@ -5960,6 +6001,7 @@ async function toggleBusqueda(id) {
           const cvPend = regCvFile;
           regCvFile = null;
           regDraft = {};
+          regDraftAIUsed = false;
           S.reg = { chips: {} };
           if (data.session) {
             if (cvPend && kind === "c") await subirCV(cvPend, data.user.id);
