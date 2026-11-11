@@ -3804,7 +3804,7 @@
           },
         };
 
-        /* ---------- Estado simulado ---------- */
+        /* ---------- Estado inicial vacío ---------- */
         function freshState() {
           return {
             c: { cupo: 3, idx: 0, ofertas: [], posts: [], chats: {}, notifs: [] },
@@ -4081,12 +4081,6 @@
         }
 
         /* ================= CANDIDATO ================= */
-        function ofertasVisiblesParaUsuario(ofertas, demo) {
-          return demo ? ofertas : ofertas.filter((o) => o.real === true);
-        }
-        function puedeAplicarOferta(oferta, demo) {
-          return !!oferta && (demo || oferta.real === true);
-        }
         function offerById(id) {
           return S.c.ofertas.find((o) => o.id === id);
         }
@@ -4758,7 +4752,7 @@ async function toggleBusqueda(id) {
         async function apply(oid) {
           const o = offerById(oid);
           if (!o || applied(oid) || S.c.cupo <= 0) return;
-          if (!puedeAplicarOferta(o, false)) {
+          if (!o || o.real !== true) {
             toast("Esta búsqueda ya no está disponible.");
             return;
           }
@@ -5601,7 +5595,7 @@ async function toggleBusqueda(id) {
             };
           });
           if (ME.rol === "c") {
-            S.c.ofertas = ofertasVisiblesParaUsuario(ofertasReales, false);
+            S.c.ofertas = ofertasReales;
             S.c.idx = 0;
           }
           Object.keys(S.c.chats).forEach((k) => {
@@ -6034,7 +6028,6 @@ async function toggleBusqueda(id) {
           if (ME.rol === "e" && !yaCargado) await asegurarBusquedaEmpresa();
           if (!yaCargado) {
             S = freshState();
-            if (ME.rol === "c") S.c.ofertas = [];
           }
           await hidratar();
           cargandoSesion = false;
