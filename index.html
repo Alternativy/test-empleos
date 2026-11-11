@@ -4030,6 +4030,8 @@
             : `<div class="reg-top"><span class="reg-bar"></span>${backBtn(back)}</div>`;
         }
         function sobreIA(inputId) {
+          // Esta integración se habilita solo en staging; producción mantiene su propio despliegue y proveedor.
+          if (ENTORNO !== "staging") return "";
           const outputId = inputId + "-ia";
           return `<div class="ai-assist">
             <button class="btn out sm" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
