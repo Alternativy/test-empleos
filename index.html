@@ -5392,8 +5392,11 @@ async function toggleBusqueda(id) {
             output.value = data.improvedText;
             output.dataset.source = texto;
             wrap.hidden = false;
-            if (useButton) useButton.disabled = false;
-            if (status) status.textContent = "Propuesta lista. Revisala y editá lo que necesites; el texto original sigue intacto.";
+            const originalSigueIgual = (input?.value || "").trim() === texto;
+            if (useButton) useButton.disabled = !originalSigueIgual;
+            if (status) status.textContent = originalSigueIgual
+              ? "Propuesta lista. Revisala y editá lo que necesites; el texto original sigue intacto."
+              : "La propuesta se generó sobre una versión anterior del texto. Volvé a generarla para poder aplicarla.";
           } catch (err) {
             console.error("[ia] mejorar-sobre", err);
             if (status) status.textContent = "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
@@ -5401,7 +5404,7 @@ async function toggleBusqueda(id) {
           } finally {
             clearTimeout(progresoA);
             clearTimeout(progresoB);
-            button.disabled = false;
+            button.disabled = (input?.value || "").length > 4000;
             button.classList.remove("cargando");
             button.textContent = labelOriginal;
             button.removeAttribute("aria-busy");
