@@ -73,3 +73,14 @@ test("el feed informa cuando todavía no hay búsquedas reales", () => {
   assert.match(html, /Todavía no hay búsquedas publicadas/);
   assert.match(html, /const sinBusquedasReales = !ME\.demo && S\.c\.ofertas\.length === 0/);
 });
+
+test("la landing vuelve a renderizarse al recuperar una sesión con avatar", () => {
+  const start = html.indexOf("async function setSesion(session)");
+  const end = html.indexOf("\\n        document.addEventListener(\"db-error\"", start);
+  assert.notEqual(start, -1);
+  const setSesion = html.slice(start, end);
+  assert.match(setSesion, /select\\("rol,nombre,datos,avatar_url"\\)/);
+  assert.match(setSesion, /ME\\.avatarUrl = perfil\\?\\.avatar_url \\|\\| null/);
+  assert.match(setSesion, /await hidratar\\(\\);\\s*cargandoSesion = false;\\s*render\\(true\\);/);
+  assert.match(html, /const img = ME\\.demo \\?[\\s\\S]{0,180}ME\\.avatarUrl \\|\\| phSrc\\(\\)/);
+});
