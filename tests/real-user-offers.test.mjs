@@ -62,3 +62,15 @@ test("el acceso y la identidad ya no contemplan sesiones sin usuario", () => {
   assert.match(html, /if \(!ME\.id && a && !PUBLICAS\.includes\(a\)\)/);
   assert.doesNotMatch(html, /DEMO_VISIBLE|DEMO_HABILITADO|ME\.demo/);
 });
+
+test("el campo Sobre vos ofrece mejora con IA tanto en el registro como en edición", () => {
+  assert.match(html, /Mejorar con IA/);
+  assert.match(html, /sobreIA\("ed-sobre"\)/);
+  assert.match(html, /writeHere\("rc-sobre"\)/);
+  assert.match(html, /sb\.functions\.invoke\("mejorar-sobre"/);
+  assert.match(html, /usar-sobre-ia/);
+});
+
+test("la integración no expone la clave de OpenAI en el frontend", () => {
+  assert.doesNotMatch(html, /OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
+});
