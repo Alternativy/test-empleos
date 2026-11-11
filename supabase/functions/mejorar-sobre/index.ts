@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const MODEL = Deno.env.get("OPENAI_MODEL") || "gpt-6-luna";
+const MODEL = Deno.env.get("OPENAI_MODEL") || "gpt-4.1-mini";
 const MAX_INPUT_CHARS = 4000;
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS_PER_WINDOW = 8;
