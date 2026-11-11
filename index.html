@@ -6442,6 +6442,9 @@ async function toggleBusqueda(id) {
           }
           await hidratar();
           cargandoSesion = false;
+          // La sesión puede recuperarse mientras ya está visible la landing.
+          // Volver a renderizar para reemplazar el menú inicial por el avatar de perfiles.avatar_url.
+          render(true);
         }
         document.addEventListener("db-error", () => toast("No se pudo guardar. Revisá tu conexión."));
         let ultimoUid = undefined;
