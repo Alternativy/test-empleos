@@ -69,7 +69,7 @@ README.md                               Este documento
 
 1. **Estilos** (`<style>`): variables CSS en `:root` (`--navy`, `--green`, `--gray`, `--navy2`, `--line`, etc.), con paleta azul prusiano, verde primaveral y alabastro. Clases como `.btn`, `.field`, `.chip`, `.ccard`, `.bub`, `.fila`.
 2. **Script de datos** (primer `<script>`): configuración de entornos (`ENTORNOS`, `HOSTS_PRODUCCION`), cliente de Supabase (`sb`), identidad (`ME`), helpers de Storage (`subirFoto`, `subirCV`, `verCV`) y el objeto `DB` con todas las escrituras y lecturas.
-3. **Script principal** (segundo `<script>`, dentro de una IIFE): estado global `S`, datos de ejemplo (`freshState`), plantillas de pantallas, routing (`route`), autenticación, handlers de eventos y arranque (`hidratar`, Realtime).
+3. **Script principal** (segundo `<script>`, dentro de una IIFE): estado global `S`, estado inicial vacío (`freshState`), plantillas de pantallas, routing (`route`), autenticación, handlers de eventos y arranque (`hidratar`, Realtime).
 
 ---
 
@@ -100,23 +100,21 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 ## 5. Estado de la aplicación
 
 - `S` es el estado de la UI en memoria: `S.c` (candidato) y `S.e` (empresa). Se construye con `freshState()`.
-- `freshState()` **contiene datos de ejemplo** para el modo demo.
-- En una sesión real, `hidratar()` lee de Supabase: postulaciones, búsquedas, respuestas (`candidatos_estado`), mensajes, chats, cupo y tasa del usuario. Un candidato real no recibe las postulaciones ni los chats demo; una empresa real no recibe búsquedas ni notificaciones demo.
+- `freshState()` inicializa las colecciones vacías. No precarga perfiles, ofertas, postulaciones, chats ni notificaciones ficticias.
+- `hidratar()` carga desde Supabase las postulaciones, búsquedas, respuestas (`candidatos_estado`), mensajes, chats, cupo y tasa correspondientes al usuario autenticado. El frontend no combina esos resultados con datos de muestra.
 - **Cupo** (`S.c.cupo`): lo entrega el servidor con `cupo_actual()` al cargar la sesión.
 - **Tasa de respuesta** (`perfiles.tasa`): la calcula el servidor. Es respondidas ÷ total de postulaciones recibidas, y 100 % si no hay ninguna. El cliente la recalcula para mostrarla y no la escribe.
-- Las ofertas reales de empresas llevan `real: true`. "Me interesa" sobre una oferta real llama a la RPC `postular`, que descuenta el cupo y crea la postulación en la misma transacción.
-- `ME` guarda la identidad: `ME.id` (uuid de Auth), `ME.rol` (`'c'` o `'e'`), `ME.nombre`, `ME.email`, `ME.datos`, `ME.avatarUrl` y `ME.demo`.
+- Las ofertas obtenidas de Supabase llevan `real: true` como marca de procedencia. `apply()` rechaza cualquier elemento que no tenga esa marca y llama a la RPC `postular`, que descuenta el cupo y crea la postulación en la misma transacción.
+- `ME` guarda la identidad de la sesión: `ME.id` (uuid de Auth), `ME.rol` (`'c'` o `'e'`), `ME.nombre`, `ME.email`, `ME.datos` y `ME.avatarUrl`.
 
 ---
 
-## 6. Modo demo
+## 6. Sin modo demo
 
-- Los botones "Entrar como candidato" / "Entrar como empresa" de la pantalla de login activan `ME.demo = true`.
-- En demo **no se escribe nada en la base**: `persistir()` devuelve `null` antes de ejecutar cualquier consulta, y las RPC no se llaman.
-- Se controla con la constante `DEMO_HABILITADO` (en `index.html`). Ponerla en `false` oculta los botones y desactiva `entrarDemo`.
-- Por ahora está en `true`, porque el equipo lo usa para pruebas.
-- **Próximamente, la demo no será visible en producción.** La constante `DEMO_VISIBLE` combina `DEMO_HABILITADO` con el entorno: en `matchempleos.com.ar` (y `www`) los botones de demo se ocultan y `entrarDemo` no hace nada. En staging, Netlify y localhost sigue disponible. Este cambio ya está en el código; cuando se publique en producción, la demo deja de aparecer allí.
-- Las cuentas demo conservan sus datos de ejemplo (Tomás Ferreyra, Café Mercado, Malena, Lucía, Farmacia Sur, etc.). No deben aparecer en cuentas reales.
+- Se eliminaron del frontend los botones de acceso de demostración, el estado de sesión demo y la función que permitía entrar sin autenticación.
+- `freshState()` comienza con listas y objetos vacíos. Los perfiles, búsquedas, postulaciones, conversaciones y datos de empresa se obtienen de Supabase.
+- Se quitaron los perfiles y ofertas ficticios, las notificaciones precargadas y las respuestas automáticas simuladas.
+- Este cambio afecta al código del frontend. **No se borraron datos ni se aplicaron migraciones en Supabase**: staging conserva datos y columnas históricas de pruebas. No deben confundirse con datos actuales de usuarios ni mostrarse en la aplicación.
 
 ---
 
@@ -164,7 +162,7 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 ### Cerrar sesión
 
-- Desde la landing o desde la sección "Salir" de la app, `#/c/salir` o `#/e/salir`. Llama a `sb.auth.signOut()` (salvo en demo) y limpia `ME` y `S`.
+- Desde la landing o desde la sección "Salir" de la app, `#/c/salir` o `#/e/salir`. Llama a `sb.auth.signOut()` y limpia `ME` y `S`.
 
 ### Reglas de validación en formularios
 
@@ -197,7 +195,7 @@ Los campos conservan lo escrito al volver atrás: `regField()` y los inputs de `
 
 | Entorno | Proyecto | Uso |
 |---|---|---|
-| Staging | `gtnxlkqumppeintdpycn` (us-east-1) | Pruebas. Tiene datos de prueba y chats demo heredados. |
+| Staging | `gtnxlkqumppeintdpycn` (us-east-1) | Entorno de pruebas. Conserva datos y estructuras históricas; el frontend ya no ofrece acceso demo ni los precarga. |
 | Producción | `mijmzywmrazzaqypuwhu` (us-east-2) | Dominio `matchempleos.com.ar`. Arranca limpio, sin datos de prueba. |
 
 Los dos proyectos se configuran por separado: esquema, permisos, buckets, URLs de redirección y SMTP. Las migraciones se aplican a cada uno por separado.
@@ -301,16 +299,16 @@ Esto no se puede versionar con SQL. Hay que hacerlo en cada proyecto.
 Estos puntos **bloquean o condicionan producción**. Están documentados para que nadie los pase por alto.
 
 1. **El rol se toma de la metadata del registro.** Cualquiera con la anon key puede llamar a `signUp` con `rol: 'e'`. Solución propuesta: asignar el rol de empresa desde el servidor (verificación manual o función protegida).
-2. **Datos de ejemplo en el código.** `freshState()` conserva ofertas ficticias para el modo demo. En sesiones reales, el feed del candidato se limpia antes de hidratar y se reemplaza exclusivamente por búsquedas reales (`real === true`); `apply()` rechaza cualquier oferta no real antes de modificar el estado o intentar guardar.
-3. **Historial de chats demo.** `hidratar()` todavía lee las claves históricas `c:<oferta>` y `e:<candidato>`. Solo tiene sentido en staging, donde están esos datos.
+2. **Datos históricos de staging.** El frontend ya no contiene ofertas ni perfiles ficticios y `freshState()` comienza vacío. El proyecto de staging conserva registros históricos de pruebas que no fueron borrados; revisar su origen antes de depurarlos.
+3. **Esquema heredado de chats.** Staging conserva las columnas `mensajes.de` y `mensajes.chat_key` por compatibilidad con registros históricos. El frontend actual trabaja con las conversaciones reales vinculadas a `chats` y `mensajes.chat_id`.
 4. **Contraseñas filtradas y CAPTCHA.** La protección contra contraseñas filtradas requiere plan Pro. Mientras tanto, la longitud mínima de contraseña se controla en el cliente (8 caracteres) y puede subirse en Auth.
 5. **SMTP de Supabase.** Tiene límites bajos. Antes de escalar, usar un proveedor propio.
 6. **Mensajes de error reveladores.** "Ya existe una cuenta con ese correo" permite averiguar qué correos están registrados. Es una decisión de producto; debería ser un mensaje genérico.
 7. **Correo no editable desde la app.** Los datos de "Datos personales" (candidato) y "Datos empresariales" (empresa) se editan todos, salvo el correo, que es el usuario de acceso. Cambiarlo requiere el flujo de cambio de correo de Auth, que todavía no está implementado.
-8. **Notificaciones.** Las notificaciones del candidato no se persisten en una tabla; son estado de UI. Las notificaciones base filtran Farmacia Sur y Supermercado Norte.
+8. **Notificaciones.** Las notificaciones del candidato no se persisten en una tabla; son estado de UI. El frontend no precarga notificaciones ficticias.
 9. **El CV se sube solo con sesión.** Si el registro requiere confirmar el correo, el archivo elegido en el paso 5 no se puede guardar; el usuario tiene que subirlo después desde "Datos personales".
-10. **Pruebas automatizadas parciales.** `tests/real-user-offers.test.mjs` verifica el aislamiento entre ofertas demo y reales y las protecciones de `apply()`. Ejecutar con `node --test tests/real-user-offers.test.mjs`. El resto de los flujos sigue requiriendo el checklist manual de la sección 10.
-11. **Respuestas automáticas.** Los temporizadores de `apply()` y `enviarResp()` solo corren para ofertas demo. Las cuentas reales no reciben respuestas automáticas.
+10. **Pruebas automatizadas parciales.** `tests/real-user-offers.test.mjs` verifica que no exista acceso demo, que el estado inicial esté vacío y que las ofertas se carguen desde Supabase. Ejecutar con `node --test tests/real-user-offers.test.mjs`. El resto de los flujos sigue requiriendo el checklist manual de la sección 10.
+11. **Respuestas automáticas.** Se eliminaron las respuestas simuladas y los temporizadores de demostración. Los mensajes y respuestas deben originarse en acciones reales de los usuarios.
 12. **Métodos heredados.** `DB.setCupo` y `DB.setTasa` son no-ops; la app ya no escribe esos valores desde el cliente.
 13. **Columnas heredadas en staging.** `mensajes.de` y `mensajes.chat_key` siguen en staging por el historial demo. No se replican en producción.
 
@@ -320,8 +318,10 @@ Estos puntos **bloquean o condicionan producción**. Están documentados para qu
 
 Antes de mergear a `main` o de publicar en producción, probar en **staging** con dos cuentas reales (una empresa y un candidato):
 
-**Modo demo**
-- [ ] Entrar como candidato y como empresa, postular y publicar. No aparecen filas nuevas en Supabase.
+**Ausencia de datos demo**
+- [ ] La pantalla de login no ofrece accesos de demostración.
+- [ ] Sin una sesión autenticada, las rutas privadas redirigen al login.
+- [ ] Una cuenta nueva comienza sin ofertas, postulaciones, chats ni notificaciones precargadas.
 
 **Registro y acceso**
 - [ ] "Busco trabajo" con datos inválidos: botones deshabilitados, aviso visible.
@@ -343,7 +343,7 @@ Antes de mergear a `main` o de publicar en producción, probar en **staging** co
 - [ ] El estado de la postulación pasa a "Respondida" cuando la empresa responde.
 - [ ] "Me interesa" de la empresa con postulación previa abre el chat. "Pidió más información" no lo abre.
 - [ ] Chat: los mensajes propios aparecen a la derecha y los de la empresa a la izquierda. El avatar y el nombre de la empresa se ven en la lista y en el encabezado.
-- [ ] Notificaciones y mensajes no muestran datos demo.
+- [ ] Notificaciones y mensajes corresponden únicamente a interacciones reales de la cuenta.
 
 **Empresa**
 - [ ] Publicar una búsqueda: aparece en el panel y en la lista de búsquedas.
@@ -376,10 +376,10 @@ Si sos un agente que trabaja en este repo, seguí estas reglas:
 9. **Permisos explícitos.** Toda tabla nueva necesita `grant` explícito para `authenticated`, y RLS activo. No asumas que la plataforma los da.
 10. **Nunca dejes que el cliente escriba `cupo`, `tasa` ni `rol`.** Esos valores los calcula el servidor.
 11. **Después de cambiar `index.html`, validá la sintaxis** de cada `<script>` (por ejemplo con `node --check` sobre el contenido extraído).
-12. **No cambies `DEMO_HABILITADO` a `false` sin confirmación del equipo.**
+12. **No reintroduzcas un acceso de demostración ni datos ficticios en `freshState()`.**
 13. **No reutilices las claves `c:<oferta>` / `e:<candidato>` para un chat real nuevo.** Las conversaciones reales usan `chats` y `mensajes.chat_id`.
-14. **No reintroduzcas respuestas automáticas en cuentas reales.** Los temporizadores de `sendChat()`, `enviarResp()` y `apply()` están protegidos por `ME.demo`.
-15. **Al modificar `hidratar()`, preservá la separación demo/real.** Un candidato real no debe recibir las postulaciones o chats de `freshState()`, y una empresa real no debe recibir búsquedas o notificaciones demo.
+14. **No reintroduzcas respuestas automáticas simuladas.** `sendChat()` debe guardar el mensaje escrito por el usuario; las respuestas deben venir de acciones reales de la otra cuenta.
+15. **Al modificar `hidratar()`, cargá los datos desde Supabase sin mezclarlos con datos de muestra.** `freshState()` debe seguir vacío.
 16. **No cambies la selección de entorno** (`HOSTS_PRODUCCION`) sin confirmación: decide a qué base se conecta cada dominio.
 17. **Antes de cambiar la lógica de autenticación**, revisá la sección 7 completa: los pasos de registro, confirmación y login están conectados entre sí.
 
@@ -465,7 +465,7 @@ Segunda iteración sobre la referencia **`Match Empleos Landing (copia).pdf`**, 
 - [x] test-empleos/main contiene la versión actual de la aplicación y la landing rediseñada.
 - [x] Se verificó que los cuatro bloques script ejecutables de index.html compilan sintácticamente. Esto no demuestra que todos los flujos funcionen en ejecución.
 - [x] La selección de entorno del frontend apunta a staging para hosts de prueba y a producción solo para matchempleos.com.ar y www.matchempleos.com.ar.
-- [x] DEMO_VISIBLE oculta el acceso demo cuando el entorno es producción.
+- [x] Se eliminó el modo demo del frontend y se dejó `freshState()` sin datos ficticios. No se borraron datos históricos de staging.
 - [ ] Ejecutar node --test tests/real-user-offers.test.mjs en un entorno Node y registrar el resultado. La existencia del test no equivale a una ejecución aprobada.
 - [ ] Completar el checklist manual de la sección 10 con dos cuentas reales y validar los flujos de registro, recuperación, postulaciones, respuestas, chat, CV, Storage y Realtime.
 - [ ] Comparar visualmente la landing en navegador desktop y mobile contra el diseño aprobado.
