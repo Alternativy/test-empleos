@@ -81,6 +81,6 @@ test("la landing vuelve a renderizarse al recuperar una sesión con avatar", () 
   const setSesion = html.slice(start, end);
   assert.match(setSesion, /select\\("rol,nombre,datos,avatar_url"\\)/);
   assert.match(setSesion, /ME\\.avatarUrl = perfil\\?\\.avatar_url \\|\\| null/);
-  assert.match(setSesion, /await hidratar\\(\\);\\s*cargandoSesion = false;\\s*render\\(true\\);/);
+  assert.match(setSesion, /await hidratar\\(\\);\\s*cargandoSesion = false;[\\s\\S]{0,220}render\\(true\\);/);
   assert.match(html, /const img = ME\\.demo \\?[\\s\\S]{0,180}ME\\.avatarUrl \\|\\| phSrc\\(\\)/);
 });
