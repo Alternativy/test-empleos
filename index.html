@@ -5465,8 +5465,14 @@ async function toggleBusqueda(id) {
                 observer.unobserve(entry.target);
               }
             });
-          }, { threshold: 0.14, rootMargin: "0px 0px -4% 0px" });
+          }, {
+            // Dispara cuando el borde superior del elemento entra en el 88 % visible
+            // del viewport. No exige que un bloque alto alcance un porcentaje de área.
+            threshold: 0,
+            rootMargin: "0px 0px -12% 0px",
+          });
           blocks.forEach((block) => {
+            // Aplicar primero el estado inicial para evitar un frame sin animación.
             block.classList.add("lp-animate");
             landingRevealObserver.observe(block);
           });
