@@ -5725,7 +5725,7 @@ async function toggleBusqueda(id) {
             const count = document.getElementById(outputId + "-count");
             const status = document.getElementById(outputId + "-status");
             const useButton = document.getElementById(outputId + "-use");
-            const generateButton = document.querySelector('[data-action="mejorar-sobre"][data-target="' + id + '"]');
+            const generateButton = document.getElementById(outputId + "-toggle");
             const length = e.target.value.length;
             if (count) {
               count.textContent = length.toLocaleString("es-AR") + " / 4.000 caracteres";
@@ -5735,6 +5735,10 @@ async function toggleBusqueda(id) {
             const suggestion = document.getElementById(outputId);
             if (suggestion && suggestion.value && suggestion.dataset.source !== e.target.value.trim()) {
               if (useButton) useButton.disabled = true;
+              if (generateButton && generateButton.dataset.action === "mantener-original") {
+                generateButton.dataset.action = "mejorar-sobre";
+                generateButton.textContent = "Mejorar con IA";
+              }
               if (status) status.textContent = "El texto original cambió. Generá una nueva sugerencia para mantener ambas versiones sincronizadas.";
             }
           }
