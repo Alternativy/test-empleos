@@ -65,10 +65,14 @@ test("el acceso y la identidad ya no contemplan sesiones sin usuario", () => {
 
 test("el campo Sobre vos ofrece mejora con IA tanto en el registro como en edición", () => {
   assert.match(html, /Mejorar con IA/);
-  assert.match(html, /sobreIA\("ed-sobre"\)/);
+  assert.match(html, /sobreIA\("ed-sobre"(?:,[^)]+)?\)/);
   assert.match(html, /writeHere\("rc-sobre"\)/);
   assert.match(html, /sb\.functions\.invoke\("mejorar-sobre"/);
   assert.match(html, /usar-sobre-ia/);
+  assert.match(html, /4\.000 caracteres/);
+  assert.match(html, /Tu texto se envía al servicio de IA/);
+  assert.match(html, /originalSigueIgual/);
+  assert.match(html, /aria-live="polite"/);
 });
 
 test("la integración no expone la clave de OpenAI en el frontend", () => {
