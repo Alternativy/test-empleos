@@ -2877,19 +2877,22 @@
         .landing-v2 .lp-section {
           position: relative;
         }
-        /* Aparición progresiva de los bloques al entrar en el viewport */
-        .landing-v2 .lp-section.lp-reveal {
+        /* Animaciones sutiles por elemento al entrar en el viewport */
+        .landing-v2 .lp-animate {
           opacity: 0;
-          transform: translateY(28px);
-          transition: opacity 700ms ease-in, transform 700ms ease-in;
+          transition: opacity 720ms ease-in, transform 720ms ease-in;
           will-change: opacity, transform;
         }
-        .landing-v2 .lp-section.lp-reveal.is-visible {
+        .landing-v2 .lp-animate[data-reveal="left"] { transform: translateX(-34px); }
+        .landing-v2 .lp-animate[data-reveal="right"] { transform: translateX(34px); }
+        .landing-v2 .lp-animate[data-reveal="up"] { transform: translateY(28px); }
+        .landing-v2 .lp-animate[data-reveal="zoom"] { transform: scale(.94); }
+        .landing-v2 .lp-animate.is-visible {
           opacity: 1;
-          transform: translateY(0);
+          transform: translate3d(0, 0, 0) scale(1);
         }
         @media (prefers-reduced-motion: reduce) {
-          .landing-v2 .lp-section.lp-reveal {
+          .landing-v2 .lp-animate {
             opacity: 1;
             transform: none;
             transition: none;
@@ -3277,14 +3280,14 @@
                 <h1>Bienvenido a Match Empleos</h1>
                 <p>Tu próxima oportunidad empieza con un MATCH</p>
                 <img class="lp-hero-art" src="img/seniala-celular.png" alt="Dos jóvenes mirando juntos un celular" width="351" height="380">
-                <button class="lp-scroll" type="button" data-scroll="quienes">¡Deslizá para conocer más!</button>
+                <button class="lp-scroll" data-reveal="left" type="button" data-scroll="quienes">¡Deslizá para conocer más!</button>
               </div>
             </section>
 
             <section class="lp-section lp-about" id="quienes" aria-labelledby="quienes-titulo">
               <div class="lp-panel">
-                <h2 id="quienes-titulo"><span class="lp-b">¿</span>Quiénes somos<span class="lp-b">?</span></h2>
-                <div class="lp-about-copy">
+                <h2 id="quienes-titulo" data-reveal="up"><span class="lp-b">¿</span>Quiénes somos<span class="lp-b">?</span></h2>
+                <div class="lp-about-copy" data-reveal="up">
                   <p>Somos un equipo de cinco estudiantes que desarrollamos una plataforma digital pensada para facilitar el acceso de los jóvenes al mundo laboral y generar nuevas formas de conexión con empresas y reclutadores.</p>
                   <p>De esta búsqueda nace Match Empleos, una plataforma digital que conecta a postulantes con empresas y reclutadores que buscan talentos.</p>
                   <p>La propuesta busca transformar la manera tradicional de buscar empleo, haciendo que el proceso sea más simple, dinámico y personalizado. En lugar de enfrentarse a una gran cantidad de ofertas, los usuarios reciben oportunidades relevantes para su perfil y pueden mostrar interés en aquellas que realmente les resulten atractivas.</p>
@@ -3294,17 +3297,17 @@
 
             <section class="lp-section lp-situation" id="situacion" aria-labelledby="situacion-titulo">
               <div class="lp-panel">
-                <h2 id="situacion-titulo">Situación actual en <span class="lp-b">Argentina</span></h2>
+                <h2 id="situacion-titulo" data-reveal="left">Situación actual en <span class="lp-b">Argentina</span></h2>
                 <div class="lp-stats">
-                  <article class="lp-stat lp-stat-light">
+                  <article class="lp-stat lp-stat-light" data-reveal="right">
                     <strong>16,5%</strong>
                     <p>Desocupación en personas <br class="lp-br">entre 14 y 29 años, <br class="lp-br">con un 7,5% general.</p>
                   </article>
-                  <article class="lp-stat lp-stat-dark">
+                  <article class="lp-stat lp-stat-dark" data-reveal="right">
                     <strong>43%</strong>
                     <p>De la generación Z sufrió <br class="lp-br">ghosting al postularse. <br class="lp-br">El 45% dudó de sus <br class="lp-br">capacidades.</p>
                   </article>
-                  <article class="lp-stat lp-stat-light">
+                  <article class="lp-stat lp-stat-light" data-reveal="right">
                     <strong>0,17%</strong>
                     <p>Es la tasa de 1.500 <br class="lp-br">inserciones sobre <br class="lp-br">900.000 beneficiarios.</p>
                   </article>
@@ -3317,7 +3320,7 @@
               <div class="lp-panel">
                 <h2 id="como-titulo"><span class="lp-b">¿</span>Cómo funciona<span class="lp-b">?</span></h2>
                 <div class="lp-profiles">
-                  <article class="lp-profile lp-profile-candidate">
+                  <article class="lp-profile lp-profile-candidate" data-reveal="zoom">
                     <h3>Perfil Postulante</h3>
                     <ul>
                       <li>Creá tu perfil de postulante verificado.</li>
@@ -3329,7 +3332,7 @@
                       <li>Si te aceptan, felicidades, hay MATCH.</li>
                     </ul>
                   </article>
-                  <article class="lp-profile lp-profile-company">
+                  <article class="lp-profile lp-profile-company" data-reveal="zoom">
                     <h3>Perfil Empresa</h3>
                     <ul>
                       <li>Creá tu perfil de empresa verificado.</li>
@@ -3352,11 +3355,11 @@
                   <p>En Match Empleos creemos que todas las oportunidades cuentan.</p>
                   <h2 id="cta-titulo"><span class="lp-b">¡</span>El futuro no espera, vos tampoco<span class="lp-b">!</span></h2>
                   <p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p>
-                  <div class="lp-register-card lp-register-candidate">
+                  <div class="lp-register-card lp-register-candidate" data-reveal="up">
                     <h3>Perfil Postulante</h3>
                     <a href="#/registro/c/1">Registrar usuario</a>
                   </div>
-                  <div class="lp-register-card lp-register-company">
+                  <div class="lp-register-card lp-register-company" data-reveal="up">
                     <h3>Perfil Empresa</h3>
                     <a href="#/registro/e/1">Registrar empresa</a>
                   </div>
@@ -5449,7 +5452,7 @@ async function toggleBusqueda(id) {
         let landingRevealObserver = null;
         function initLandingReveal() {
           if (landingRevealObserver) landingRevealObserver.disconnect();
-          const blocks = document.querySelectorAll(".landing-v2 main > .lp-section:not(.lp-hero)");
+          const blocks = document.querySelectorAll(".landing-v2 [data-reveal]");
           if (!blocks.length) return;
           if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             blocks.forEach((block) => block.classList.add("is-visible"));
@@ -5462,9 +5465,9 @@ async function toggleBusqueda(id) {
                 observer.unobserve(entry.target);
               }
             });
-          }, { threshold: 0.12, rootMargin: "0px 0px -5% 0px" });
+          }, { threshold: 0.14, rootMargin: "0px 0px -4% 0px" });
           blocks.forEach((block) => {
-            block.classList.add("lp-reveal");
+            block.classList.add("lp-animate");
             landingRevealObserver.observe(block);
           });
         }
