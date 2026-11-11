@@ -4095,7 +4095,7 @@
           const initialLength = String(initialValue || "").length;
           return `<div class="ai-assist">
             <p class="ai-explainer">Podés mejorar la claridad y presentación de tu descripción sin agregar experiencias que no hayas mencionado.</p>
-            <button class="btn out sm ai-generate" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
+            <button class="btn out sm ai-generate" id="${outputId}-toggle" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
             <p class="ai-count" id="${outputId}-count">${initialLength} / 4.000 caracteres</p>
             <p class="ai-privacy">Tu texto se envía al servicio de IA para generar una propuesta. Tu perfil no cambia hasta que elijas usarla.</p>
             <p class="hint ai-status" id="${outputId}-status" role="status" aria-live="polite"></p>
@@ -5229,12 +5229,33 @@ async function toggleBusqueda(id) {
           if (act === "usar-sobre-ia") {
             const original = document.getElementById(t.dataset.target);
             const sugerido = document.getElementById(t.dataset.output);
-            if (original && sugerido && sugerido.value.trim()) {
+            const wrap = document.getElementById(t.dataset.output + "-wrap");
+            const toggle = document.getElementById(t.dataset.output + "-toggle");
+            if (original && sugerido && sugerido.value.trim() && sugerido.dataset.source === (original.value || "").trim()) {
               original.value = sugerido.value.trim();
               original.dispatchEvent(new Event("input", { bubbles: true }));
+              if (wrap) wrap.hidden = true;
+              if (toggle) {
+                toggle.textContent = "Mejorar con IA";
+                toggle.dataset.action = "mejorar-sobre";
+              }
               original.focus();
-              toast("Versión aplicada al campo original.");
+              toast("Versión aplicada. La sugerencia de IA se cerró.");
+            } else {
+              toast("El texto original cambió. Generá una nueva sugerencia antes de aplicarla.");
             }
+            return;
+          }
+          if (act === "mantener-original") {
+            const wrap = document.getElementById(t.dataset.output + "-wrap");
+            const toggle = document.getElementById(t.dataset.output + "-toggle");
+            if (wrap) wrap.hidden = true;
+            if (toggle) {
+              toggle.textContent = "Mejorar con IA";
+              toggle.dataset.action = "mejorar-sobre";
+            }
+            const status = document.getElementById(t.dataset.output + "-status");
+            if (status) status.textContent = "Se mantuvo tu texto original.";
             return;
           }
           if (act === "write") {
@@ -5394,6 +5415,10 @@ async function toggleBusqueda(id) {
             wrap.hidden = false;
             const originalSigueIgual = (input?.value || "").trim() === texto;
             if (useButton) useButton.disabled = !originalSigueIgual;
+            if (originalSigueIgual && button.dataset.action === "mejorar-sobre") {
+              button.textContent = "Mantener original";
+              button.dataset.action = "mantener-original";
+            }
             if (status) status.textContent = originalSigueIgual
               ? "Propuesta lista. Revisala y editá lo que necesites; el texto original sigue intacto."
               : "La propuesta se generó sobre una versión anterior del texto. Volvé a generarla para poder aplicarla.";
@@ -5406,7 +5431,11 @@ async function toggleBusqueda(id) {
             clearTimeout(progresoB);
             button.disabled = (input?.value || "").length > 4000;
             button.classList.remove("cargando");
-            button.textContent = labelOriginal;
+            if (button.dataset.action === "mejorar-sobre" || button.dataset.action === "mantener-original") {
+              button.textContent = button.dataset.action === "mantener-original" ? "Mantener original" : "Mejorar con IA";
+            } else {
+              button.textContent = labelOriginal;
+            }
             button.removeAttribute("aria-busy");
           }
         }
