@@ -3435,7 +3435,6 @@
 
       // Ejecuta una escritura y avisa si falla, sin romper la UI
       function persistir(query, etiqueta) {
-        if (false) return Promise.resolve(null); // modo demo: no se escribe en la base
         return query
           .then(({ data, error }) => {
             if (error) throw error;
@@ -3914,13 +3913,13 @@
         }
         // La landing vive en el HTML (#root). home() reutiliza ese HTML y solo ajusta lo que depende de la sesión.
         function landingHref() {
-          return (ME.id || false) ? (ME.rol === "e" ? "#/e/panel" : "#/c/feed") : "#/login";
+          return ME.id ? (ME.rol === "e" ? "#/e/panel" : "#/c/feed") : "#/login";
         }
         function navCuenta() {
-          if (!(ME.id || false)) return '<nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>';
+          if (!ME.id) return '<nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>';
           const emp = ME.rol === "e";
           const to = emp ? "#/e/panel" : "#/c/feed";
-          const img = false ? (emp ? "img/logo-cafe-mercado.png" : "img/avatar-tomas.png") : (ME.avatarUrl || phSrc());
+          const img = ME.avatarUrl || phSrc();
           return `<nav aria-label="Cuenta"><a href="${emp ? "#/e/salir" : "#/c/salir"}">Cerrar sesión</a><a href="${to}" class="top-av" aria-label="Ir a ${emp ? "el panel" : "el feed"}"><img loading="lazy" decoding="async" src="${img}" alt="" style="width:48px;height:48px;border-radius:12px;object-fit:cover;background:#fff;display:block"></a></nav>`;
         }
         function home() {
@@ -4150,7 +4149,7 @@
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
     <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
-    <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || (false ? "img/logo-cafe-mercado.png" : phSrc())}" alt="${esc(o.emp)}"></div>
+    <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || phSrc()}" alt="${esc(o.emp)}"></div>
     <p class="note-match" style="max-width:342px">Ya podés coordinar los próximos pasos en el chat.</p>
   </div>
   <div class="stack" style="margin-top:60px"><button class="btn pri" data-go="#/c/chat/${o.id}">Escribirle ahora</button><button class="btn out" data-go="#/c/feed">Seguir viendo búsquedas</button></div>
@@ -4184,16 +4183,7 @@
         }
         function avatarOf(kind, k) {
           const ch = (kind === "e" ? S.e.chats : S.c.chats)[k];
-          if (ch?.avatar)
-            return `<img loading="lazy" decoding="async" class="avatar" src="${esc(ch.avatar)}" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">`;
-          if (!false) return avPh("width:44px;height:44px;border-radius:12px");
-          if (kind === "e")
-            return k === "tomas"
-              ? '<img loading="lazy" decoding="async" class="avatar" src="img/avatar-tomas.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
-              : '<span class="avatar" style="width:44px;height:44px;border-radius:12px;background:var(--navy2)"></span>';
-          return k === "cafe"
-            ? '<img loading="lazy" decoding="async" class="avatar" src="img/logo-cafe-mercado.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
-            : '<span class="sq" style="width:44px;height:44px;border-radius:12px"></span>';
+          return avPh("width:44px;height:44px;border-radius:12px", ch?.avatar);
         }
         function convItems(kind, active) {
           const chats = kind === "e" ? S.e.chats : S.c.chats;
@@ -4255,7 +4245,7 @@
           const env = S.c.posts.length,
             resp = S.c.posts.filter((p) => p.estado === "Respondida").length,
             mt = S.c.posts.filter((p) => p.match).length;
-          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
+          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">${[
     [env, "enviadas"],
     [resp, "respuestas"],
@@ -4278,9 +4268,9 @@
         }
         function profHead(kind) {
           if (kind === "e") {
-            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
+            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
           }
-          return `<div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
+          return `<div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
         }
         function configScreen(kind) {
           const e = kind === "e";
@@ -4295,30 +4285,8 @@
           return shell(kind, e ? "#/e/empresa" : "#/c/perfil", inner);
         }
         function cDatos() {
-          const EJEMPLO = [
-            ["Edad", "20"],
-            ["Ubicación", "Lomas de Zamora"],
-            ["Experiencia", "Sin experiencia"],
-            ["Tipo de empleo", "Part Time"],
-            ["Modalidad", "Presencial"],
-            ["Horario", "Mañana"],
-          ];
-          const campos = false
-            ? {
-                "rc-edad": "20",
-                "rc-ubi": "Lomas de Zamora",
-                "rc-puesto": "Ayudante de cocina",
-                "rc-sobre": "Soy Tomás Ferreyra, busco mis primeras experiencias.",
-              }
-            : ME.datos?.campos || {};
-          const chips = false
-            ? {
-                tipo: ["Part Time"],
-                modo: ["Presencial"],
-                hora: ["Mañana"],
-                rubros: ["Gastronomía", "Ventas"],
-              }
-            : ME.datos?.chips || {};
+          const campos = ME.datos?.campos || {};
+          const chips = ME.datos?.chips || {};
           if (editandoPerfil) {
             const inner = `<div style="max-width:720px"><div class="hdr"><button class="back" data-action="cancelar-edicion">‹&nbsp;&nbsp;Cancelar</button></div>
       <h1 class="t-title" style="margin-bottom:18px">Editar datos personales</h1>
@@ -4343,9 +4311,7 @@
           const exp = [campos["rx-puesto"], campos["rx-emp"], campos["rx-dur"]]
             .filter((x) => x && String(x).trim())
             .join(" · ");
-          const filas = false
-            ? EJEMPLO
-            : [
+          const filas = [
                 ["Correo", ME.email],
                 ["Edad", campos["rc-edad"]],
                 ["Ubicación", campos["rc-ubi"]],
@@ -4360,18 +4326,13 @@
             const txt = Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
             return txt.trim() ? esc(txt) : '<span style="color:var(--t3)">Sin completar</span>';
           };
-          const subt = false
-            ? "Lomas de Zamora · Busco mi primer trabajo"
-            : campos["rc-ubi"]
+          const subt = campos["rc-ubi"]
               ? esc(campos["rc-ubi"])
               : "";
-          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
+          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${campos["rc-sobre"] ? `<p class="t-sec">Sobre mí</p><p style="color:var(--t2);line-height:1.6">${esc(campos["rc-sobre"])}</p>` : ""}
-  ${
-    false
-      ? ""
-      : `<div class="rowline"><span>Currículum (PDF)</span><span class="v">${ME.datos?.cv ? esc(ME.datos.cv.nombre) : '<span style="color:var(--t3)">Sin cargar</span>'}</span></div>
+  ${`<div class="rowline"><span>Currículum (PDF)</span><span class="v">${ME.datos?.cv ? esc(ME.datos.cv.nombre) : '<span style="color:var(--t3)">Sin cargar</span>'}</span></div>
   <div class="stack" style="margin-top:12px">${ME.datos?.cv ? `<button class="btn out sm" data-action="ver-cv" data-cv="${esc(ME.datos.cv.path)}">Ver mi CV</button>` : ""}<label class="btn out sm" for="cv-up" style="cursor:pointer">${ME.datos?.cv ? "Reemplazar CV" : "Subir CV"}</label><input id="cv-up" type="file" accept=".pdf,application/pdf" hidden></div>`
   }
   <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar mis datos</button></div>`;
@@ -4401,19 +4362,7 @@
           const pendCard = p
             ? `<a class="card" data-bsel="all" href="#/e/candidatos" style="display:block;text-decoration:none"><h2 style="font-size:20px;font-weight:500;line-height:1.3;margin-bottom:10px">Te faltan responder ${p} postulaci${p === 1 ? "ón" : "ones"}</h2><p class="t-note">La más vieja lleva ${vieja.hace} días esperando. Te quedan ${vieja.quedan} para contestarla sin que baje tu tasa.</p></a>`
             : `<div class="card"><h2 style="font-size:20px;font-weight:500;margin-bottom:8px">Estás al día</h2><p class="t-note">Respondiste todas las postulaciones. Ya podés publicar una búsqueda nueva.</p></div>`;
-          const camposEmpresa = false ? {} : ME.datos?.campos || {};
-          const busquedasEmpresa = false
-            ? S.e.busquedas
-            : S.e.busquedas.length
-              ? S.e.busquedas
-              : [
-                  {
-                    id: "registro",
-                    puesto: camposEmpresa["re-puesto"] || "Búsqueda de empleo",
-                    total: 0,
-                    estado: "Activa",
-                  },
-                ];
+          const busquedasEmpresa = S.e.busquedas;
           const inner = `<div class="hdr">${WM_INV}<span class="side">${esc(miNombre("e"))}</span></div>
   <h1 class="t-title only-d" style="margin-bottom:20px">Búsquedas</h1>
   <div class="grid2" style="gap:12px">${pendCard}
@@ -4457,14 +4406,12 @@
         }
         let candFilter = "pend";
         let candBusqueda = "all"; // 'all' o id de búsqueda
-        // Postulación -> búsqueda. En demo, los postulantes sin oferta pertenecen a b1.
+        // Postulación -> búsqueda asociada en Supabase.
         function ofertaDe(c) {
-          return c.oferta_id || (false ? "b1" : null);
+          return c.oferta_id || null;
         }
         function ePuestoActual() {
-          return false
-            ? "Ayudante de cocina"
-            : (ME.datos?.campos || {})["re-puesto"] || "Búsqueda de empleo";
+          return (ME.datos?.campos || {})["re-puesto"] || "Búsqueda de empleo";
         }
 let EDIT_BUSQUEDA = null; // id de la búsqueda en edición
         function eBusqueda(id) {
@@ -4670,7 +4617,7 @@ async function toggleBusqueda(id) {
             .format(new Date())
             .replace(/^./, (c) => c.toUpperCase());
           const inner = `<div style="max-width:720px"><h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
   <div class="card"><div class="row2"><div><p class="bignum">${S.e.tasa}%</p><p class="t-note">de respuesta</p></div><div><p class="bignum">${S.e.demora} días</p><p class="t-note">de demora</p></div></div><div class="progress" style="margin:14px 0"><i style="width:${S.e.tasa}%"></i></div><p class="t-note">Con 90% o más entrás en el grupo de empresas destacadas y tus búsquedas aparecen primero.</p></div>
   <h2 class="t-sec">Historial de respuesta</h2>
   ${[[mesActual, S.e.tasa]].map(([m, v]) => `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>${m}</span><span>${v}%</span></div><div class="progress"><i style="width:${v}%;background:var(--navy)"></i></div></div>`).join("")}
@@ -4679,18 +4626,8 @@ async function toggleBusqueda(id) {
           return shell("e", "#/e/empresa", inner);
         }
         function eDatos() {
-          const campos = false
-            ? {
-                "re-resp": "Carolina Gómez",
-                "re-puesto": "Ayudante de cocina",
-                "re-rubro": "Gastronomía",
-                "re-tam": "12 empleados",
-                "re-ubi": "Lomas de Zamora",
-                "re-desc":
-                  "Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.",
-              }
-            : ME.datos?.campos || {};
-          const chips = false ? {} : ME.datos?.chips || {};
+          const campos = ME.datos?.campos || {};
+          const chips = ME.datos?.chips || {};
           if (editandoPerfil) {
             const inner = `<div style="max-width:720px"><div class="hdr"><button class="back" data-action="cancelar-edicion">‹&nbsp;&nbsp;Cancelar</button></div>
       <h1 class="t-title" style="margin-bottom:18px">Editar datos de la empresa</h1>
@@ -4711,35 +4648,25 @@ async function toggleBusqueda(id) {
       </form></div>`;
             return shell("e", "#/e/empresa", inner);
           }
-          const filas = false
-            ? [
-                ["Rubro", "Gastronomía"],
-                ["Ubicación", "Lomas de Zamora"],
-                ["Tamaño", "12 empleados"],
-              ]
-            : [
-                ["Responsable", campos["re-resp"]],
-                ["Puesto a cubrir", campos["re-puesto"]],
-                ["Rubro", campos["re-rubro"]],
-                ["Tamaño", campos["re-tam"]],
-                ["Ubicación", campos["re-ubi"]],
-                ["Sector", chips.esector],
-                ["Tipo de empleo", chips.etipo],
-                ["Experiencia requerida", chips.eexp],
-                ["Modalidad", chips.emodo],
-                ["Horario", chips.ehora],
-              ];
+          const filas = [
+            ["Responsable", campos["re-resp"]],
+            ["Puesto a cubrir", campos["re-puesto"]],
+            ["Rubro", campos["re-rubro"]],
+            ["Tamaño", campos["re-tam"]],
+            ["Ubicación", campos["re-ubi"]],
+            ["Sector", chips.esector],
+            ["Tipo de empleo", chips.etipo],
+            ["Experiencia requerida", chips.eexp],
+            ["Modalidad", chips.emodo],
+            ["Horario", chips.ehora],
+          ];
           const fmt = (v) => {
             const t = Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
             return t.trim() ? esc(t) : '<span style="color:var(--t3)">Sin completar</span>';
           };
-          const descr = false
-            ? "Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.<br>No es necesario contar con experiencia previa: valoramos principalmente la responsabilidad, las ganas de aprender, el compromiso y la buena predisposición."
-            : campos["re-desc"]
-              ? esc(campos["re-desc"]).replace(/\n/g, "<br>")
-              : "";
+          const descr = campos["re-desc"] ? esc(campos["re-desc"]).replace(/\n/g, "<br>") : "";
           const inner = `<div style="max-width:720px">${hdr(backBtn("#/e/empresa"), '<button class="back" data-action="editar-perfil" style="color:var(--navy);font-weight:700">Editar</button>')}<h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${descr ? `<h2 class="t-sec">Descripción</h2><p style="line-height:1.6">${descr}</p>` : ""}
   <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar datos empresariales</button></div>`;
@@ -5564,16 +5491,13 @@ async function toggleBusqueda(id) {
             return null;
           });
           if (!d) return;
-          const base = freshState();
           const perf = d.perfiles[0];
           if (ME.rol === "c" && d.cupo != null) S.c.cupo = d.cupo;
           if (perf && ME.rol === "e") S.e.tasa = perf.tasa;
           // Candidato: postulaciones y chats creados
           const dbPosts = d.postulaciones.map((r) => ({ ...r.datos.post, estado: r.estado }));
-          const postIds = new Set(dbPosts.map((p) => p.id));
-          S.c.posts =
-            ME.rol === "c" ? dbPosts : [...dbPosts, ...base.c.posts.filter((p) => !postIds.has(p.id))];
-          S.c.chats = ME.rol === "c" ? {} : { ...base.c.chats };
+          S.c.posts = dbPosts;
+          S.c.chats = {};
           if (ME.rol === "c")
             (d.chats || []).forEach((ch) => {
               const r = d.postulaciones.find((p) => p.id === ch.postulacion_id);
@@ -5590,12 +5514,9 @@ async function toggleBusqueda(id) {
               };
               if (post) post.chat = ch.id;
             });
-          if (ME.rol === "c")
-            S.c.notifs = base.c.notifs.filter(
-              (n) => !/(Farmacia Sur|Supermercado Norte)/i.test((n.t || "") + " " + (n.d || "")),
-            );
+          S.c.notifs = [];
+          S.e.notifs = [];
           // Empresa: búsquedas y candidatos respondidos
-          if (ME.rol === "e") S.e.notifs = [];
           const dbBus = d.busquedas.map((b) => ({
             id: b.id,
             puesto: b.puesto,
@@ -5605,9 +5526,7 @@ async function toggleBusqueda(id) {
             jornada: b.jornada || [],
             turno: b.turno || [],
           }));
-          const busIds = new Set(dbBus.map((b) => b.id));
-          S.e.busquedas =
-            ME.rol === "e" ? dbBus : [...dbBus, ...base.e.busquedas.filter((b) => !busIds.has(b.id))];
+          S.e.busquedas = dbBus;
           const estados = new Map(d.candidatosEstado.map((r) => [r.id, r]));
           const perfilesPorId = new Map((d.candidatos || []).map((p) => [p.id, p]));
           const postulantes = d.postulaciones.map((r) => {
@@ -5787,10 +5706,6 @@ async function toggleBusqueda(id) {
         let ultimoCorreo = "";
         let inputFoto = null;
         function abrirSelectorFoto() {
-          if (false) {
-            toast("En modo demo no se guardan cambios. Iniciá sesión para cambiar tu foto.");
-            return;
-          }
           if (!ME.id) return;
           if (!inputFoto) {
             inputFoto = document.createElement("input");
@@ -6038,12 +5953,7 @@ async function toggleBusqueda(id) {
           );
         }
 
-        // Demo: sin login y sin escrituras en la base. Para quitarla, poner en false o borrar este bloque.
-        const DEMO_HABILITADO = false
-        // Las cuentas de demo no se ofrecen en el dominio de producción
-        const DEMO_VISIBLE = DEMO_HABILITADO && ENTORNO !== "prod";
-        function miNombre(kind) {
-          if (false) return kind === "e" ? "Café Mercado" : "Tomás Ferreyra";
+        function miNombre() {
           return ME.nombre || "";
         }
         function phSrc() {
@@ -6051,18 +5961,15 @@ async function toggleBusqueda(id) {
           const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${fill}"/><circle cx="50" cy="40" r="18" fill="#FFFFFF" fill-opacity=".35"/><path d="M20 100Q20 64 50 64Q80 64 80 100Z" fill="#FFFFFF" fill-opacity=".35"/></svg>`;
           return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
         }
-        function fotoSrc(defecto) {
-          if (false) return defecto;
+        function fotoSrc() {
           return ME.avatarUrl || phSrc();
         }
         function avPh(size, avatarUrl) {
-          if (false) return `<span class="avatar" style="${size};background:var(--navy2)"></span>`;
           return avatarUrl
             ? `<img loading="lazy" decoding="async" class="avatar" src="${esc(avatarUrl)}" alt="" style="${size}">`
             : `<img loading="lazy" decoding="async" class="avatar" src="${phSrc()}" alt="" style="${size}">`;
         }
         function subtituloEmpresa() {
-          if (false) return "Gastronomía · 12 empleados · Lomas de Zamora";
           const c = ME.datos?.campos || {};
           return [c["re-rubro"], c["re-tam"], c["re-ubi"]]
             .filter((x) => x && String(x).trim())
@@ -6070,7 +5977,6 @@ async function toggleBusqueda(id) {
             .join(" · ");
         }
         function subtituloCandidato() {
-          if (false) return "Lomas de Zamora · Busco mi primer trabajo";
           const u = (ME.datos?.campos || {})["rc-ubi"];
           return u ? esc(u) : "";
         }
