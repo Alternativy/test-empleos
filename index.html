@@ -5262,9 +5262,13 @@ async function toggleBusqueda(id) {
             if (toggle) {
               toggle.textContent = "Mejorar con IA";
               toggle.dataset.action = "mejorar-sobre";
+              toggle.disabled = toggle.dataset.quotaExhausted === "true" ||
+                (document.getElementById(t.dataset.target)?.value || "").length > 4000;
             }
             const status = document.getElementById(t.dataset.output + "-status");
-            if (status) status.textContent = "Se mantuvo tu texto original.";
+            if (status) status.textContent = toggle?.dataset.quotaExhausted === "true"
+              ? "Se mantuvo tu texto original, pero alcanzaste tu límite de mejoras con IA."
+              : "Se mantuvo tu texto original.";
             return;
           }
           if (act === "write") {
@@ -5385,14 +5389,17 @@ async function toggleBusqueda(id) {
             return;
           }
         });
-        function actualizarCuotaIA(count, daily, monthly) {
-          if (!count || daily == null || monthly == null) return;
+        function actualizarCuotaIA(count, daily, monthly, button) {
+          if (daily == null || monthly == null) return;
           const d = Math.max(0, Number(daily));
           const m = Math.max(0, Number(monthly));
           if (!Number.isFinite(d) || !Number.isFinite(m)) return;
-          count.textContent = `Te quedan ${d} mejoras hoy y ${m} este mes.`;
-          count.dataset.dailyRemaining = String(d);
-          count.dataset.monthlyRemaining = String(m);
+          if (count) {
+            count.textContent = `Te quedan ${d} mejoras hoy y ${m} este mes.`;
+            count.dataset.dailyRemaining = String(d);
+            count.dataset.monthlyRemaining = String(m);
+          }
+          if (button) button.dataset.quotaExhausted = String(d === 0 || m === 0);
         }
 
         async function leerDetalleErrorIA(error) {
@@ -5445,6 +5452,7 @@ async function toggleBusqueda(id) {
               document.getElementById(outputId + "-quota"),
               data.dailyRemaining,
               data.monthlyRemaining,
+              button,
             );
             wrap.hidden = false;
             const originalSigueIgual = (input?.value || "").trim() === texto;
@@ -5463,6 +5471,7 @@ async function toggleBusqueda(id) {
               document.getElementById(outputId + "-quota"),
               detail?.dailyRemaining,
               detail?.monthlyRemaining,
+              button,
             );
             const mensaje = detail?.error || "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
             if (status) status.textContent = mensaje;
@@ -5470,7 +5479,8 @@ async function toggleBusqueda(id) {
           } finally {
             clearTimeout(progresoA);
             clearTimeout(progresoB);
-            button.disabled = (input?.value || "").length > 4000;
+            button.disabled = button.dataset.action === "mejorar-sobre" &&
+              ((input?.value || "").length > 4000 || button.dataset.quotaExhausted === "true");
             button.classList.remove("cargando");
             if (button.dataset.action === "mejorar-sobre" || button.dataset.action === "mantener-original") {
               button.textContent = button.dataset.action === "mantener-original" ? "Mantener original" : "Mejorar con IA";
@@ -5773,7 +5783,10 @@ async function toggleBusqueda(id) {
               count.textContent = length.toLocaleString("es-AR") + " / 4.000 caracteres";
               count.dataset.overLimit = String(length > 4000);
             }
-            if (generateButton) generateButton.disabled = length > 4000;
+            if (generateButton) {
+              generateButton.disabled = length > 4000 ||
+                (generateButton.dataset.action === "mejorar-sobre" && generateButton.dataset.quotaExhausted === "true");
+            }
             const suggestion = document.getElementById(outputId);
             if (suggestion && suggestion.value && suggestion.dataset.source !== e.target.value.trim()) {
               if (useButton) useButton.disabled = true;
