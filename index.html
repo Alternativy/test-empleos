@@ -3813,7 +3813,6 @@
           };
         }
         let S = freshState();
-        const timers = [];
         let cargandoSesion = false;
         let editandoPerfil = false;
         let EDIT_BACKUP = null; // datos guardados al entrar en edición, para poder cancelar
@@ -4454,7 +4453,7 @@ let EDIT_BUSQUEDA = null; // id de la búsqueda en edición
           b.jornada = [...(S.reg.chips.pjor || [])];
           b.turno = [...(S.reg.chips.ptur || [])];
           EDIT_BUSQUEDA = null;
-          if (!false) await DB.guardarBusqueda(b);
+          await DB.guardarBusqueda(b);
           toast("Búsqueda actualizada.");
           render(true);
         }
@@ -4462,10 +4461,8 @@ async function toggleBusqueda(id) {
           const b = S.e.busquedas.find((x) => x.id === id);
           if (!b) return;
           const nuevo = b.estado === "Pausada" ? "Activa" : "Pausada";
-          if (!false) {
-            const ok = await DB.cambiarEstadoBusqueda(b.id, nuevo);
-            if (!ok) return;
-          }
+          const ok = await DB.cambiarEstadoBusqueda(b.id, nuevo);
+          if (!ok) return;
           b.estado = nuevo;
           toast(nuevo === "Pausada" ? "Búsqueda pausada." : "Búsqueda reactivada.");
           render(true);
@@ -4474,11 +4471,9 @@ async function toggleBusqueda(id) {
           const b = S.e.busquedas.find((x) => x.id === id);
           if (!b) return;
           if (!window.confirm(`¿Eliminar “${b.puesto}”? Se borran también sus postulaciones y chats.`)) return;
-          if (!false) {
-            const ok = await DB.borrarBusqueda(id);
-            if (!ok) return;
-            await hidratar();
-          }
+          const ok = await DB.borrarBusqueda(id);
+          if (!ok) return;
+          await hidratar();
           S.e.busquedas = S.e.busquedas.filter((x) => x.id !== id);
           S.e.pend = S.e.pend.filter((p) => ofertaDe(p) !== id);
           S.e.resp = S.e.resp.filter((r) => r.oid !== id);
@@ -4727,14 +4722,6 @@ async function toggleBusqueda(id) {
           card.addEventListener("pointercancel", endDrag);
         }
 
-        function later(ms, fn) {
-          timers.push(
-            setTimeout(() => {
-              fn();
-              softRender();
-            }, ms),
-          );
-        }
         function softRender() {
           // re-render sin perder lo que se está escribiendo
           const a = document.activeElement;
@@ -4752,132 +4739,29 @@ async function toggleBusqueda(id) {
         async function apply(oid) {
           const o = offerById(oid);
           if (!o || applied(oid) || S.c.cupo <= 0) return;
-          if (!o || o.real !== true) {
+          if (o.real !== true) {
             toast("Esta búsqueda ya no está disponible.");
             return;
           }
-          if (!false) {
-            const post = {
-              id: "p" + crypto.randomUUID(),
-              oid,
-              puesto: o.puesto,
-              emp: o.emp,
-              estado: "Enviada",
-              pie: "Enviada recién",
-            };
-            const restante = await DB.postular(post, oid);
-            if (restante === null) {
-              render();
-              return;
-            }
-            S.c.cupo = restante;
-            S.c.posts.unshift(post);
-            S.c.idx++;
-            toast(
-              `Te postulaste a ${o.puesto}. ${S.c.cupo > 0 ? `Te quedan ${S.c.cupo}.` : "Usaste tu cupo semanal."}`,
-            );
-            render();
-            return;
-          }
-          S.c.cupo--;
-          DB.setCupo(S.c.cupo);
-          if (o.match) {
-            const post = {
-              id: "p" + Date.now(),
-              oid,
-              puesto: o.puesto,
-              emp: o.emp,
-              estado: "Respondida",
-              pie: "Te contestaron recién",
-              match: true,
-              chat: oid,
-            };
-            const msg = {
-              de: "them",
-              t: `¡Hola ${miPrimerNombre()}! Vimos tu perfil y nos interesa. ¿Podés venir el jueves a las 16?`,
-              h: now(),
-            };
-            S.c.posts.unshift(post);
-            S.c.chats[oid] = {
-              con: o.emp,
-              puesto: o.puesto,
-              tasa: o.tasa,
-              match: true,
-              msgs: [msg],
-              auto: [
-                "Av. Meeks 250, Lomas. Preguntá por Caro en el mostrador.",
-                "¡Genial! Nos vemos el jueves.",
-                "Perfecto, cualquier cosa escribinos por acá.",
-              ],
-            };
-            DB.guardarPostulacion(post, oid, chatMeta(S.c.chats[oid]));
-            DB.nuevoMensaje("c:" + oid, msg.de, msg.t, msg.h);
-            S.c.notifs.unshift({
-              t: "¡Hay match!",
-              cuando: "ahora",
-              d: `${o.emp} también quiere hablar con vos por ${o.puesto}.`,
-              go: "#/c/chat/" + oid,
-              nuevo: true,
-            });
-            S.c.idx++;
-            go("#/c/match/" + oid);
-            return;
-          }
           const post = {
-            id: "p" + Date.now(),
+            id: "p" + crypto.randomUUID(),
             oid,
             puesto: o.puesto,
             emp: o.emp,
             estado: "Enviada",
             pie: "Enviada recién",
           };
+          const restante = await DB.postular(post, oid);
+          if (restante === null) {
+            render();
+            return;
+          }
+          S.c.cupo = restante;
           S.c.posts.unshift(post);
-          DB.guardarPostulacion(post, oid, null);
           S.c.idx++;
           toast(
             `Te postulaste a ${o.puesto}. ${S.c.cupo > 0 ? `Te quedan ${S.c.cupo}.` : "Usaste tu cupo semanal."}`,
           );
-          if (S.c.cupo === 0)
-            S.c.notifs.unshift({
-              t: "Usaste tus 5 postulaciones",
-              d: "Se libera tu cupo el lunes. Mientras tanto, seguí tus postulaciones.",
-              go: "#/c/postulaciones",
-              nuevo: true,
-            });
-          later(6000, () => {
-            post.estado = "Vista";
-            post.pie = "La vieron recién";
-            DB.guardarPostulacion(post, oid, null);
-            S.c.notifs.unshift({
-              t: "Tu postulación fue vista",
-              cuando: "ahora",
-              d: `${o.emp} abrió tu perfil. Tiene 7 días para contestarte.`,
-              go: "#/c/postulaciones",
-              nuevo: true,
-            });
-            toast(`${o.emp} vio tu postulación`);
-          });
-          later(14000, () => {
-            post.estado = "Respondida";
-            post.pie = "Te contestaron recién";
-            post.chat = oid;
-            const msg = {
-              de: "them",
-              t: `Hola ${miPrimerNombre()}, gracias por postularte a ${o.puesto}. Nos gustaría conocerte. ¿Te queda bien pasar el miércoles a las 15?`,
-              h: now(),
-            };
-            S.c.chats[oid] = { con: o.emp, puesto: o.puesto, tasa: o.tasa, match: false, msgs: [msg] };
-            DB.guardarPostulacion(post, oid, chatMeta(S.c.chats[oid]));
-            DB.nuevoMensaje("c:" + oid, msg.de, msg.t, msg.h);
-            S.c.notifs.unshift({
-              t: "Te contestaron",
-              cuando: "ahora",
-              d: `${o.emp} respondió tu postulación a ${o.puesto}.`,
-              go: "#/c/chat/" + oid,
-              nuevo: true,
-            });
-            toast(`${o.emp} te respondió`);
-          });
           render();
         }
 
@@ -5288,8 +5172,6 @@ async function toggleBusqueda(id) {
             return;
           }
           if (act === "logout") {
-            timers.forEach(clearTimeout);
-            timers.length = 0;
             ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null };
             S = freshState();
             sb.auth.signOut();
@@ -5377,7 +5259,7 @@ async function toggleBusqueda(id) {
             };
             ME.nombre = nom;
             ME.datos = { ...(ME.datos || {}), campos: nuevosCampos, chips: { ...S.reg.chips } };
-            if (!false) await DB.guardarDatosPerfil(nom, ME.datos);
+            await DB.guardarDatosPerfil(nom, ME.datos);
           } else {
             const nom = (document.getElementById("ede-nom")?.value || "").trim() || miNombre("e");
             const nuevosCampos = {
@@ -5392,7 +5274,7 @@ async function toggleBusqueda(id) {
             };
             ME.nombre = nom;
             ME.datos = { ...(ME.datos || {}), campos: nuevosCampos, chips: { ...S.reg.chips } };
-            if (!false) await DB.guardarDatosPerfil(nom, ME.datos);
+            await DB.guardarDatosPerfil(nom, ME.datos);
           }
           EDIT_BACKUP = null;
           S.reg.chips = {};
