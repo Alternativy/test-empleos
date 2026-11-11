@@ -77,6 +77,14 @@ test("el campo Sobre vos ofrece mejora con IA tanto en el registro como en edici
   assert.match(html, /Versión aplicada\. La sugerencia de IA se cerró\./);
   assert.match(html, /Se mantuvo tu texto original\./);
   assert.match(html, /aria-live="polite"/);
+  assert.match(html, /Límite: 5 por día y 50 por mes/);
+  assert.match(html, /data\.dailyRemaining/);
+  assert.match(html, /data\.monthlyRemaining/);
+  assert.match(html, /leerDetalleErrorIA\(err\)/);
+  assert.match(html, /detail\?\.dailyRemaining/);
+  assert.match(html, /if \(toggle\) toggle\.hidden = true/);
+  assert.match(html, /ai: \{ sobreAplicado: regDraftAIUsed \}/);
+  assert.match(html, /sobreAplicado: true/);
 });
 
 test("la integración no expone la clave de OpenAI en el frontend", () => {
