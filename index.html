@@ -4336,6 +4336,12 @@
         }
 
         /* ================= CANDIDATO ================= */
+        function ofertasVisiblesParaUsuario(ofertas, demo) {
+          return demo ? ofertas : ofertas.filter((o) => o.real === true);
+        }
+        function puedeAplicarOferta(oferta, demo) {
+          return !!oferta && (demo || oferta.real === true);
+        }
         function offerById(id) {
           return S.c.ofertas.find((o) => o.id === id);
         }
@@ -4376,7 +4382,8 @@
           const o = S.c.ofertas[S.c.idx];
           let inner = hdr(WM);
           if (!o) {
-            inner += `<div class="empty"><p style="font-size:18px;color:var(--white);font-weight:600">Viste todas las búsquedas de hoy</p><p>Mañana te mostramos nuevas oportunidades para tu perfil. Mientras tanto, seguí tus postulaciones.</p><button class="btn out sm" data-go="#/c/postulaciones">Ver mis postulaciones</button><button class="btn out sm" data-action="feed-reset">Volver a ver las búsquedas</button></div>`;
+            const sinBusquedasReales = !ME.demo && S.c.ofertas.length === 0;
+            inner += `<div class="empty"><p style="font-size:18px;color:var(--white);font-weight:600">${sinBusquedasReales ? "Todavía no hay búsquedas publicadas" : "Viste todas las búsquedas de hoy"}</p><p>${sinBusquedasReales ? "Cuando una empresa publique una oportunidad, vas a poder encontrarla acá." : "Mañana te mostramos nuevas oportunidades para tu perfil. Mientras tanto, seguí tus postulaciones."}</p><button class="btn out sm" data-go="#/c/postulaciones">Ver mis postulaciones</button>${sinBusquedasReales ? "" : '<button class="btn out sm" data-action="feed-reset">Volver a ver las búsquedas</button>'}</div>`;
             return shell("c", "#/c/feed", inner);
           }
           const ya = applied(o.id);
@@ -5078,7 +5085,11 @@ async function toggleBusqueda(id) {
         async function apply(oid) {
           const o = offerById(oid);
           if (!o || applied(oid) || S.c.cupo <= 0) return;
-          if (!ME.demo && o.real) {
+          if (!puedeAplicarOferta(o, ME.demo)) {
+            toast("Esta búsqueda ya no está disponible.");
+            return;
+          }
+          if (!ME.demo) {
             const post = {
               id: "p" + crypto.randomUUID(),
               oid,
@@ -5973,9 +5984,9 @@ async function toggleBusqueda(id) {
               real: true,
             };
           });
-          if (ME.rol === "c" && ofertasReales.length) {
-            const ids = new Set(S.c.ofertas.map((o) => o.id));
-            S.c.ofertas = [...ofertasReales.filter((o) => !ids.has(o.id)), ...S.c.ofertas];
+          if (ME.rol === "c") {
+            S.c.ofertas = ofertasVisiblesParaUsuario(ofertasReales, ME.demo);
+            S.c.idx = 0;
           }
           Object.keys(S.c.chats).forEach((k) => {
             S.c.chats[k].msgs = [...(S.c.chats[k].msgs || []), ...msgsDe(d, "c:" + k)];
@@ -6425,7 +6436,10 @@ async function toggleBusqueda(id) {
             return;
           }
           if (ME.rol === "e" && !yaCargado) await asegurarBusquedaEmpresa();
-          if (!yaCargado) S = freshState();
+          if (!yaCargado) {
+            S = freshState();
+            if (ME.rol === "c") S.c.ofertas = [];
+          }
           await hidratar();
           cargandoSesion = false;
         }
