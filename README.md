@@ -122,7 +122,7 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 - El registro de postulante (paso 5) y la edición de datos personales muestran el botón **“Mejorar con IA”** debajo del texto original.
 - El botón envía el texto a la Edge Function `mejorar-sobre`. La sugerencia aparece en un segundo campo editable; no reemplaza el original automáticamente.
 - **“Usar esta versión”** copia la sugerencia al campo original. La persona puede editarla antes de guardarla o crear la cuenta.
-- La función usa OpenAI Responses API con el modelo predeterminado `gpt-6-luna` (se puede cambiar con `OPENAI_MODEL`). Sus instrucciones prohíben inventar experiencia, estudios, habilidades o logros que no estén en el texto original.
+- La función usa OpenAI Responses API con el modelo predeterminado `gpt-4.1-mini` (se puede cambiar con `OPENAI_MODEL`). Sus instrucciones prohíben inventar experiencia, estudios, habilidades o logros que no estén en el texto original.
 - La clave `OPENAI_API_KEY` se configura como secreto de la Edge Function en Supabase. Nunca debe guardarse en `index.html`, el repositorio ni el navegador. `store: false` se envía en la solicitud al proveedor.
 - La función valida el cuerpo y limita el texto a 4.000 caracteres. Tiene un límite de frecuencia en memoria por IP como protección básica; no reemplaza un rate limiter persistente para producción.
 - La función acepta el JWT público del proyecto (`verify_jwt: true`); puede utilizarse durante el onboarding, antes de que el usuario cree su cuenta. No escribe información en la base de datos.
