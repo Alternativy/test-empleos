@@ -4696,10 +4696,41 @@ async function toggleBusqueda(id) {
           toast(`Eliminaste “${b.puesto}”.`);
           go("#/e/panel");
         }
+        // Puntaje heurístico: jornada, turno y palabras relevantes del puesto/descripción.
+        function puntajeMatch(c, b) {
+          if (!c || !b) return null;
+          const chips = c.chips || {};
+          const campos = c.campos || {};
+          const criterios = [];
+          const lista = (req, have) => {
+            const r = (req || []).map((x) => String(x).trim().toLocaleLowerCase("es")).filter(Boolean);
+            if (!r.length) return null;
+            const h = new Set((have || []).map((x) => String(x).trim().toLocaleLowerCase("es")));
+            return r.filter((x) => h.has(x)).length / r.length;
+          };
+          const jornada = lista(b.jornada, chips.tipo), turno = lista(b.turno, chips.hora);
+          if (jornada !== null) criterios.push({ peso: 25, valor: jornada });
+          if (turno !== null) criterios.push({ peso: 25, valor: turno });
+          const stop = new Set(["para","con","una","uno","del","las","los","por","que","de","la","el","y","en","un","se","su","al","a","o","es","puesto","trabajo","experiencia","conocimiento","tareas","persona","buscamos"]);
+          const tokens = (v) => String(v || "").toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^a-z0-9]+/).filter((x) => x.length > 2 && !stop.has(x));
+          const req = [...new Set(tokens([b.puesto, b.desc].filter(Boolean).join(" ")))];
+          if (req.length) {
+            const perfil = tokens([c.busca,c.linea,c.porque,c.estudios,...(c.sabe || []),...(chips.rubros || []),campos["rc-puesto"],campos["rx-puesto"],campos["rx-emp"],campos["rx-dur"],campos["rc-sobre"],campos["rc-estudios"]].filter(Boolean).join(" "));
+            const have = new Set(perfil);
+            criterios.push({ peso: 50, valor: req.filter((x) => have.has(x)).length / req.length });
+          }
+          if (!criterios.length) return null;
+          const pesos = criterios.reduce((n,x) => n+x.peso, 0);
+          return Math.round(100 * criterios.reduce((n,x) => n+x.peso*x.valor, 0) / pesos);
+        }
+        function ordenarPorMatch(candidatos, busquedaDe) {
+          return [...candidatos].map((c) => ({ ...c, matchScore: puntajeMatch(c, busquedaDe(c.oferta_id)) })).sort((a,b) => (b.matchScore ?? -1) - (a.matchScore ?? -1));
+        }
         function eCandidatos() {
           const bs = S.e.busquedas || [];
           const sel = candBusqueda !== "all" ? bs.find((x) => x.id === candBusqueda) : null;
-          const list = S.e.pend.filter((c) => !sel || ofertaDe(c) === sel.id);
+          const busquedaPorId = new Map(bs.map((b) => [b.id, b]));
+          const list = ordenarPorMatch(S.e.pend.filter((c) => !sel || ofertaDe(c) === sel.id), (id) => busquedaPorId.get(id));
           const tot = sel
             ? (sel.total ?? list.length)
             : bs.reduce((a, x) => a + (x.total || 0), 0) || S.e.pend.length;
@@ -4727,7 +4758,7 @@ async function toggleBusqueda(id) {
                 .map(
                   (
                     c,
-                  ) => `<div class="ccard"><a href="#/e/candidato/${c.id}">${c.avatar ? `<img loading="lazy" decoding="async" class="avatar" src="${c.avatar}" alt="" style="width:40px;height:40px;border-radius:10px;background:#fff">` : avPh("width:40px;height:40px;border-radius:10px")}<div class="grow" style="flex:1;min-width:0"><h3>${esc(c.corto)}, ${c.edad}</h3><p class="t-note" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.linea)}</p></div><span class="vence">Vence en ${c.quedan} días</span></a>
+                  ) => `<div class="ccard"><a href="#/e/candidato/${c.id}">${c.avatar ? `<img loading="lazy" decoding="async" class="avatar" src="${c.avatar}" alt="" style="width:40px;height:40px;border-radius:10px;background:#fff">` : avPh("width:40px;height:40px;border-radius:10px")}<div class="grow" style="flex:1;min-width:0"><h3>${esc(c.corto)}, ${c.edad}</h3><p class="t-note" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.linea)}</p><p class="t-note" style="font-weight:600;color:var(--green)">${c.matchScore == null ? "Coincidencia no disponible" : c.matchScore + "% de coincidencia estimada"}</p></div><span class="vence">Vence en ${c.quedan} días</span></a>
       <div class="row2"><button class="btn cno" data-go="#/e/responder/${c.id}/no">No avanza</button><button class="btn cyes" data-go="#/e/responder/${c.id}/si">Me interesa</button></div></div>`,
                 )
                 .join("") ||
@@ -5825,6 +5856,8 @@ async function toggleBusqueda(id) {
                 4,
               ),
               estudios: datos["rc-estudios"] || "Perfil en Match Empleos",
+              chips,
+              campos: datos,
               estado: r.estado,
             };
           });
