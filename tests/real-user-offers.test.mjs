@@ -93,3 +93,26 @@ test("el campo Sobre vos ofrece mejora con IA tanto en el registro como en edici
 test("la integración no expone la clave de OpenAI en el frontend", () => {
   assert.doesNotMatch(html, /OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 });
+
+
+test("el feed muestra el interstitial freemium cuando el candidato agota su cupo", () => {
+  assert.match(html, /Te quedaste sin Matchs, mirá un anuncio y sumá uno más/);
+  assert.match(html, /data-ad-reward-modal/);
+  assert.match(html, /img\/anuncio-placeholder\.svg/);
+  assert.match(html, /data-ad-link=""/);
+  assert.match(html, /if \(S\.c\.cupo <= 0\) inner \+= adRewardModal\(\)/);
+});
+
+test("el cierre del anuncio se habilita tras cinco segundos y reclama la recompensa en Supabase", () => {
+  assert.match(html, /sb\.rpc\("iniciar_anuncio_match"\)/);
+  assert.match(html, /5000 - \(Date\.now\(\) - startedAt\)/);
+  assert.match(html, /data-action="claim-ad-match"/);
+  assert.match(html, /sb\.rpc\("reclamar_match_anuncio", \{ p_event_id: eventId \}\)/);
+  assert.match(html, /S\.c\.cupo = Number\(data\)/);
+  assert.match(html, /adRewardEventId = null/);
+});
+
+test("el enlace de la imagen del anuncio queda sin destino y no navega", () => {
+  assert.match(html, /data-ad-link !== undefined/);
+  assert.match(html, /if \(act === "claim-ad-match"\)/);
+});
