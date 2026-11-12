@@ -608,3 +608,13 @@ Los siguientes puntos son importantes: existen commits o archivos de backend/SQL
 - No se borraron usuarios, búsquedas, postulaciones, chats ni mensajes de las bases de staging o producción. Tampoco se modificaron esquemas ni políticas remotas.
 - Cambios en `index.html`: `679ef35`, `561e091`, `10cb03d`, `074c77a`, `48fcf11`, `7b37f1e`, `f938402` y `f15e4c1`. También se eliminaron los recursos sin uso `img/logo-cafe-mercado.png`, `img/avatar-tomas.png` e `img/oferta-cafe.jpg` en los commits `6418f24`, `a460e82` y `45e541b`. La documentación se actualizó en `83c6c55`, `2063a81` y esta actualización.
 - Verificación pendiente: ejecutar `node --test tests/real-user-offers.test.mjs` y realizar pruebas manuales con una cuenta candidata y una empresa reales. No se declara validación E2E.
+
+
+## 18. Corrección del cupo semanal en el panel de postulante (12 de noviembre de 2026)
+
+- `DB.cargar()` ejecutaba `cupo_actual()` en la rama de empresa, pero no en la rama de postulante. Como `freshState()` inicializa `S.c.cupo` en `0`, la hidratación del candidato nunca reemplazaba ese valor y el botón “Me interesa” quedaba desactivado aunque Supabase tuviera cupo disponible.
+- Se trasladó la llamada RPC `cupo_actual()` a la rama de postulante y se devuelve `cupo` en el objeto de datos que consume `hidratar()`. La empresa ya no ejecuta una RPC que no necesita.
+- El cupo sigue siendo calculado y validado por Supabase; `postular()` continúa siendo la autoridad final y descuenta el cupo en servidor.
+- Inspección de staging: los perfiles candidatos consultados tenían `cupo = 5`; no había postulaciones de esta semana y solo una postulación histórica en el conjunto consultado. No se modificaron datos ni funciones SQL.
+- Commit frontend: `0e5570715319e4ab4f42f31890f2009b968b7c20`.
+- Verificación realizada: relectura del archivo desde `main` y comprobación estática de que la rama candidata llama a `cupo_actual()`, devuelve `cupo` y `hidratar()` lo asigna a `S.c.cupo`. Pendiente: probar el login y la postulación desde navegador con una cuenta candidata real.
