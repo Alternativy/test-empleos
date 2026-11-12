@@ -202,8 +202,8 @@ test("la verificación solo se publica desde el registro interno de revisión", 
 test("la mejora de Sobre vos admite un único uso anónimo y oculta el botón tras el éxito", () => {
   assert.match(html, /me_sobre_ai_anon_id/);
   assert.match(html, /me_sobre_ai_anon_used/);
-  assert.match(html, /button\\.hidden = true/);
-  assert.match(html, /body: \\{ text: texto, anonymousId \\}/);
+  assert.match(html, /button\.hidden = true/);
+  assert.match(html, /body: \{ text: texto, anonymousId \}/);
   assert.match(html, /anonYaUsada/);
 });
 
