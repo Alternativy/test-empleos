@@ -3824,6 +3824,7 @@
           };
         }
         let unreadMessages = {};
+        let unreadMessageIds = {};
         let reportTarget = null;
         function readMarkers() {
           try { return JSON.parse(localStorage.getItem("me-chat-read:" + ME.id) || "{}"); }
@@ -3841,12 +3842,14 @@
           saveReadMarkers(markers);
           if (unreadMessages[chatKey]) {
             delete unreadMessages[chatKey];
+            delete unreadMessageIds[chatKey];
             render(true);
           }
         }
         function calculateUnread(d) {
           const markers = readMarkers();
           unreadMessages = {};
+          unreadMessageIds = {};
           const mensajes = d.mensajes || [];
           const latest = {};
           mensajes.forEach((m) => {
@@ -3854,19 +3857,22 @@
             if (key) latest[key] = Math.max(Number(latest[key] || 0), Number(m.id) || 0);
           });
           Object.keys(latest).forEach((key) => {
-            if (markers[key] == null) markers[key] = latest[key];
+            // Sin un marcador previo no damos por leídos mensajes que pudieron llegar
+            // mientras el usuario estaba desconectado.
+            if (markers[key] == null) markers[key] = 0;
           });
           saveReadMarkers(markers);
           mensajes.forEach((m) => {
             const key = m.chat_id ? "chat:" + m.chat_id : m.chat_key;
             const incoming = m.chat_id ? m.autor_id !== ME.id : m.de === "them";
             if (!key || !incoming || Number(m.id) <= Number(markers[key] || 0)) return;
-            unreadMessages[key] = (unreadMessages[key] || 0) + 1;
+            if (!unreadMessageIds[key]) unreadMessageIds[key] = [];
+            unreadMessageIds[key].push(Number(m.id));
+            unreadMessages[key] = unreadMessageIds[key].length;
           });
         }
         function unreadCount(kind) {
-          const chats = kind === "e" ? S.e.chats : S.c.chats;
-          return Object.keys(chats).reduce((n, id) => n + (unreadMessages[chats[id].key] || 0), 0);
+          return Object.values(unreadMessages).reduce((total, count) => total + count, 0);
         }
         function reportButton(postId, empresaId, chatId = "") {
           if (!postId || !empresaId) return "";
@@ -5435,7 +5441,22 @@ async function toggleBusqueda(id) {
               const c = [S.c.chats, S.e.chats]
                 .map((x) => Object.values(x).find((v) => v?.key === k))
                 .find(Boolean);
-              if (!c) return;
+              if (!c) {
+                if (de === "them") {
+                  const routeMatch = (location.hash || "").match(/^#\\/(c|e)\\/chat\\/([^/]+)/);
+                  const chatAbierto = routeMatch && k === "chat:" + routeMatch[2];
+                  if (chatAbierto) markChatRead(k, [{ dbId: m.id }]);
+                  else {
+                    if (!unreadMessageIds[k]) unreadMessageIds[k] = [];
+                    if (!unreadMessageIds[k].includes(Number(m.id))) {
+                      unreadMessageIds[k].push(Number(m.id));
+                      unreadMessages[k] = unreadMessageIds[k].length;
+                    }
+                  }
+                  softRender();
+                }
+                return;
+              }
               if (c.msgs.some((x) => x.dbId === m.id)) return;
               const same = c.msgs.find((x) => !x.dbId && x.de === de && x.t === m.texto && x.h === m.h);
               if (same) {
@@ -5568,7 +5589,9 @@ async function toggleBusqueda(id) {
               };
           });
           const empresaMap = new Map((d.empresas || []).map((p) => [p.id, p]));
-          const ofertasReales = d.busquedas.map((b) => {
+          const feedActualId = S.c.ofertas[S.c.idx]?.id;
+          const idsPostulados = new Set((d.postulaciones || []).map((p) => p.oferta_id));
+          const ofertasReales = d.busquedas.filter((b) => !idsPostulados.has(b.id)).map((b) => {
             const ep = empresaMap.get(b.empresa_id);
             const ec = ep?.datos?.campos || {};
             const ecx = ep?.datos?.chips || {};
@@ -5586,8 +5609,15 @@ async function toggleBusqueda(id) {
               real: true,
             };
           });
-          if (ME.rol === "c") S.c.ofertas = ofertasReales;
-          else S.c.ofertas = [];
+          if (ME.rol === "c") {
+            S.c.ofertas = ofertasReales;
+            const mismoIndice = S.c.ofertas.findIndex((o) => o.id === feedActualId);
+            if (mismoIndice >= 0) S.c.idx = mismoIndice;
+            else S.c.idx = Math.min(S.c.idx, Math.max(0, S.c.ofertas.length - 1));
+          } else {
+            S.c.ofertas = [];
+            S.c.idx = 0;
+          }
           Object.keys(S.c.chats).forEach((k) => {
             S.c.chats[k].msgs = [...(S.c.chats[k].msgs || []), ...msgsDe(d, "c:" + k)];
           });
