@@ -212,3 +212,15 @@ test("la Edge Function reserva el uso anónimo una sola vez en Supabase", () => 
   assert.match(chatAI, /complete_anonymous_ai_usage/);
   assert.match(chatAI, /anonymous_already_used/);
 });
+
+
+test("la asistencia IA no muestra avisos de límite ni el texto de privacidad anterior", () => {
+  assert.doesNotMatch(html, /Límite: 5 mejoras por día y 50 por mes/);
+  assert.doesNotMatch(html, /Tu texto se envía al servicio de IA/);
+  assert.doesNotMatch(html, /La mejora gratuita para visitantes ya fue utilizada/);
+});
+
+test("el botón de IA desaparece cuando se agota la cuota", () => {
+  assert.match(html, /if \(d === 0 \|\| m === 0\) button\.hidden = true/);
+  assert.match(html, /button\.hidden = true/);
+});
