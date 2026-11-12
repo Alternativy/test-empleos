@@ -4141,7 +4141,7 @@
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
     <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
-    <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || phSrc()}" alt="${esc(o.emp)}"></div>
+    <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || phSrc()}" alt="${esc(o.emp)}"></div>
     <p class="note-match" style="max-width:342px">Ya podés coordinar los próximos pasos en el chat.</p>
   </div>
   <div class="stack" style="margin-top:60px"><button class="btn pri" data-go="#/c/chat/${o.id}">Escribirle ahora</button><button class="btn out" data-go="#/c/feed">Seguir viendo búsquedas</button></div>
@@ -4237,7 +4237,7 @@
           const env = S.c.posts.length,
             resp = S.c.posts.filter((p) => p.estado === "Respondida").length,
             mt = S.c.posts.filter((p) => p.match).length;
-          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
+          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">${[
     [env, "enviadas"],
     [resp, "respuestas"],
@@ -4260,9 +4260,9 @@
         }
         function profHead(kind) {
           if (kind === "e") {
-            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
+            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
           }
-          return `<div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
+          return `<div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
         }
         function configScreen(kind) {
           const e = kind === "e";
@@ -4319,7 +4319,7 @@
             return txt.trim() ? esc(txt) : '<span style="color:var(--t3)">Sin completar</span>';
           };
           const subt = campos["rc-ubi"] ? esc(campos["rc-ubi"]) : "";
-          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
+          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${campos["rc-sobre"] ? `<p class="t-sec">Sobre mí</p><p style="color:var(--t2);line-height:1.6">${esc(campos["rc-sobre"])}</p>` : ""}
   <div class="rowline"><span>Currículum (PDF)</span><span class="v">${ME.datos?.cv ? esc(ME.datos.cv.nombre) : '<span style="color:var(--t3)">Sin cargar</span>'}</span></div><div class="stack" style="margin-top:12px">${ME.datos?.cv ? `<button class="btn out sm" data-action="ver-cv" data-cv="${esc(ME.datos.cv.path)}">Ver mi CV</button>` : ""}<label class="btn out sm" for="cv-up" style="cursor:pointer">${ME.datos?.cv ? "Reemplazar CV" : "Subir CV"}</label><input id="cv-up" type="file" accept=".pdf,application/pdf" hidden></div>
@@ -4597,7 +4597,7 @@ async function toggleBusqueda(id) {
             .format(new Date())
             .replace(/^./, (c) => c.toUpperCase());
           const inner = `<div style="max-width:720px"><h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
   <div class="card"><div class="row2"><div><p class="bignum">${S.e.tasa}%</p><p class="t-note">de respuesta</p></div><div><p class="bignum">${S.e.demora} días</p><p class="t-note">de demora</p></div></div><div class="progress" style="margin:14px 0"><i style="width:${S.e.tasa}%"></i></div><p class="t-note">Con 90% o más entrás en el grupo de empresas destacadas y tus búsquedas aparecen primero.</p></div>
   <h2 class="t-sec">Historial de respuesta</h2>
   ${[[mesActual, S.e.tasa]].map(([m, v]) => `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>${m}</span><span>${v}%</span></div><div class="progress"><i style="width:${v}%;background:var(--navy)"></i></div></div>`).join("")}
@@ -4646,7 +4646,7 @@ async function toggleBusqueda(id) {
           };
           const descr = campos["re-desc"] ? esc(campos["re-desc"]).replace(/\n/g, "<br>") : "";
           const inner = `<div style="max-width:720px">${hdr(backBtn("#/e/empresa"), '<button class="back" data-action="editar-perfil" style="color:var(--navy);font-weight:700">Editar</button>')}<h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${descr ? `<h2 class="t-sec">Descripción</h2><p style="line-height:1.6">${descr}</p>` : ""}
   <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar datos empresariales</button></div>`;
@@ -4737,129 +4737,24 @@ async function toggleBusqueda(id) {
         }
         async function apply(oid) {
           const o = offerById(oid);
-          if (!o || applied(oid) || S.c.cupo <= 0) return;
-          if (o.real) {
-            const post = {
-              id: "p" + crypto.randomUUID(),
-              oid,
-              puesto: o.puesto,
-              emp: o.emp,
-              estado: "Enviada",
-              pie: "Enviada recién",
-            };
-            const restante = await DB.postular(post, oid);
-            if (restante === null) {
-              render();
-              return;
-            }
-            S.c.cupo = restante;
-            S.c.posts.unshift(post);
-            S.c.idx++;
-            toast(
-              `Te postulaste a ${o.puesto}. ${S.c.cupo > 0 ? `Te quedan ${S.c.cupo}.` : "Usaste tu cupo semanal."}`,
-            );
-            render();
-            return;
-          }
-          S.c.cupo--;
-          DB.setCupo(S.c.cupo);
-          if (o.match) {
-            const post = {
-              id: "p" + Date.now(),
-              oid,
-              puesto: o.puesto,
-              emp: o.emp,
-              estado: "Respondida",
-              pie: "Te contestaron recién",
-              match: true,
-              chat: oid,
-            };
-            const msg = {
-              de: "them",
-              t: `¡Hola ${miPrimerNombre()}! Vimos tu perfil y nos interesa. ¿Podés venir el jueves a las 16?`,
-              h: now(),
-            };
-            S.c.posts.unshift(post);
-            S.c.chats[oid] = {
-              con: o.emp,
-              puesto: o.puesto,
-              tasa: o.tasa,
-              match: true,
-              msgs: [msg],
-              auto: [
-                "Av. Meeks 250, Lomas. Preguntá por Caro en el mostrador.",
-                "¡Genial! Nos vemos el jueves.",
-                "Perfecto, cualquier cosa escribinos por acá.",
-              ],
-            };
-            DB.guardarPostulacion(post, oid, chatMeta(S.c.chats[oid]));
-            DB.nuevoMensaje("c:" + oid, msg.de, msg.t, msg.h);
-            S.c.notifs.unshift({
-              t: "¡Hay match!",
-              cuando: "ahora",
-              d: `${o.emp} también quiere hablar con vos por ${o.puesto}.`,
-              go: "#/c/chat/" + oid,
-              nuevo: true,
-            });
-            S.c.idx++;
-            go("#/c/match/" + oid);
-            return;
-          }
+          if (!o || !o.real || applied(oid) || S.c.cupo <= 0) return;
           const post = {
-            id: "p" + Date.now(),
+            id: "p" + crypto.randomUUID(),
             oid,
             puesto: o.puesto,
             emp: o.emp,
             estado: "Enviada",
             pie: "Enviada recién",
           };
+          const restante = await DB.postular(post, oid);
+          if (restante === null) {
+            render();
+            return;
+          }
+          S.c.cupo = restante;
           S.c.posts.unshift(post);
-          DB.guardarPostulacion(post, oid, null);
           S.c.idx++;
-          toast(
-            `Te postulaste a ${o.puesto}. ${S.c.cupo > 0 ? `Te quedan ${S.c.cupo}.` : "Usaste tu cupo semanal."}`,
-          );
-          if (S.c.cupo === 0)
-            S.c.notifs.unshift({
-              t: "Usaste tus 5 postulaciones",
-              d: "Se libera tu cupo el lunes. Mientras tanto, seguí tus postulaciones.",
-              go: "#/c/postulaciones",
-              nuevo: true,
-            });
-          later(6000, () => {
-            post.estado = "Vista";
-            post.pie = "La vieron recién";
-            DB.guardarPostulacion(post, oid, null);
-            S.c.notifs.unshift({
-              t: "Tu postulación fue vista",
-              cuando: "ahora",
-              d: `${o.emp} abrió tu perfil. Tiene 7 días para contestarte.`,
-              go: "#/c/postulaciones",
-              nuevo: true,
-            });
-            toast(`${o.emp} vio tu postulación`);
-          });
-          later(14000, () => {
-            post.estado = "Respondida";
-            post.pie = "Te contestaron recién";
-            post.chat = oid;
-            const msg = {
-              de: "them",
-              t: `Hola ${miPrimerNombre()}, gracias por postularte a ${o.puesto}. Nos gustaría conocerte. ¿Te queda bien pasar el miércoles a las 15?`,
-              h: now(),
-            };
-            S.c.chats[oid] = { con: o.emp, puesto: o.puesto, tasa: o.tasa, match: false, msgs: [msg] };
-            DB.guardarPostulacion(post, oid, chatMeta(S.c.chats[oid]));
-            DB.nuevoMensaje("c:" + oid, msg.de, msg.t, msg.h);
-            S.c.notifs.unshift({
-              t: "Te contestaron",
-              cuando: "ahora",
-              d: `${o.emp} respondió tu postulación a ${o.puesto}.`,
-              go: "#/c/chat/" + oid,
-              nuevo: true,
-            });
-            toast(`${o.emp} te respondió`);
-          });
+          toast(`Te postulaste a ${o.puesto}. ${S.c.cupo > 0 ? `Te quedan ${S.c.cupo}.` : "Usaste tu cupo semanal."}`);
           render();
         }
 
@@ -5314,13 +5209,11 @@ async function toggleBusqueda(id) {
             return null;
           });
           if (!d) return;
-          const base = freshState();
           const perf = d.perfiles[0];
           if (ME.rol === "c" && d.cupo != null) S.c.cupo = d.cupo;
           if (perf && ME.rol === "e") S.e.tasa = perf.tasa;
           // Candidato: postulaciones y chats creados
           const dbPosts = d.postulaciones.map((r) => ({ ...r.datos.post, estado: r.estado }));
-          const postIds = new Set(dbPosts.map((p) => p.id));
           S.c.posts = ME.rol === "c" ? dbPosts : [];
           S.c.chats = {};
           if (ME.rol === "c")
@@ -5351,7 +5244,6 @@ async function toggleBusqueda(id) {
             jornada: b.jornada || [],
             turno: b.turno || [],
           }));
-          const busIds = new Set(dbBus.map((b) => b.id));
           S.e.busquedas = dbBus;
           const estados = new Map(d.candidatosEstado.map((r) => [r.id, r]));
           const perfilesPorId = new Map((d.candidatos || []).map((p) => [p.id, p]));
