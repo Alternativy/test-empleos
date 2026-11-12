@@ -3812,6 +3812,91 @@
             reg: { chips: {} },
           };
         }
+        let unreadMessages = {};
+        let reportTarget = null;
+        function readMarkers() {
+          try { return JSON.parse(localStorage.getItem("me-chat-read:" + ME.id) || "{}"); }
+          catch { return {}; }
+        }
+        function saveReadMarkers(markers) {
+          try { localStorage.setItem("me-chat-read:" + ME.id, JSON.stringify(markers)); }
+          catch (err) { console.warn("[chat] No se pudo guardar el estado de lectura", err); }
+        }
+        function markChatRead(chatKey, messages = []) {
+          if (!ME.id || !chatKey) return;
+          const maxId = messages.reduce((n, m) => Math.max(n, Number(m.dbId || m.id) || 0), 0);
+          const markers = readMarkers();
+          markers[chatKey] = Math.max(Number(markers[chatKey] || 0), maxId);
+          saveReadMarkers(markers);
+          if (unreadMessages[chatKey]) {
+            delete unreadMessages[chatKey];
+            render(true);
+          }
+        }
+        function calculateUnread(d) {
+          const markers = readMarkers();
+          unreadMessages = {};
+          (d.mensajes || []).forEach((m) => {
+            const key = m.chat_id ? "chat:" + m.chat_id : m.chat_key;
+            const incoming = m.chat_id ? m.autor_id !== ME.id : m.de === "them";
+            if (!key || !incoming || Number(m.id) <= Number(markers[key] || 0)) return;
+            unreadMessages[key] = (unreadMessages[key] || 0) + 1;
+          });
+        }
+        function unreadCount(kind) {
+          const chats = kind === "e" ? S.e.chats : S.c.chats;
+          return Object.keys(chats).reduce((n, id) => n + (unreadMessages[chats[id].key] || 0), 0);
+        }
+        function reportButton(postId, empresaId, chatId = "") {
+          if (!postId || !empresaId) return "";
+          return '<button type="button" class="report-flag" data-denunciar="1" data-post-id="' + esc(postId) + '" data-empresa-id="' + esc(empresaId) + '" data-chat-id="' + esc(chatId) + '" aria-label="Denunciar empresa" title="Denunciar">⚑ <span>Denunciar</span></button>';
+        }
+        function reportModal() {
+          if (!reportTarget) return "";
+          return `<div class="report-overlay" data-report-overlay><section class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="report-title">
+            <button type="button" class="report-close" data-action="cerrar-denuncia" aria-label="Cerrar">×</button>
+            <h2 id="report-title">Denunciar empresa</h2><p class="t-note">Seleccioná el motivo. El equipo de Match Empleos revisará el reporte.</p>
+            <form data-form="denuncia" class="stack">
+              <label class="flabel" for="report-reason">Motivo de denuncia</label>
+              <select class="field" id="report-reason" name="motivo" required>
+                <option value="">Seleccionar motivo</option>
+                <option>Es una empresa falsa</option><option>Suplantación de identidad</option>
+                <option>Lenguaje inapropiado</option><option>Condiciones Inaceptables</option>
+                <option>Contenidos obscenos o de odio</option><option>Spam o Confuso</option><option>Otros</option>
+              </select>
+              <label class="flabel" for="report-other">Detalle (opcional)</label>
+              <textarea class="field" id="report-other" name="motivo_otro" rows="2" placeholder="Si elegiste Otros, contanos cuál"></textarea>
+              <label class="flabel" for="report-message">Información adicional (opcional)</label>
+              <textarea class="field" id="report-message" name="mensaje" rows="3" maxlength="2000" placeholder="Describí brevemente lo sucedido"></textarea>
+              <button class="btn pri" type="submit">Enviar denuncia</button>
+            </form>
+          </section></div>`;
+        }
+        async function enviarDenuncia(form) {
+          if (!reportTarget || ME.rol !== "c") return;
+          const motivo = form.querySelector('[name="motivo"]').value;
+          const motivoOtro = form.querySelector('[name="motivo_otro"]').value.trim();
+          const mensaje = form.querySelector('[name="mensaje"]').value.trim();
+          if (!motivo) { toast("Seleccioná un motivo para la denuncia."); return; }
+          const payload = {
+            empresa_id: reportTarget.empresaId,
+            denunciante_id: ME.id,
+            postulacion_id: reportTarget.postId,
+            chat_id: reportTarget.chatId || null,
+            motivo,
+            motivo_otro: motivo === "Otros" ? motivoOtro : null,
+            mensaje,
+          };
+          const { error } = await sb.from("denuncias").insert(payload);
+          if (error) {
+            console.error("[denuncias] No se pudo registrar la denuncia", error);
+            toast(/row-level security|policy/i.test(error.message || "") ? "No se pudo enviar: la empresa o postulación no coincide con tus datos." : "No pudimos enviar la denuncia. Probá de nuevo.");
+            return;
+          }
+          reportTarget = null;
+          toast("Denuncia enviada. El equipo revisará el caso.");
+          render(true);
+        }
         let S = freshState();
         let cargandoSesion = false;
         let editandoPerfil = false;
@@ -3868,6 +3953,7 @@
         ];
 
         function navBadgeCount(kind, iconKey) {
+          if (iconKey === "mensajes") return unreadCount(kind);
           if (iconKey === "notifs") {
             const list = kind === "e" ? S.e.notifs : S.c.notifs;
             return list.filter((n) => n.nuevo).length;
@@ -4162,10 +4248,10 @@
             .map(
               (
                 p,
-              ) => `<a class="item" href="${p.chat ? "#/c/chat/" + p.chat : p.oid ? "#/c/oferta/" + p.oid : "#/c/postulaciones"}">
+              ) => `<div class="item" style="display:flex;flex-direction:column;gap:10px"><a href="${p.chat ? "#/c/chat/" + p.chat : p.oid ? "#/c/oferta/" + p.oid : "#/c/postulaciones"}" style="display:block;color:inherit;text-decoration:none">
     <div class="grow"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h3>${esc(p.puesto)}</h3><p class="t-note">${esc(p.emp)}${p.match ? ' · <span class="tag-sm">Match</span>' : ""}</p></div><span class="state ${p.estado}">${p.estado}</span></div>
     <div class="steps3">${[1, 2, 3].map((i) => `<i class="${i <= stepsOf(p.estado) ? "on" : ""}"></i>`).join("")}</div>
-    <p class="post-foot">${esc(p.pie || "")}</p></div></a>`,
+    <p class="post-foot">${esc(p.pie || "")}</p></div></a>${reportButton(p.id, p.empresaId, p.chat || "")}</div>`,
             )
             .join("");
           const inner = `<div class="hdr"><h1 style="font-size:18px;font-weight:600">Mis postulaciones</h1><span class="side" style="color:var(--t2)">${S.c.posts.length} activas</span></div>
@@ -4205,7 +4291,8 @@
             : kind === "e"
               ? `Le pediste más información a ${esc(c.con.split(" ")[0])}.`
               : `Respondieron tu postulación a ${esc(c.puesto)}.`;
-          return `<div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map((m) => `<div class="fila ${m.de}"><div class="bub ${m.de}">${esc(m.t)}</div></div>`).join("")}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
+          const denuncia = kind === "c" ? reportButton(c.postId, c.empresaId, id) : "";
+          return `<div class="chat-report-row">${denuncia}</div><div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map((m) => `<div class="fila ${m.de}"><div class="bub ${m.de}">${esc(m.t)}</div></div>`).join("")}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
   <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>`;
         }
         function mensajes(kind, id) {
@@ -4844,6 +4931,7 @@ async function toggleBusqueda(id) {
               case "mensajes":
                 return mensajes("c");
               case "chat":
+                if (S.c.chats[c]) markChatRead(S.c.chats[c].key, S.c.chats[c].msgs);
                 return mensajes("c", c);
               case "notificaciones":
                 return notifs("c");
@@ -4876,6 +4964,7 @@ async function toggleBusqueda(id) {
               case "mensajes":
                 return mensajes("e");
               case "chat":
+                if (S.e.chats[c]) markChatRead(S.e.chats[c].key, S.e.chats[c].msgs);
                 return mensajes("e", c);
               case "notificaciones":
                 return notifs("e");
@@ -4932,7 +5021,7 @@ async function toggleBusqueda(id) {
         function render(keepScroll) {
           document.title = titleFor(location.hash);
           const y = window.scrollY;
-          root.innerHTML = route();
+          root.innerHTML = route() + reportModal();
           initLandingReveal();
           ["rg", "rc", "re"].forEach((pfx) => {
             if (
@@ -4986,6 +5075,16 @@ async function toggleBusqueda(id) {
               pendingScroll = id;
               location.hash = "#/";
             }
+            return;
+          }
+          if (t.dataset.denunciar) {
+            e.preventDefault();
+            reportTarget = {
+              postId: t.dataset.postId,
+              empresaId: t.dataset.empresaId,
+              chatId: t.dataset.chatId || null,
+            };
+            render(true);
             return;
           }
           if (t.dataset.notif) {
@@ -5054,6 +5153,11 @@ async function toggleBusqueda(id) {
             return;
           }
           const act = t.dataset.action;
+          if (act === "cerrar-denuncia") {
+            reportTarget = null;
+            render(true);
+            return;
+          }
           if (act === "descartar") {
             S.c.idx++;
             render(true);
@@ -5252,6 +5356,7 @@ async function toggleBusqueda(id) {
             const inp = f.querySelector("input");
             sendChat(f.dataset.kind, f.dataset.id, inp.value);
           }
+          if (f.dataset.form === "denuncia") enviarDenuncia(f);
         });
         document.addEventListener("change", (e) => {
           if (e.target.id === "cv-up" && e.target.files[0]) {
@@ -5317,6 +5422,12 @@ async function toggleBusqueda(id) {
                 return;
               }
               c.msgs.push({ dbId: m.id, de, t: m.texto, h: m.h });
+              if (de === "them") {
+                const routeMatch = (location.hash || "").match(/^#\/(c|e)\/chat\/([^/]+)/);
+                const chatAbierto = routeMatch && c.key === "chat:" + routeMatch[2];
+                if (chatAbierto) markChatRead(k, c.msgs);
+                else unreadMessages[k] = (unreadMessages[k] || 0) + 1;
+              }
               softRender();
             })
             .on("postgres_changes", { event: "INSERT", schema: "public", table: "chats" }, () => {
@@ -5340,7 +5451,13 @@ async function toggleBusqueda(id) {
             S.e.plazo = perf.plazo ?? 3;
           }
           // Candidato: postulaciones y chats creados
-          const dbPosts = d.postulaciones.map((r) => ({ ...r.datos.post, estado: r.estado }));
+          const empresaPorOferta = new Map((d.busquedas || []).map((b) => [b.id, b.empresa_id]));
+          const dbPosts = d.postulaciones.map((r) => ({
+            ...r.datos.post,
+            estado: r.estado,
+            id: r.id,
+            empresaId: empresaPorOferta.get(r.oferta_id) || null,
+          }));
           S.c.posts = dbPosts;
           S.c.chats = {};
           if (ME.rol === "c")
@@ -5351,6 +5468,8 @@ async function toggleBusqueda(id) {
               S.c.chats[ch.id] = {
                 con: ep.nombre || "Empresa",
                 puesto: post?.puesto || "",
+                postId: ch.postulacion_id,
+                empresaId: ch.empresa_id,
                 match: true,
                 key: "chat:" + ch.id,
                 avatar: ep.avatar_url || "",
@@ -5453,6 +5572,7 @@ async function toggleBusqueda(id) {
           Object.keys(S.e.chats).forEach((k) => {
             S.e.chats[k].msgs = [...(S.e.chats[k].msgs || []), ...msgsDe(d, "e:" + k)];
           });
+          calculateUnread(d);
           if (ME.rol === "e") {
             S.e.tasa = calcTasa();
             if (perf && perf.tasa !== S.e.tasa) DB.setTasa(S.e.tasa);
