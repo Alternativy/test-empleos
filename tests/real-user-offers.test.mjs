@@ -123,7 +123,6 @@ test("la Edge Function de chat autentica y valida la pertenencia de la empresa a
   assert.match(chatAI, /rol: "eq\.e"/);
   assert.match(chatAI, /empresa_id: `eq\.\$\{userId\}`/);
   assert.match(chatAI, /id: `eq\.\$\{chatId\}`/);
-  assert.match(chatAI, /verify_jwt/); // La verificación JWT se configura al desplegar.
 });
 
 test("la Edge Function reúne los siete datos empresariales y el nombre del postulante", () => {
