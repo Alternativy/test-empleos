@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 405" role="img" aria-labelledby="title desc">
+  <title id="title">Espacio publicitario</title>
+  <desc id="desc">Imagen temporal para reemplazar por un anuncio.</desc>
+  <rect width="720" height="405" fill="#edf2f7"/>
+  <rect x="18" y="18" width="684" height="369" rx="18" fill="none" stroke="#b8c5d3" stroke-width="2" stroke-dasharray="10 10"/>
+  <g fill="#64748b" text-anchor="middle" font-family="Arial, sans-serif">
+    <text x="360" y="194" font-size="26" font-weight="700" letter-spacing="3">ESPACIO PUBLICITARIO</text>
+    <text x="360" y="232" font-size="17">Imagen temporal · reemplazar por anuncio</text>
+  </g>
+</svg>

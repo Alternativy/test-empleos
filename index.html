@@ -3314,7 +3314,15 @@
           padding: 12px;
         }
       }
-    </style>
+            .ad-reward-backdrop{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:22px;background:rgba(0,12,28,.82);backdrop-filter:blur(5px)}
+        .ad-reward-card{position:relative;width:min(100%,520px);padding:24px;border-radius:22px;background:#fff;color:#002147;box-shadow:0 24px 80px rgba(0,0,0,.35);text-align:center}
+        .ad-reward-title{margin:0 auto 20px;max-width:390px;font-size:clamp(21px,5vw,27px);line-height:1.2;font-weight:750}
+        .ad-reward-image-link{display:block;overflow:hidden;border-radius:14px;outline-offset:4px}
+        .ad-reward-image{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
+        .ad-reward-close{position:absolute;top:10px;right:10px;width:38px;height:38px;border:0;border-radius:50%;background:#002147;color:#fff;font-size:28px;line-height:1;cursor:pointer}
+        .ad-reward-close[hidden]{display:none}
+        .ad-reward-note{margin:12px 0 0;color:#64748b;font-size:12px}
+</style>
   </head>
   <body>
     <div id="root"> 
@@ -4224,12 +4232,25 @@
   <h2 class="t-sec">¿De qué se trata?</h2><p style="color:var(--t2);line-height:1.55">${esc(o.desc)}</p>
   ${showActions ? `<button class="btn pri" style="margin-top:20px" data-apply="${o.id}" ${ya || S.c.cupo <= 0 ? "disabled" : ""}>${ya ? "Ya te postulaste" : "Me interesa"}</button><p class="cupo">${cupoTxt()}</p>` : ""}`;
         }
+        function adRewardModal() {
+          return `<div class="ad-reward-backdrop" data-ad-reward-modal role="dialog" aria-modal="true" aria-labelledby="ad-reward-title">
+            <section class="ad-reward-card">
+              <button class="ad-reward-close" type="button" data-action="claim-ad-match" aria-label="Cerrar anuncio y sumar un Match" hidden disabled>×</button>
+              <h2 class="ad-reward-title" id="ad-reward-title">Te quedaste sin Matchs, mirá un anuncio y sumá uno más</h2>
+              <a class="ad-reward-image-link" href="#" data-ad-link="" aria-label="Anuncio">
+                <img class="ad-reward-image" src="img/anuncio-placeholder.svg" alt="Espacio publicitario" />
+              </a>
+              <p class="ad-reward-note">Podés cerrar el anuncio cuando termine la cuenta regresiva.</p>
+            </section>
+          </div>`;
+        }
         function cFeed() {
           const o = S.c.ofertas[S.c.idx];
           let inner = hdr(WM);
           if (!o) {
             const sinBusquedasReales = S.c.ofertas.length === 0;
             inner += `<div class="empty"><p style="font-size:18px;color:var(--white);font-weight:600">${sinBusquedasReales ? "Todavía no hay búsquedas publicadas" : "Viste todas las búsquedas de hoy"}</p><p>${sinBusquedasReales ? "Cuando una empresa publique una oportunidad, vas a poder encontrarla acá." : "Mañana te mostramos nuevas oportunidades para tu perfil. Mientras tanto, seguí tus postulaciones."}</p><button class="btn out sm" data-go="#/c/postulaciones">Ver mis postulaciones</button>${sinBusquedasReales ? "" : '<button class="btn out sm" data-action="feed-reset">Volver a ver las búsquedas</button>'}</div>`;
+            if (S.c.cupo <= 0) inner += adRewardModal();
             return shell("c", "#/c/feed", inner);
           }
           const ya = applied(o.id);
@@ -4237,6 +4258,7 @@
     <div class="row2" style="margin-top:14px"><button class="btn out" data-action="descartar">Descartar</button><button class="btn pri" data-apply="${o.id}" ${ya || S.c.cupo <= 0 ? "disabled" : ""}>${ya ? "Postulado" : "Me interesa"}</button></div>
     <p class="cupo">${cupoTxt()}</p></div>
     <div class="only-d">${offerDetail(o, false, false)}</div></div>`;
+          if (S.c.cupo <= 0) inner += adRewardModal();
           return shell("c", "#/c/feed", inner);
         }
         function cOferta(id) {
@@ -5088,6 +5110,7 @@ async function toggleBusqueda(id) {
           const y = window.scrollY;
           root.innerHTML = route();
           initLandingReveal();
+          initAdRewardModal();
           ["rg", "rc", "re"].forEach((pfx) => {
             if (
               document.getElementById(pfx + "-mail") &&
@@ -5118,6 +5141,63 @@ async function toggleBusqueda(id) {
           }
         }
         let pendingScroll = null;
+        let adRewardEventId = null;
+        let adRewardStartPromise = null;
+        let adRewardTimer = null;
+        async function initAdRewardModal() {
+          const modal = document.querySelector("[data-ad-reward-modal]");
+          clearTimeout(adRewardTimer);
+          if (!modal) return;
+          const startedAt = Date.now();
+          if (!adRewardStartPromise) {
+            adRewardStartPromise = sb.rpc("iniciar_anuncio_match").then(({ data, error }) => {
+              if (error) throw error;
+              adRewardEventId = data;
+              return data;
+            }).catch((error) => {
+              adRewardStartPromise = null;
+              console.error("[freemium] No se pudo iniciar el anuncio:", error);
+              toast("No pudimos cargar el anuncio. Volvé a intentarlo.");
+              return null;
+            });
+          }
+          const eventId = await adRewardStartPromise;
+          if (!eventId || !document.querySelector("[data-ad-reward-modal]")) return;
+          modal.dataset.eventId = eventId;
+          const remaining = Math.max(0, 5000 - (Date.now() - startedAt));
+          adRewardTimer = setTimeout(() => {
+            const current = document.querySelector("[data-ad-reward-modal] [data-action='claim-ad-match']");
+            if (current) {
+              current.hidden = false;
+              current.disabled = false;
+            }
+          }, remaining);
+        }
+        async function claimAdReward(button) {
+          if (button.disabled || button.dataset.loading === "true") return;
+          const modal = button.closest("[data-ad-reward-modal]");
+          const eventId = modal?.dataset.eventId || adRewardEventId;
+          if (!eventId) {
+            toast("No pudimos validar el anuncio. Volvé a intentarlo.");
+            return;
+          }
+          button.dataset.loading = "true";
+          button.disabled = true;
+          const { data, error } = await sb.rpc("reclamar_match_anuncio", { p_event_id: eventId });
+          if (error || data == null) {
+            console.error("[freemium] No se pudo acreditar el Match:", error);
+            button.dataset.loading = "false";
+            button.disabled = false;
+            toast("No pudimos sumar el Match. Probá nuevamente.");
+            return;
+          }
+          S.c.cupo = Number(data);
+          adRewardEventId = null;
+          adRewardStartPromise = null;
+          clearTimeout(adRewardTimer);
+          toast("Sumaste un Match extra.");
+          render();
+        }
         window.addEventListener("hashchange", () => {
           tplSel = null;
           editandoPerfil = false;
@@ -5127,7 +5207,7 @@ async function toggleBusqueda(id) {
         /* ---------- Eventos ---------- */
         document.addEventListener("click", (e) => {
           const t = e.target.closest(
-            "[data-scroll],[data-go],[data-apply],[data-action],[data-chip],[data-filter],[data-cfilter],[data-plazo],[data-tpl],[data-notif],[data-bsel]",
+            "[data-scroll],[data-go],[data-apply],[data-action],[data-ad-link],[data-chip],[data-filter],[data-cfilter],[data-plazo],[data-tpl],[data-notif],[data-bsel]",
           );
           if (!t) return;
           if (t.dataset.scroll) {
@@ -5146,6 +5226,10 @@ async function toggleBusqueda(id) {
             const [k, i] = t.dataset.notif.split(":");
             const n = (k === "e" ? S.e.notifs : S.c.notifs)[+i];
             if (n) n.nuevo = false;
+            return;
+          }
+          if (t.dataset.adLink !== undefined) {
+            e.preventDefault();
             return;
           }
           if (t.dataset.go) {
@@ -5208,6 +5292,10 @@ async function toggleBusqueda(id) {
             return;
           }
           const act = t.dataset.action;
+          if (act === "claim-ad-match") {
+            claimAdReward(t);
+            return;
+          }
           if (act === "descartar") {
             S.c.idx++;
             render(true);
