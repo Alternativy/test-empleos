@@ -3243,6 +3243,86 @@
         .report-dialog .field{width:100%;min-height:42px;padding:10px 12px;border:1px solid #d8dde3;border-radius:10px;background:#fff;color:#17212b;font:inherit}
         .report-dialog textarea.field{resize:vertical}
         .report-close{position:absolute;top:12px;right:14px;border:0;background:transparent;color:#59636e;font-size:28px;cursor:pointer}
+      .ai-assist {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-top: 12px;
+        width: 100%;
+      }
+      .ai-assist .ai-explainer,
+      .ai-assist .ai-privacy,
+      .ai-assist .ai-result-note,
+      .ai-assist .ai-count {
+        color: var(--sub);
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0;
+      }
+      .ai-assist .ai-privacy {
+        opacity: .85;
+      }
+      .ai-assist .ai-count {
+        align-self: flex-end;
+        font-variant-numeric: tabular-nums;
+      }
+      .ai-assist .ai-count[data-over-limit="true"] {
+        color: #f0a36c;
+        font-weight: 600;
+      }
+      .ai-assist .ai-status {
+        margin: 0;
+        min-height: 18px;
+      }
+      .ai-assist .ai-result {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 14px;
+        border: 1px solid var(--bd);
+        border-radius: 14px;
+        background: color-mix(in srgb, var(--fg) 4%, transparent);
+      }
+      .ai-assist .ai-result[hidden] {
+        display: none;
+      }
+      .ai-assist .ai-result-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+      }
+      .ai-assist .ai-result-head .flabel {
+        padding-left: 0;
+        margin: 0;
+      }
+      .ai-assist .ai-tag {
+        border: 1px solid var(--bd);
+        border-radius: 99px;
+        padding: 2px 8px;
+        color: var(--sub);
+        font-size: 11px;
+      }
+      .ai-assist .ai-result textarea {
+        min-height: 150px;
+      }
+      .ai-assist .btn.cargando {
+        color: var(--fg) !important;
+        padding-right: 42px;
+      }
+      .ai-assist .btn.cargando::after {
+        right: 14px;
+      }
+      @media (max-width: 520px) {
+        .ai-assist .ai-result {
+          padding: 12px;
+        }
+      }
+    
 </style>
   </head>
   <body>
@@ -4122,7 +4202,37 @@
             ? `<div class="hdr">${WM}${backBtn(back)}</div>`
             : `<div class="reg-top"><span class="reg-bar"></span>${backBtn(back)}</div>`;
         }
+        function sobreIA(inputId, initialValue = "") {
+          if (ENTORNO !== "staging") return "";
+          const ai = ME.datos?.ai || {};
+          const yaAplicada = inputId === "rc-sobre" ? regDraftAIUsed
+            : inputId === "re-desc" ? regDraftCompanyAIUsed
+            : inputId === "ed-sobre" ? !!(ai.sobreAplicado || ai.candidatoSobreAplicado)
+            : inputId === "ede-desc" ? !!ai.empresaSobreAplicado
+            : false;
+          if (yaAplicada) return "";
+          const outputId = inputId + "-ia";
+          const length = String(initialValue || "").length;
+          return `<div class="ai-assist">
+            <p class="ai-explainer">La IA mejora la claridad y presentación sin agregar experiencias, datos ni características que no hayas mencionado.</p>
+            <button class="btn out sm ai-generate" id="${outputId}-toggle" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
+            <p class="ai-count" id="${outputId}-count">${length} / 4.000 caracteres</p>
+            <p class="ai-count ai-quota" id="${outputId}-quota">Límite: 5 mejoras por día y 50 por mes para cuentas registradas.</p>
+            <p class="ai-privacy">Tu texto se envía al servicio de IA. El perfil no cambia hasta que elijas aplicar la sugerencia.</p>
+            <p class="hint ai-status" id="${outputId}-status" role="status" aria-live="polite"></p>
+            <div class="ai-result" id="${outputId}-wrap" hidden>
+              <div class="ai-result-head"><label class="flabel" for="${outputId}">Sugerencia editable</label><span class="ai-tag">Borrador</span></div>
+              <textarea class="field" id="${outputId}" aria-label="Sugerencia editable de IA" maxlength="4000"></textarea>
+              <p class="ai-result-note">Revisá la propuesta y corregí lo que haga falta antes de aplicarla.</p>
+              <button class="btn pri sm" id="${outputId}-use" type="button" data-action="usar-sobre-ia" data-target="${inputId}" data-output="${outputId}" disabled>Usar esta versión</button>
+            </div>
+          </div>`;
+        }
         function writeHere(id) {
+          if (id === "rc-sobre" || id === "re-desc") {
+            const value = regDraft[id] || "";
+            return `<textarea class="field" id="${id}" data-ai-source="true" maxlength="4000" placeholder="Escribí aquí">${esc(value)}</textarea>${sobreIA(id, value)}`;
+          }
           if (regDraft[id])
             return `<textarea class="field" id="${id}" placeholder="Escribí aquí">${esc(regDraft[id])}</textarea>`;
           return `<button class="btn pri" data-action="write" data-target="${id}">Escribí aquí</button>`;
@@ -4410,7 +4520,7 @@
         <p class="reg-lbl">Tipo de empleo</p>${chipToggles("tipo", TIPO)}
         <p class="reg-lbl">Modalidad</p>${chipToggles("modo", MODO)}
         <p class="reg-lbl">Horario</p>${chipToggles("hora", HORA)}
-        <div class="rf"><label class="flabel" for="ed-sobre">Sobre vos</label><textarea class="field" id="ed-sobre">${esc(campos["rc-sobre"] || "")}</textarea></div>
+        <div class="rf"><label class="flabel" for="ed-sobre">Sobre vos</label><textarea class="field" id="ed-sobre" data-ai-source="true" maxlength="4000">${esc(campos["rc-sobre"] || "")}</textarea>${sobreIA("ed-sobre", campos["rc-sobre"] || "")}</div>
         <button class="btn pri" type="submit">Guardar cambios</button>
       </form></div>`;
             return shell("c", "#/c/perfil", inner);
@@ -4738,7 +4848,7 @@ async function toggleBusqueda(id) {
         <p class="reg-lbl">Experiencia requerida</p>${chipToggles("eexp", EXPERIENCIA_EMP)}
         <p class="reg-lbl">Modalidad</p>${chipToggles("emodo", MODO)}
         <p class="reg-lbl">Horario</p>${chipToggles("ehora", HORA)}
-        <div class="rf"><label class="flabel" for="ede-desc">Descripción de la empresa</label><textarea class="field" id="ede-desc">${esc(campos["re-desc"] || "")}</textarea></div>
+        <div class="rf"><label class="flabel" for="ede-desc">Descripción de la empresa</label><textarea class="field" id="ede-desc" data-ai-source="true" maxlength="4000">${esc(campos["re-desc"] || "")}</textarea>${sobreIA("ede-desc", campos["re-desc"] || "")}</div>
         <button class="btn pri" type="submit">Guardar cambios</button>
       </form></div>`;
             return shell("e", "#/e/empresa", inner);
@@ -5185,6 +5295,51 @@ async function toggleBusqueda(id) {
             render(true);
             return;
           }
+          if (act === "mejorar-sobre") {
+            mejorarSobre(t);
+            return;
+          }
+          if (act === "usar-sobre-ia") {
+            const original = document.getElementById(t.dataset.target);
+            const suggestion = document.getElementById(t.dataset.output);
+            const wrap = document.getElementById(t.dataset.output + "-wrap");
+            const toggle = document.getElementById(t.dataset.output + "-toggle");
+            if (!original || !suggestion || !suggestion.value.trim() ||
+                suggestion.dataset.source !== (original.value || "").trim()) {
+              toast("El texto original cambió. Generá una nueva sugerencia antes de aplicarla.");
+              return;
+            }
+            original.value = suggestion.value.trim();
+            original.dispatchEvent(new Event("input", { bubbles: true }));
+            if (wrap) wrap.hidden = true;
+            if (toggle) toggle.hidden = true;
+            if (t.dataset.target === "rc-sobre") regDraftAIUsed = true;
+            else if (t.dataset.target === "re-desc") regDraftCompanyAIUsed = true;
+            else if (t.dataset.target === "ed-sobre") {
+              ME.datos = { ...(ME.datos || {}), ai: { ...(ME.datos?.ai || {}), sobreAplicado: true, candidatoSobreAplicado: true } };
+            } else if (t.dataset.target === "ede-desc") {
+              ME.datos = { ...(ME.datos || {}), ai: { ...(ME.datos?.ai || {}), empresaSobreAplicado: true } };
+            }
+            const status = document.getElementById(t.dataset.output + "-status");
+            if (status) status.textContent = "Versión aplicada. Guardá los cambios del perfil para conservarla.";
+            original.focus();
+            toast("Versión aplicada.");
+            return;
+          }
+          if (act === "mantener-original") {
+            const wrap = document.getElementById(t.dataset.output + "-wrap");
+            const toggle = document.getElementById(t.dataset.output + "-toggle");
+            if (wrap) wrap.hidden = true;
+            if (toggle) {
+              toggle.textContent = "Mejorar con IA";
+              toggle.dataset.action = "mejorar-sobre";
+              toggle.disabled = toggle.dataset.quotaExhausted === "true" ||
+                (document.getElementById(t.dataset.target)?.value || "").length > 4000;
+            }
+            const status = document.getElementById(t.dataset.output + "-status");
+            if (status) status.textContent = "Se mantuvo el texto original.";
+            return;
+          }
           if (act === "descartar") {
             S.c.idx++;
             render(true);
@@ -5319,6 +5474,107 @@ async function toggleBusqueda(id) {
             return;
           }
         });
+        function anonymousAIId() {
+          const key = "match-empleos-ai-anonymous-id";
+          try {
+            let id = localStorage.getItem(key);
+            if (!id || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+              if (crypto.randomUUID) id = crypto.randomUUID();
+              else {
+                const bytes = crypto.getRandomValues(new Uint8Array(16));
+                bytes[6] = (bytes[6] & 0x0f) | 0x40;
+                bytes[8] = (bytes[8] & 0x3f) | 0x80;
+                const hex = Array.from(bytes, (v) => v.toString(16).padStart(2, "0")).join("");
+                id = hex.slice(0,8)+"-"+hex.slice(8,12)+"-"+hex.slice(12,16)+"-"+hex.slice(16,20)+"-"+hex.slice(20);
+              }
+              localStorage.setItem(key, id);
+            }
+            return id;
+          } catch {
+            return crypto.randomUUID ? crypto.randomUUID() : null;
+          }
+        }
+        function actualizarCuotaIA(count, daily, monthly, button, anonymousRemaining) {
+          if (anonymousRemaining != null) {
+            if (count) count.textContent = "La mejora gratuita para visitantes ya fue utilizada en este navegador. Registrate para seguir usando la herramienta.";
+            if (button) button.dataset.quotaExhausted = "true";
+            return;
+          }
+          if (daily == null || monthly == null) return;
+          const d = Math.max(0, Number(daily)), m = Math.max(0, Number(monthly));
+          if (!Number.isFinite(d) || !Number.isFinite(m)) return;
+          if (count) count.textContent = `Te quedan ${d} mejoras hoy y ${m} este mes.`;
+          if (button) button.dataset.quotaExhausted = String(d === 0 || m === 0);
+        }
+        async function leerDetalleErrorIA(error) {
+          const response = error?.context;
+          if (!response || typeof response.clone !== "function") return null;
+          try { return await response.clone().json(); } catch { return null; }
+        }
+        async function mejorarSobre(button) {
+          const input = document.getElementById(button.dataset.target);
+          const outputId = button.dataset.output;
+          const output = document.getElementById(outputId);
+          const wrap = document.getElementById(outputId + "-wrap");
+          const status = document.getElementById(outputId + "-status");
+          const useButton = document.getElementById(outputId + "-use");
+          const texto = (input?.value || "").trim();
+          if (!texto) {
+            if (status) status.textContent = "Escribí primero una descripción para poder mejorarla.";
+            input?.focus();
+            return;
+          }
+          if (texto.length > 4000) {
+            if (status) status.textContent = "El texto supera el límite de 4.000 caracteres. Acortalo para continuar.";
+            return;
+          }
+          button.disabled = true;
+          button.classList.add("cargando");
+          button.setAttribute("aria-busy", "true");
+          button.textContent = "Procesando…";
+          if (useButton) useButton.disabled = true;
+          if (status) status.textContent = "Estamos revisando tu texto y preparando una propuesta…";
+          let progressA = setTimeout(() => { if (status) status.textContent = "La generación está tardando un poco más. Seguimos intentando…"; }, 9000);
+          let progressB = setTimeout(() => { if (status) status.textContent = "Estamos probando una alternativa disponible. No cierres esta pantalla todavía…"; }, 22000);
+          try {
+            const { data, error } = await sb.functions.invoke("mejorar-sobre", {
+              body: { text: texto, anonymousId: anonymousAIId() },
+            });
+            if (error) throw error;
+            if (!data?.improvedText) throw new Error("Respuesta vacía del servicio de IA.");
+            output.value = data.improvedText;
+            output.dataset.source = texto;
+            actualizarCuotaIA(document.getElementById(outputId + "-quota"), data.dailyRemaining, data.monthlyRemaining, button, data.anonymousRemaining);
+            wrap.hidden = false;
+            const originalUnchanged = (input?.value || "").trim() === texto;
+            if (useButton) useButton.disabled = !originalUnchanged;
+            if (originalUnchanged && button.dataset.action === "mejorar-sobre") {
+              button.textContent = "Mantener original";
+              button.dataset.action = "mantener-original";
+            }
+            if (status) status.textContent = originalUnchanged
+              ? "Propuesta lista. Revisala y editá lo que necesites; el texto original sigue intacto."
+              : "La propuesta se generó sobre una versión anterior del texto. Volvé a generarla para poder aplicarla.";
+          } catch (err) {
+            console.error("[ia] mejorar-sobre", err);
+            const detail = await leerDetalleErrorIA(err);
+            actualizarCuotaIA(document.getElementById(outputId + "-quota"), detail?.dailyRemaining, detail?.monthlyRemaining, button, detail?.anonymousRemaining);
+            const message = detail?.error || "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
+            if (status) status.textContent = message;
+            toast(message);
+          } finally {
+            clearTimeout(progressA);
+            clearTimeout(progressB);
+            button.disabled = button.dataset.action === "mejorar-sobre" &&
+              ((input?.value || "").length > 4000 || button.dataset.quotaExhausted === "true");
+            button.classList.remove("cargando");
+            if (button.dataset.action === "mejorar-sobre" || button.dataset.action === "mantener-original") {
+              button.textContent = button.dataset.action === "mantener-original" ? "Mantener original" : "Mejorar con IA";
+            }
+            button.removeAttribute("aria-busy");
+          }
+        }
+
         function savePub() {
           const a = document.getElementById("pb-puesto"),
             b = document.getElementById("pb-desc");
@@ -5635,6 +5891,8 @@ async function toggleBusqueda(id) {
 
         /* ---------- Autenticación ---------- */
         let regDraft = {};
+        let regDraftAIUsed = false;
+        let regDraftCompanyAIUsed = false;
         const SOLO_LETRAS = /[^\p{Script=Latin}\s]/gu;
         document.addEventListener("input", (e) => {
           const id = e.target.id || "";
@@ -5650,6 +5908,29 @@ async function toggleBusqueda(id) {
             if (limpio !== e.target.value) {
               e.target.value = limpio;
               toast("La edad se escribe solo con números.");
+            }
+          }
+          if (e.target.matches("[data-ai-source]")) {
+            const outputId = id + "-ia";
+            const length = e.target.value.length;
+            const count = document.getElementById(outputId + "-count");
+            const status = document.getElementById(outputId + "-status");
+            const useButton = document.getElementById(outputId + "-use");
+            const generateButton = document.getElementById(outputId + "-toggle");
+            if (count) {
+              count.textContent = length.toLocaleString("es-AR") + " / 4.000 caracteres";
+              count.dataset.overLimit = String(length > 4000);
+            }
+            if (generateButton) generateButton.disabled = length > 4000 ||
+              (generateButton.dataset.action === "mejorar-sobre" && generateButton.dataset.quotaExhausted === "true");
+            const suggestion = document.getElementById(outputId);
+            if (suggestion && suggestion.value && suggestion.dataset.source !== e.target.value.trim()) {
+              if (useButton) useButton.disabled = true;
+              if (generateButton && generateButton.dataset.action === "mantener-original") {
+                generateButton.dataset.action = "mejorar-sobre";
+                generateButton.textContent = "Mejorar con IA";
+              }
+              if (status) status.textContent = "El texto original cambió. Generá una nueva sugerencia antes de aplicarla.";
             }
           }
           if (/^(rg|rc|re|rx)-/.test(id)) regDraft[id] = e.target.value;
