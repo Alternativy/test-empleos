@@ -4892,6 +4892,7 @@ async function toggleBusqueda(id) {
           }
           return home();
         }
+        let lastHash = "";
         function titleFor(hash) {
           const h = (hash || "").split("?")[0];
           const sufijo = " · Match Empleos";
@@ -5280,6 +5281,20 @@ async function toggleBusqueda(id) {
           return d.mensajes
             .filter((m) => m.chat_key === key)
             .map((m) => ({ dbId: m.id, de: m.de, t: m.texto, h: m.h }));
+        }
+        function softRender() {
+          // re-render sin perder lo que se está escribiendo
+          const a = document.activeElement;
+          const id = a && a.id;
+          const val = a && "value" in a ? a.value : null;
+          render(true);
+          if (id) {
+            const el = document.getElementById(id);
+            if (el) {
+              if (val !== null) el.value = val;
+              el.focus();
+            }
+          }
         }
         let mensajesChannel = null;
         function suscribirMensajesRealtime() {
