@@ -122,9 +122,11 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 - El registro de postulante (paso 5) y la edición de datos personales muestran el botón **“Mejorar con IA”** debajo del texto original.
 - El botón envía el texto a la Edge Function `mejorar-sobre`. La sugerencia aparece en un segundo campo editable; no reemplaza el original automáticamente.
 - **“Usar esta versión”** copia la sugerencia al campo original. La persona puede editarla antes de guardarla o crear la cuenta.
-- La función usa OpenAI Responses API con el modelo predeterminado `gpt-4.1-mini` (se puede cambiar con `OPENAI_MODEL`). Sus instrucciones prohíben inventar experiencia, estudios, habilidades o logros que no estén en el texto original.
-- La clave `OPENAI_API_KEY` se configura como secreto de la Edge Function en Supabase. Nunca debe guardarse en `index.html`, el repositorio ni el navegador. `store: false` se envía en la solicitud al proveedor.
-- La función valida el cuerpo y limita el texto a 4.000 caracteres. Tiene un límite de frecuencia en memoria por IP como protección básica; no reemplaza un rate limiter persistente para producción.
+- La Edge Function `mejorar-sobre` utiliza Gemini como proveedor principal y Groq como fallback. La cadena configurada en el código es `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `openai/gpt-oss-120b` y `qwen/qwen3.8-27b`, en ese orden. La disponibilidad real depende de los modelos habilitados por cada proveedor y de las claves configuradas.
+- Los secretos `GEMINI_API_KEY` y `GROQ_API_KEY` se configuran en Supabase Edge Functions > Secrets. Nunca deben guardarse en `index.html`, el repositorio ni el navegador.
+- La función valida el cuerpo y limita el texto a 4.000 caracteres. Tiene un límite temporal en memoria de 8 solicitudes por IP por minuto; es una protección básica y no reemplaza un rate limiter persistente para producción.
+- Los usuarios autenticados reservan cuota mediante RPC: 5 mejoras por día y 50 por mes. Los visitantes tienen una única mejora, identificada con UUID local y hash SHA-256 reservado en `private.anonymous_ai_usage`. La cuota se confirma como consumida solo cuando el proveedor devuelve una respuesta exitosa; si todos los proveedores fallan, se libera la reserva.
+- El frontend oculta la herramienta fuera de staging. En registro, la mejora se aplica solo si el usuario elige la propuesta; el texto original no se reemplaza automáticamente.
 - La función acepta el JWT público del proyecto (`verify_jwt: true`); puede utilizarse durante el onboarding, antes de que el usuario cree su cuenta. No escribe información en la base de datos.
 - La integración se desarrolla únicamente en el proyecto Supabase **Match Empleos** (staging). No desplegar ni configurar en **Match Empleos prod** sin un cambio separado y aprobado.
 - Para habilitarla en un entorno Supabase, desplegar `mejorar-sobre` y configurar el secreto `OPENAI_API_KEY` en Edge Functions > Secrets. Si se utiliza una rama de desarrollo de Supabase, el secreto debe configurarse también en esa rama.
@@ -150,7 +152,7 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 1. **`#/registro`**: el usuario elige "Busco trabajo" o "Busco gente para mi empresa". Antes escribe correo y contraseña. Los botones quedan deshabilitados hasta que son válidos.
 2. **Paso 1** (`#/registro/c/1`): nombre, apellido, correo y contraseña. El correo y la contraseña tienen que coincidir con los de la pantalla anterior (`verificarCoincidencia`).
-3. **Pasos 2 a 5**: edad, ubicación, experiencia, rubros, tipo de empleo, modalidad, horario, perfil y **CV en PDF** (paso 5). Los datos quedan en memoria (`regDraft` y `S.reg.chips`). El CV queda en `regCvFile`.
+3. **Pasos 2 a 5**: edad, ubicación, experiencia, rubros, tipo de empleo, modalidad, horario, perfil y **CV en PDF** (paso 5). Los datos se mantienen en memoria (`regDraft` y `S.reg.chips`) y se guardan como borrador local durante un máximo de 7 días (`me_registro_borrador_v1`). Las contraseñas se excluyen del almacenamiento. El PDF se conserva en IndexedDB (`me_registro_archivos_v1`) y se recupera al volver al registro. El borrador y el archivo local se limpian cuando `signUp` se completa correctamente.
 4. **Términos** (`#/registro/terminos/c`): el botón "Crear mi cuenta" llama a `crearCuenta()`.
 5. **`crearCuenta()`** llama a `sb.auth.signUp` con:
    ```js
@@ -164,9 +166,11 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 ### Login
 
-- `iniciarSesionForm()` valida formato de correo y largo de contraseña (mínimo 8) antes de llamar a `signInWithPassword`. Mientras espera la respuesta, el botón muestra un spinner y queda deshabilitado.
+- `iniciarSesionForm()` valida formato de correo y largo de contraseña (mínimo 8) antes de llamar a `sb.auth.signInWithPassword`. Mientras espera la respuesta, el botón muestra un spinner y queda deshabilitado.
 - Si el correo no está confirmado, se muestra un mensaje con el botón "Reenviar correo" (`sb.auth.resend`).
 - Si las credenciales no coinciden, se muestra un mensaje genérico con el enlace "¿Olvidaste tu contraseña?". El motivo real se registra en la consola (`[auth] login falló`).
+- Ante un login exitoso, `setSesion()` obtiene `rol`, `nombre`, `datos` y `avatar_url` desde `perfiles`, hidrata los datos de la cuenta y redirige a `#/c/feed` o `#/e/panel` según el rol. Si la cuenta no tiene perfil o rol, se cierra la sesión y se informa el problema.
+- **Verificación de código (12/11/2026):** se comprobó la presencia de la validación, `signInWithPassword`, la carga de perfil, la guardia de rutas privadas y la redirección por rol. Los scripts JavaScript ejecutables de `index.html` pasaron el chequeo de sintaxis. No se realizó una prueba end-to-end contra Supabase con credenciales reales; queda pendiente en el checklist manual.
 
 ### Recuperación de contraseña
 
@@ -400,6 +404,14 @@ Si sos un agente que trabaja en este repo, seguí estas reglas:
 
 ## 12. Pendientes para la próxima publicación a producción
 
+### Pendientes funcionales y de experiencia
+
+- [ ] **UX/UI del login:** revisar jerarquía visual, espaciados, responsive, estados de carga, validaciones, mensajes de error y accesibilidad. El flujo funcional está implementado, pero su experiencia visual todavía requiere una pasada específica.
+- [ ] **Login end-to-end:** probar en staging con cuentas reales de candidato y empresa, incluyendo contraseña incorrecta, correo sin confirmar, sesión persistente al refrescar, recuperación de contraseña, cierre de sesión y redirección según rol. La revisión de código no reemplaza esta prueba.
+- [ ] **Funcionalidad de IA:** completar pruebas reales de `mejorar-sobre` en staging: proveedor principal, fallback de Groq, errores/timeout, cuotas de usuarios registrados, único uso anónimo, liberación de cuota ante fallos y persistencia del estado tras refrescar. Revisar también los mensajes y estados de UX/UI.
+- [ ] **UX/UI de la asistencia IA:** revisar claridad del botón, presentación de la propuesta, comparación con el original, aplicación/rechazo y mensajes de cuota o indisponibilidad.
+
+
 - [ ] **Google Search Console (después del merge a producción):** verificar la propiedad de dominio `matchempleos.com.ar` con el registro TXT en el DNS, pedir indexación de `https://matchempleos.com.ar/` y enviar `sitemap.xml`. Revisar que `matchempleos.netlify.app` no aparezca indexado.
 - [ ] **Imagen para compartir** de 1200×630 para `og:image` (hoy se usa `img/ilus-hero.png`).
 - [ ] **Subir el `site.webmanifest` corregido** a `img/` (nombre, rutas de íconos relativas).
@@ -521,3 +533,11 @@ La estructura observada en producción incluye las tablas y columnas principales
 ### Decisión de publicación
 
 No abrir todavía el pull request de producción ni hacer merge. Primero resolver los bloqueantes de seguridad y configuración, corregir las animaciones, completar las pruebas manuales y validar el diff entre ambos repositorios. Una vez cumplidos esos puntos, volver a comparar test-empleos/main con MatchEmpleos/main y abrir el pull request para revisión; este documento debe actualizarse con los resultados de esa nueva validación.
+
+## 14. Verificaciones y pendientes de login e IA (12/11/2026)
+
+- Login: inspección estática de `login()`, `iniciarSesionForm()`, `setSesion()` y `route()`. Se verificó validación de correo/contraseña, llamada a Supabase Auth, consulta de `perfiles`, protección de rutas privadas y redirección por rol. Los scripts JavaScript ejecutables del HTML pasaron el chequeo de sintaxis. No se probó una sesión real porque esta revisión no contó con credenciales de prueba ni ejecución del sitio en navegador.
+- Punto de atención del login: `iniciarSesionForm()` maneja los errores devueltos por Supabase, pero no tiene un `catch` explícito para excepciones de red o fallos inesperados. Conviene incorporar un mensaje visible para esos casos en la próxima mejora funcional.
+- UX/UI del login: pendiente una revisión específica de diseño responsive, jerarquía, accesibilidad, textos y estados de error/carga.
+- IA: la Edge Function implementa Gemini con fallback a Groq, reservas de cuota para usuarios registrados y visitantes, y confirma el consumo solo ante respuesta exitosa. Falta validar el comportamiento operativo con las claves/modelos desplegados en staging y completar pruebas de todos los caminos de error y cuota.
+- UX/UI de IA: pendiente mejorar el flujo de propuesta, comparación, aplicación y mensajes de disponibilidad/límite.
