@@ -5310,6 +5310,7 @@ async function toggleBusqueda(id) {
             }
             arr = arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
             S.reg.chips[k] = arr;
+            guardarBorradorRegistro();
             savePub();
             render(true);
             return;
@@ -5749,6 +5750,8 @@ async function toggleBusqueda(id) {
           if (e.target.id === "rc-cv" && e.target.files[0]) {
             regCvFile = e.target.files[0];
             regDraft["rc-cv-name"] = e.target.files[0].name;
+            guardarBorradorRegistro();
+            guardarArchivoCVRegistro(regCvFile).catch((err) => console.warn("[registro] No se pudo guardar el CV", err));
             const s = document.querySelector("[data-cvname]");
             if (s) s.textContent = "CV cargado: " + e.target.files[0].name;
           }
@@ -5957,8 +5960,87 @@ async function toggleBusqueda(id) {
         }
 
         /* ---------- Autenticación ---------- */
+        const REG_DRAFT_KEY = "me_registro_borrador_v1";
+        const REG_CV_DB = "me_registro_archivos_v1";
         let regDraft = {};
         let regDraftAIUsed = false;
+        function guardarBorradorRegistro() {
+          try {
+            const fields = Object.fromEntries(
+              Object.entries(regDraft).filter(([k]) => !/pass/i.test(k)),
+            );
+            localStorage.setItem(REG_DRAFT_KEY, JSON.stringify({
+              version: 1,
+              updatedAt: Date.now(),
+              fields,
+              chips: S.reg.chips || {},
+            }));
+          } catch (err) {
+            console.warn("[registro] No se pudo guardar el borrador", err);
+          }
+        }
+        function cargarBorradorRegistro() {
+          try {
+            const raw = localStorage.getItem(REG_DRAFT_KEY);
+            if (!raw) return;
+            const draft = JSON.parse(raw);
+            if (draft?.version !== 1 || Date.now() - draft.updatedAt > 7 * 24 * 60 * 60 * 1000) {
+              localStorage.removeItem(REG_DRAFT_KEY);
+              return;
+            }
+            regDraft = draft.fields && typeof draft.fields === "object" ? draft.fields : {};
+            S.reg.chips = draft.chips && typeof draft.chips === "object" ? draft.chips : {};
+          } catch (err) {
+            console.warn("[registro] No se pudo recuperar el borrador", err);
+          }
+        }
+        function guardarArchivoCVRegistro(file) {
+          return new Promise((resolve, reject) => {
+            const request = indexedDB.open(REG_CV_DB, 1);
+            request.onupgradeneeded = () => request.result.createObjectStore("files");
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+              const db = request.result;
+              const tx = db.transaction("files", "readwrite");
+              tx.objectStore("files").put(file, "cv");
+              tx.oncomplete = () => { db.close(); resolve(); };
+              tx.onerror = () => { db.close(); reject(tx.error); };
+            };
+          });
+        }
+        async function recuperarArchivoCVRegistro() {
+          try {
+            const file = await new Promise((resolve, reject) => {
+              const request = indexedDB.open(REG_CV_DB, 1);
+              request.onupgradeneeded = () => request.result.createObjectStore("files");
+              request.onerror = () => reject(request.error);
+              request.onsuccess = () => {
+                const db = request.result;
+                const tx = db.transaction("files", "readonly");
+                const get = tx.objectStore("files").get("cv");
+                get.onsuccess = () => { db.close(); resolve(get.result || null); };
+                get.onerror = () => { db.close(); reject(get.error); };
+              };
+            });
+            if (file) {
+              regCvFile = new File([file], file.name || "curriculum.pdf", { type: file.type || "application/pdf" });
+              regDraft["rc-cv-name"] = regCvFile.name;
+            }
+          } catch (err) {
+            console.warn("[registro] No se pudo recuperar el CV", err);
+          }
+        }
+        async function limpiarBorradorRegistro() {
+          try { localStorage.removeItem(REG_DRAFT_KEY); } catch {}
+          try {
+            await new Promise((resolve) => {
+              const request = indexedDB.deleteDatabase(REG_CV_DB);
+              request.onsuccess = request.onerror = request.onblocked = () => resolve();
+            });
+          } catch {}
+        }
+        cargarBorradorRegistro();
+        recuperarArchivoCVRegistro();
         const SOLO_LETRAS = /[^\p{Script=Latin}\s]/gu;
         document.addEventListener("input", (e) => {
           if(e.target.id==="report-message"){
@@ -6005,7 +6087,10 @@ async function toggleBusqueda(id) {
               if (status) status.textContent = "El texto original cambió. Generá una nueva sugerencia para mantener ambas versiones sincronizadas.";
             }
           }
-          if (/^(rg|rc|re|rx)-/.test(id)) regDraft[id] = e.target.value;
+          if (/^(rg|rc|re|rx)-/.test(id)) {
+            regDraft[id] = e.target.value;
+            guardarBorradorRegistro();
+          }
           if (id === "pb-puesto" || id === "pb-desc") savePub();
         });
         const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -6225,6 +6310,7 @@ async function toggleBusqueda(id) {
           regDraft = {};
           regDraftAIUsed = false;
           S.reg = { chips: {} };
+          await limpiarBorradorRegistro();
           if (data.session) {
             if (cvPend && kind === "c") await subirCV(cvPend, data.user.id);
             go(kind === "e" ? "#/e/panel" : "#/c/feed");
