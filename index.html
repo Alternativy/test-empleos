@@ -4284,7 +4284,7 @@
         }
         let reportContext = null;
         let reportSending = false;
-        const REPORT_REASONS = ["Es una empresa falsa","Suplantación de identidad","Lenguaje inapropiado","Condiciones inaceptables","Contenidos obscenos o de odio","Spam o confuso","Otros"];
+        const REPORT_REASONS = ["Es una empresa falsa","Suplantación de identidad","Lenguaje inapropiado","Condiciones Inaceptables","Contenidos obscenos o de odio","Spam o Confuso","Otros"];
         function reportModal() {
           if (!reportContext) return "";
           return `<div class="report-modal-backdrop" role="presentation">
@@ -4297,7 +4297,7 @@
                 <div class="rf" id="report-other-wrap" hidden><label class="flabel" for="report-other">Especificá el motivo</label><input class="field" id="report-other" maxlength="180" placeholder="Describí brevemente el motivo"></div>
                 <div class="rf" style="margin-top:14px"><label class="flabel" for="report-message">Mensaje (opcional, hasta 2000 caracteres)</label><textarea class="field" id="report-message" maxlength="2000" placeholder="Agregá detalles que ayuden a revisar la denuncia"></textarea><p class="report-counter"><span id="report-count">0</span> / 2000</p></div>
                 <p class="hint" id="report-error" role="alert"></p>
-                <div class="report-actions"><button class="btn out" type="button" data-action="cerrar-denuncia">Cancelar</button><button class="btn pri" type="submit" ${reportSending?"disabled":""}>${reportSending?"Enviando…":"Enviar Denuncia"}</button></div>
+                <div class="report-actions"><button class="btn out" type="button" data-action="cerrar-denuncia">Cancelar</button><button class="btn pri" type="submit" ${reportSending?"disabled":""}>${reportSending?"Enviando…":"Enviar Denunciar"}</button></div>
               </form>
             </section>
           </div>`;
@@ -4356,7 +4356,7 @@
       <div class="steps3">${[1, 2, 3].map((i) => `<i class="${i <= stepsOf(p.estado) ? "on" : ""}"></i>`).join("")}</div>
       <p class="post-foot">${esc(p.pie || "")}</p>
     </a>
-    <div class="report-card-row"><button class="report-trigger" type="button" data-action="abrir-denuncia" data-post-id="${escAttr(p.id || "")}" data-company-id="${escAttr(p.empresaId || "")}" data-chat-id="${escAttr(p.chat || "")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M6 4h12l-3.5 4L18 12H6z" stroke-width="1.6" stroke-linejoin="round"/></svg>Denunciar</button></div>
+    <div class="report-card-row"><button class="report-trigger" type="button" title="Denunciar" aria-label="Denunciar empresa" title="Denunciar" aria-label="Denunciar empresa" data-action="abrir-denuncia" data-post-id="${escAttr(p.id || "")}" data-company-id="${escAttr(p.empresaId || "")}" data-chat-id="${escAttr(p.chat || "")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M6 4h12l-3.5 4L18 12H6z" stroke-width="1.6" stroke-linejoin="round"/></svg>Denunciar</button></div>
   </div>`,
             )
             .join("");
