@@ -6025,6 +6025,8 @@ async function toggleBusqueda(id) {
             if (file) {
               regCvFile = new File([file], file.name || "curriculum.pdf", { type: file.type || "application/pdf" });
               regDraft["rc-cv-name"] = regCvFile.name;
+              const label = document.querySelector("[data-cvname]");
+              if (label) label.textContent = "CV cargado: " + regCvFile.name;
             }
           } catch (err) {
             console.warn("[registro] No se pudo recuperar el CV", err);
