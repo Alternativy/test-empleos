@@ -4755,7 +4755,6 @@ async function toggleBusqueda(id) {
           const i = S.e.pend.findIndex((x) => x.id === id);
           if (i < 0) return;
           const c = S.e.pend.splice(i, 1)[0];
-          if (S.e.demora > 2 && S.e.pend.length % 2 === 0) S.e.demora--;
           const guardadoCand = DB.guardarCandidato(c.id, c.corto, tipo);
           const rec = { nombre: c.corto, tipo, oid: c.oferta_id };
           S.e.resp.unshift(rec);
@@ -5293,8 +5292,8 @@ async function toggleBusqueda(id) {
               puesto: b.puesto,
               chips: [ec["re-ubi"], ecx.etipo, ecx.emodo, ecx.ehora].flat().filter(Boolean),
               fchips: [ec["re-ubi"], ecx.etipo, ecx.emodo].flat().filter(Boolean),
-              tasa: ep?.tasa || 94,
-              dias: ep?.demora || 3,
+              tasa: ep?.tasa ?? 0,
+              dias: ep?.demora ?? 0,
               logo: ep?.avatar_url || "",
               desc: b.descripcion || ec["re-desc"] || "",
               real: true,
