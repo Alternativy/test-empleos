@@ -4797,6 +4797,19 @@ async function toggleBusqueda(id) {
               nuevo: true,
             });
         }
+        function titleFor(hash) {
+          const h = (hash || "").split("?")[0];
+          const sufijo = " · Match Empleos";
+          if (h === "" || h === "#" || h === "#/") return "Match Empleos: Acá te contestan";
+          if (h.startsWith("#/login")) return "Iniciar sesión" + sufijo;
+          if (h.startsWith("#/recuperar") || h.startsWith("#/nueva-clave")) return "Recuperar contraseña" + sufijo;
+          if (h.startsWith("#/registro")) return "Registrarse" + sufijo;
+          if (h.startsWith("#/privacidad")) return "Centro de Privacidad" + sufijo;
+          if (h.startsWith("#/terminos")) return "Términos y Condiciones" + sufijo;
+          if (h.startsWith("#/ayuda")) return "Ayuda" + sufijo;
+          return "Match Empleos";
+        }
+
         function render(keepScroll) {
           document.title = titleFor(location.hash);
           const y = window.scrollY;
