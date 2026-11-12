@@ -4119,7 +4119,7 @@
           const o = S.c.ofertas[S.c.idx];
           let inner = hdr(WM);
           if (!o) {
-            inner += `<div class="empty"><p style="font-size:18px;color:var(--white);font-weight:600">Viste todas las búsquedas de hoy</p><p>Mañana te mostramos nuevas oportunidades para tu perfil. Mientras tanto, seguí tus postulaciones.</p><button class="btn out sm" data-go="#/c/postulaciones">Ver mis postulaciones</button><button class="btn out sm" data-action="feed-reset">Volver a ver las búsquedas</button></div>`;
+            inner += `<div class="empty"><p style="font-size:18px;color:var(--white);font-weight:600">${S.c.ofertas.length ? "Viste todas las búsquedas disponibles" : "Todavía no hay búsquedas disponibles"}</p><p>${S.c.ofertas.length ? "Por ahora no quedan más oportunidades para revisar. Podés volver a verlas cuando quieras." : "Cuando una empresa publique una búsqueda compatible, va a aparecer acá."}</p><button class="btn out sm" data-go="#/c/postulaciones">Ver mis postulaciones</button>${S.c.ofertas.length ? '<button class="btn out sm" data-action="feed-reset">Volver a ver las búsquedas</button>' : ""}</div>`;
             return shell("c", "#/c/feed", inner);
           }
           const ya = applied(o.id);
@@ -4136,6 +4136,7 @@
         }
         function cMatch(id) {
           const o = offerById(id) || S.c.ofertas[0];
+          if (!o) return cFeed();
           return `<div class="app auth cand"><div class="match-top">${'<svg viewBox="0 0 390 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H390V24C300 24 240 40 170 70C90 104 30 150 0 180Z" fill="#E9E9E9"/><path d="M0 0H390V4C310 4 250 22 180 52C100 86 30 132 0 160Z" fill="#36F48C"/></svg>'}</div>
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
