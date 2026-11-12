@@ -5300,7 +5300,8 @@ async function toggleBusqueda(id) {
               real: true,
             };
           });
-          S.c.ofertas = ME.rol === "c" ? ofertasReales : [];
+          if (ME.rol === "c") S.c.ofertas = ofertasReales;
+          else S.c.ofertas = [];
           Object.keys(S.c.chats).forEach((k) => {
             S.c.chats[k].msgs = [...(S.c.chats[k].msgs || []), ...msgsDe(d, "c:" + k)];
           });
