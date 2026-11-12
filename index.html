@@ -4797,6 +4797,101 @@ async function toggleBusqueda(id) {
               nuevo: true,
             });
         }
+        /* ---------- Router ---------- */
+        function route() {
+          const h = (location.hash || "#/").replace(/^#/, "");
+          const p = h.split("/").filter(Boolean);
+          if (!p.length) return home();
+          const [a, b, c, d] = p;
+          if (cargandoSesion && (a === "c" || a === "e")) return loadingScreen();
+          const PUBLICAS = [
+            "privacidad",
+            "terminos",
+            "ayuda",
+            "login",
+            "recuperar",
+            "nueva-clave",
+            "registro",
+            "confirmar",
+          ];
+          if (!ME.id && a && !PUBLICAS.includes(a)) return login();
+          if (ME.id && ((a === "c" && ME.rol !== "c") || (a === "e" && ME.rol !== "e"))) {
+            go(ME.rol === "e" ? "#/e/panel" : "#/c/feed");
+            return "";
+          }
+          if (a === "privacidad" || a === "terminos" || a === "ayuda") return legalSite(a);
+          if (a === "confirmar") return confirmar();
+          if (a === "nueva-clave") return nuevaClave();
+          if (a === "login") return login();
+          if (a === "recuperar") return recuperar();
+          if (a === "registro") {
+            if (!b) return registro();
+            if (b === "c") return regCand(c || "1");
+            if (b === "e") return regEmp(c || "1");
+            if (b === "terminos") return regTerminos(c);
+          }
+          if (a === "c") {
+            switch (b) {
+              case "feed":
+                return cFeed();
+              case "oferta":
+                return cOferta(c);
+              case "match":
+                return cMatch(c);
+              case "postulaciones":
+                return cPost();
+              case "mensajes":
+                return mensajes("c");
+              case "chat":
+                return mensajes("c", c);
+              case "notificaciones":
+                return notifs("c");
+              case "perfil":
+                return cPerfil();
+              case "config":
+                return configScreen("c");
+              case "datos":
+                return cDatos();
+              case "salir":
+                return salir("c");
+              case "legal":
+                return legalApp("c", c);
+            }
+          }
+          if (a === "e") {
+            switch (b) {
+              case "panel":
+                return ePanel();
+              case "publicar":
+                return ePublicar(c);
+              case "candidatos":
+                return eCandidatos();
+              case "busqueda":
+                return eBusqueda(c);
+              case "candidato":
+                return eCandidato(c);
+              case "responder":
+                return eResponder(c, d || "si");
+              case "mensajes":
+                return mensajes("e");
+              case "chat":
+                return mensajes("e", c);
+              case "notificaciones":
+                return notifs("e");
+              case "empresa":
+                return eEmpresa();
+              case "config":
+                return configScreen("e");
+              case "datos":
+                return eDatos();
+              case "salir":
+                return salir("e");
+              case "legal":
+                return legalApp("e", c);
+            }
+          }
+          return home();
+        }
         function titleFor(hash) {
           const h = (hash || "").split("?")[0];
           const sufijo = " · Match Empleos";
