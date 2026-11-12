@@ -5473,11 +5473,12 @@ async function toggleBusqueda(id) {
           }
           // Candidato: postulaciones y chats creados
           const empresaPorOferta = new Map((d.busquedas || []).map((b) => [b.id, b.empresa_id]));
+          const empresaPorPost = new Map((d.chats || []).map((ch) => [ch.postulacion_id, ch.empresa_id]));
           const dbPosts = d.postulaciones.map((r) => ({
             ...r.datos.post,
             estado: r.estado,
             id: r.id,
-            empresaId: empresaPorOferta.get(r.oferta_id) || null,
+            empresaId: empresaPorOferta.get(r.oferta_id) || empresaPorPost.get(r.id) || null,
           }));
           S.c.posts = dbPosts;
           S.c.chats = {};
