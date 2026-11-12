@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+const chatAI = await readFile(new URL("../supabase/functions/sugerir-respuestas-chat/index.ts", import.meta.url), "utf8");
 
 function extractFunction(name) {
   const start = html.indexOf(`function ${name}(`);
@@ -114,4 +115,35 @@ test("las sugerencias se cargan en el campo del chat para editarlas antes de env
 
 test("el chat de postulante no muestra el módulo de respuestas para empresas", () => {
   assert.match(html, /const aiModule = kind === "e"/);
+});
+
+
+test("la Edge Function de chat autentica y valida la pertenencia de la empresa a la conversación", () => {
+  assert.match(chatAI, /getAuthenticatedUser\(req, supabaseUrl, publishableKey\)/);
+  assert.match(chatAI, /rol: "eq\.e"/);
+  assert.match(chatAI, /empresa_id: `eq\.\$\{userId\}`/);
+  assert.match(chatAI, /id: `eq\.\$\{chatId\}`/);
+  assert.match(chatAI, /verify_jwt/); // La verificación JWT se configura al desplegar.
+});
+
+test("la Edge Function reúne los siete datos empresariales y el nombre del postulante", () => {
+  for (const field of [
+    'fields["re-resp"]',
+    'job.puesto',
+    'fields["re-rubro"]',
+    'fields["re-ubi"]',
+    'chips.esector',
+    'chips.eexp',
+    'chips.ehora',
+    'candidate.nombre',
+  ]) assert.ok(chatAI.includes(field), `Falta contexto: ${field}`);
+});
+
+test("la Edge Function devuelve exactamente tres opciones y contempla fallback de proveedores", () => {
+  assert.match(chatAI, /items\.length === 3/);
+  assert.match(chatAI, /suggestions: result\.suggestions/);
+  assert.match(chatAI, /gemini-3\.5-flash-lite/);
+  assert.match(chatAI, /gemini-3\.8-flash/);
+  assert.match(chatAI, /openai\/gpt-oss-120b/);
+  assert.match(chatAI, /qwen\/qwen3\.8-27b/);
 });
