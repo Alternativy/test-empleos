@@ -117,3 +117,21 @@ for each row execute function private.sync_empresa_verificada();
 comment on table public.denuncias is 'Denuncias de empresas enviadas por postulantes. El equipo Match Empleos las revisa desde Supabase SQL Editor con permisos administrativos.';
 comment on table public.empresas_verificadas is 'Listado público mínimo de empresas verificadas; solo el equipo Match Empleos puede modificarlo desde SQL Editor.';
 comment on table private.empresa_verificacion_revisiones is 'Registro interno de revisión y verificación de empresas; accesible al equipo desde SQL Editor.';
+
+
+-- Los postulantes también pueden consultar las búsquedas a las que ya se postularon,
+-- aunque hayan sido pausadas o cerradas, para poder denunciar y revisar el chat.
+drop policy if exists "candidatos puede leer busquedas activas" on public.busquedas;
+create policy "candidatos leen busquedas activas y postulaciones propias"
+on public.busquedas
+for select
+to authenticated
+using (
+  estado = 'Activa'
+  or exists (
+    select 1
+    from public.postulaciones p
+    where p.oferta_id = busquedas.id
+      and p.candidato_id = (select auth.uid())
+  )
+);
