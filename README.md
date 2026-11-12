@@ -653,3 +653,13 @@ Los siguientes puntos son importantes: existen commits o archivos de backend/SQL
 - Se verificó en Supabase testing que `mejorar-sobre` está ACTIVE (versión 19), con validación manual de sesión, y que existen los RPC de reserva/cierre de cuotas para usuarios y visitantes. No se cambió la Edge Function, las claves ni las tablas.
 - Verificación frontend: relectura de `index.html` desde `main` y comprobaciones estáticas de los cuatro puntos de entrada, invocación de la función, envío del identificador anónimo, aplicación condicionada a que el original no haya cambiado y persistencia de las marcas por tipo de perfil. Pendiente: prueba interactiva en navegador con cuenta de postulante, cuenta de empresa y visitante anónimo.
 - Commit frontend: `5c4c67c74295bc3494a1c8f88fa9e725e8a78256`.
+
+## 22. Orden de candidatos por coincidencia con la búsqueda (12 de noviembre de 2026)
+
+- Al abrir «Ver candidatos» desde una publicación, el listado de postulantes que ya se postularon a esa búsqueda se ordena de mayor a menor coincidencia estimada con sus requisitos.
+- El puntaje compara jornada y turno seleccionados en la publicación con las preferencias del perfil, y contrasta términos relevantes del puesto y su descripción con el puesto buscado, rubros, experiencia y texto «Sobre vos» del postulante.
+- El porcentaje es una heurística local y explicable, no una predicción de contratación ni una evaluación mediante IA. Si la publicación no tiene criterios suficientes, se muestra «Coincidencia no disponible».
+- No se incorporan perfiles que no se hayan postulado a la búsqueda. Se conserva el alcance de privacidad vigente: la empresa ve perfiles vinculados a sus propias postulaciones.
+- No se modificaron tablas, funciones, políticas RLS ni datos de Supabase. La lógica corre en el frontend sobre los datos que la empresa ya puede consultar.
+- Commit frontend: `e5b5ae8bf6b8adfe77e6a35bf9fd49fac1653e4f`.
+- Verificación realizada: inspección del cambio en `index.html` y comprobación estática de la función de puntaje, el orden descendente, la inclusión de datos del perfil y la etiqueta de coincidencia. Pendiente: prueba visual con postulaciones reales de perfiles con distintas preferencias y descripciones; no se ejecutó E2E.
