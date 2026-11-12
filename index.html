@@ -3232,7 +3232,18 @@
         }
       }
 
-    </style>
+    
+        .report-flag{display:inline-flex;align-items:center;gap:7px;align-self:flex-end;border:1px solid rgba(245,139,45,.35);border-radius:999px;background:rgba(245,139,45,.09);color:#d97720;padding:7px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+        .report-flag:hover{background:rgba(245,139,45,.16)}
+        .chat-report-row{display:flex;justify-content:flex-end;margin:0 0 8px}
+        .report-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(8,20,35,.58)}
+        .report-dialog{position:relative;width:min(100%,480px);max-height:90vh;overflow:auto;padding:26px;border-radius:18px;background:#fff;color:#17212b;box-shadow:0 20px 70px rgba(0,0,0,.25)}
+        .report-dialog h2{margin:0 34px 8px 0;font-size:20px;font-weight:650}
+        .report-dialog .stack{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+        .report-dialog .field{width:100%;min-height:42px;padding:10px 12px;border:1px solid #d8dde3;border-radius:10px;background:#fff;color:#17212b;font:inherit}
+        .report-dialog textarea.field{resize:vertical}
+        .report-close{position:absolute;top:12px;right:14px;border:0;background:transparent;color:#59636e;font-size:28px;cursor:pointer}
+</style>
   </head>
   <body>
     <div id="root"> 
