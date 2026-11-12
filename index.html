@@ -4203,7 +4203,7 @@
             : kind === "e"
               ? `Le pediste más información a ${esc(c.con.split(" ")[0])}.`
               : `Respondieron tu postulación a ${esc(c.puesto)}.`;
-          return `<div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map((m) => `<div class="fila ${m.de}"><div class="bub ${m.de}">${esc(m.t)}</div></div>`).join("")}${c.typing ? `<p class="typing">${esc(c.con.split(" ")[0])} está escribiendo…</p>` : ""}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
+          return `<div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map((m) => `<div class="fila ${m.de}"><div class="bub ${m.de}">${esc(m.t)}</div></div>`).join("")}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
   <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>`;
         }
         function mensajes(kind, id) {
@@ -4652,7 +4652,7 @@ async function toggleBusqueda(id) {
           return shell("e", "#/e/empresa", inner);
         }
 
-        /* ---------- Simulaciones y Gestos ---------- */
+        /* ---------- Gestos de navegación ---------- */
         function initSwipeCard() {
           const card = document.querySelector("[data-swipe-card]");
           if (!card) return;
@@ -4712,20 +4712,6 @@ async function toggleBusqueda(id) {
           card.addEventListener("pointercancel", endDrag);
         }
 
-        function softRender() {
-          // re-render sin perder lo que se está escribiendo
-          const a = document.activeElement;
-          const id = a && a.id;
-          const val = a && "value" in a ? a.value : null;
-          render(true);
-          if (id) {
-            const el = document.getElementById(id);
-            if (el) {
-              if (val !== null) el.value = val;
-              el.focus();
-            }
-          }
-        }
         async function apply(oid) {
           const o = offerById(oid);
           if (!o || applied(oid) || S.c.cupo <= 0) return;
@@ -5202,7 +5188,11 @@ async function toggleBusqueda(id) {
           if (!d) return;
           const perf = d.perfiles[0];
           if (ME.rol === "c" && d.cupo != null) S.c.cupo = d.cupo;
-          if (perf && ME.rol === "e") S.e.tasa = perf.tasa;
+          if (perf && ME.rol === "e") {
+            S.e.tasa = perf.tasa ?? 0;
+            S.e.demora = perf.demora ?? 0;
+            S.e.plazo = perf.plazo ?? 3;
+          }
           // Candidato: postulaciones y chats creados
           const dbPosts = d.postulaciones.map((r) => ({ ...r.datos.post, estado: r.estado }));
           S.c.posts = dbPosts;
@@ -5679,7 +5669,7 @@ async function toggleBusqueda(id) {
           const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${fill}"/><circle cx="50" cy="40" r="18" fill="#FFFFFF" fill-opacity=".35"/><path d="M20 100Q20 64 50 64Q80 64 80 100Z" fill="#FFFFFF" fill-opacity=".35"/></svg>`;
           return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
         }
-        function fotoSrc(defecto) {
+        function fotoSrc() {
           return ME.avatarUrl || phSrc();
         }
         function avPh(size, avatarUrl) {
