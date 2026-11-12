@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const chatAI = await readFile(new URL("../supabase/functions/sugerir-respuestas-chat/index.ts", import.meta.url), "utf8");
+const reportSql = await readFile(new URL("../supabase/sql/denuncias_y_verificacion_empresas.sql", import.meta.url), "utf8");
 
 function extractFunction(name) {
   const start = html.indexOf(`function ${name}(`);
@@ -145,4 +146,54 @@ test("la Edge Function devuelve exactamente tres opciones y contempla fallback d
   assert.match(chatAI, /gemini-3\.8-flash/);
   assert.match(chatAI, /openai\/gpt-oss-120b/);
   assert.match(chatAI, /qwen\/qwen3\.8-27b/);
+});
+
+
+test("el panel de postulaciones y el chat del candidato permiten denunciar la empresa", () => {
+  assert.match(html, /data-action="abrir-denuncia"/);
+  assert.match(html, /data-post-id=/);
+  assert.match(html, /data-company-id=/);
+  assert.match(html, /report-chat-action/);
+  assert.match(html, /Denunciar/);
+});
+
+test("el formulario de denuncias contiene los motivos solicitados y límite de 2000 caracteres", () => {
+  for (const reason of [
+    "Es una empresa falsa",
+    "Suplantación de identidad",
+    "Lenguaje inapropiado",
+    "Condiciones inaceptables",
+    "Contenidos obscenos o de odio",
+    "Spam o confuso",
+    "Otros",
+  ]) assert.ok(html.includes(reason), `Falta motivo: ${reason}`);
+  assert.match(html, /maxlength="2000"/);
+  assert.match(html, /data-form="denuncia"/);
+  assert.match(html, /motivo_otro:/);
+  assert.match(html, /Enviar Denuncia/);
+});
+
+test("las denuncias se guardan con empresa, postulación, chat, motivo y mensaje", () => {
+  assert.match(html, /sb\.from\("denuncias"\)\.insert/);
+  assert.match(html, /empresa_id:reportContext\.companyId/);
+  assert.match(html, /postulacion_id:reportContext\.postId/);
+  assert.match(html, /chat_id:reportContext\.chatId/);
+  assert.match(html, /mensaje:message\.trim\(\)/);
+});
+
+test("el esquema de denuncias restringe inserciones a la postulación del denunciante", () => {
+  assert.match(reportSql, /alter table public\.denuncias enable row level security/i);
+  assert.match(reportSql, /grant insert on public\.denuncias to authenticated/i);
+  assert.match(reportSql, /denuncias\.denunciante_id = \(select auth\.uid\(\)\)/i);
+  assert.match(reportSql, /b\.empresa_id = denuncias\.empresa_id/i);
+  assert.match(reportSql, /char_length\(mensaje\) <= 2000/i);
+});
+
+test("la verificación solo se publica desde el registro interno de revisión", () => {
+  assert.match(reportSql, /create table if not exists public\.empresas_verificadas/i);
+  assert.match(reportSql, /create table if not exists private\.empresa_verificacion_revisiones/i);
+  assert.match(reportSql, /revoke all on public\.empresas_verificadas from anon, authenticated/i);
+  assert.match(reportSql, /after insert or update of estado, revisado_at/i);
+  assert.match(html, /empresas_verificadas/);
+  assert.match(html, /company-verified/);
 });
