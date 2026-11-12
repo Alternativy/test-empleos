@@ -197,3 +197,18 @@ test("la verificación solo se publica desde el registro interno de revisión", 
   assert.match(html, /empresas_verificadas/);
   assert.match(html, /company-verified/);
 });
+
+
+test("la mejora de Sobre vos admite un único uso anónimo y oculta el botón tras el éxito", () => {
+  assert.match(html, /me_sobre_ai_anon_id/);
+  assert.match(html, /me_sobre_ai_anon_used/);
+  assert.match(html, /button\\.hidden = true/);
+  assert.match(html, /body: \\{ text: texto, anonymousId \\}/);
+  assert.match(html, /anonYaUsada/);
+});
+
+test("la Edge Function reserva el uso anónimo una sola vez en Supabase", () => {
+  assert.match(chatAI, /reserve_anonymous_ai_usage/);
+  assert.match(chatAI, /complete_anonymous_ai_usage/);
+  assert.match(chatAI, /anonymous_already_used/);
+});
