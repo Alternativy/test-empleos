@@ -162,15 +162,15 @@ test("el formulario de denuncias contiene los motivos solicitados y límite de 2
     "Es una empresa falsa",
     "Suplantación de identidad",
     "Lenguaje inapropiado",
-    "Condiciones inaceptables",
+    "Condiciones Inaceptables",
     "Contenidos obscenos o de odio",
-    "Spam o confuso",
+    "Spam o Confuso",
     "Otros",
   ]) assert.ok(html.includes(reason), `Falta motivo: ${reason}`);
   assert.match(html, /maxlength="2000"/);
   assert.match(html, /data-form="denuncia"/);
   assert.match(html, /motivo_otro:/);
-  assert.match(html, /Enviar Denuncia/);
+  assert.match(html, /Enviar Denunciar/);
 });
 
 test("las denuncias se guardan con empresa, postulación, chat, motivo y mensaje", () => {
