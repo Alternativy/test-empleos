@@ -3812,7 +3812,6 @@
           };
         }
         let S = freshState();
-        const timers = [];
         let cargandoSesion = false;
         let editandoPerfil = false;
         let EDIT_BACKUP = null; // datos guardados al entrar en edición, para poder cancelar
@@ -4713,14 +4712,6 @@ async function toggleBusqueda(id) {
           card.addEventListener("pointercancel", endDrag);
         }
 
-        function later(ms, fn) {
-          timers.push(
-            setTimeout(() => {
-              fn();
-              softRender();
-            }, ms),
-          );
-        }
         function softRender() {
           // re-render sin perder lo que se está escribiendo
           const a = document.activeElement;
@@ -4737,7 +4728,8 @@ async function toggleBusqueda(id) {
         }
         async function apply(oid) {
           const o = offerById(oid);
-          if (!o || !o.real || applied(oid) || S.c.cupo <= 0) return;
+          if (!o || applied(oid) || S.c.cupo <= 0) return;
+          if (o.real !== true) return;
           const post = {
             id: "p" + crypto.randomUUID(),
             oid,
@@ -5016,7 +5008,6 @@ async function toggleBusqueda(id) {
             return;
           }
           if (act === "logout") {
-            timers.forEach(clearTimeout); timers.length = 0;
             ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null };
             S = freshState(); sb.auth.signOut(); go("#/login"); return;
           }
@@ -5318,10 +5309,7 @@ async function toggleBusqueda(id) {
               real: true,
             };
           });
-          if (ME.rol === "c" && ofertasReales.length) {
-            const ids = new Set(S.c.ofertas.map((o) => o.id));
-            S.c.ofertas = [...ofertasReales.filter((o) => !ids.has(o.id)), ...S.c.ofertas];
-          }
+          S.c.ofertas = ME.rol === "c" ? ofertasReales : [];
           Object.keys(S.c.chats).forEach((k) => {
             S.c.chats[k].msgs = [...(S.c.chats[k].msgs || []), ...msgsDe(d, "c:" + k)];
           });
