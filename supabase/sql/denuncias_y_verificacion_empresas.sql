@@ -11,9 +11,9 @@ create table if not exists public.denuncias (
     'Es una empresa falsa',
     'Suplantación de identidad',
     'Lenguaje inapropiado',
-    'Condiciones inaceptables',
+    'Condiciones Inaceptables',
     'Contenidos obscenos o de odio',
-    'Spam o confuso',
+    'Spam o Confuso',
     'Otros'
   )),
   motivo_otro text,
@@ -138,3 +138,16 @@ using (
       and p.candidato_id = (select auth.uid())
   )
 );
+
+
+-- Mantener el texto exacto que presenta el formulario de denuncia.
+alter table public.denuncias drop constraint if exists denuncias_motivo_check;
+alter table public.denuncias add constraint denuncias_motivo_check check (motivo in (
+  'Es una empresa falsa',
+  'Suplantación de identidad',
+  'Lenguaje inapropiado',
+  'Condiciones Inaceptables',
+  'Contenidos obscenos o de odio',
+  'Spam o Confuso',
+  'Otros'
+));
