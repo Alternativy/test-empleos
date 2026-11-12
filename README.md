@@ -408,12 +408,12 @@ Si sos un agente que trabaja en este repo, seguí estas reglas:
 
 - [ ] **UX/UI del login:** revisar jerarquía visual, espaciados, responsive, estados de carga, validaciones, mensajes de error y accesibilidad. El flujo funcional está implementado, pero su experiencia visual todavía requiere una pasada específica.
 - [ ] **Login end-to-end:** probar en staging con cuentas reales de candidato y empresa, incluyendo contraseña incorrecta, correo sin confirmar, sesión persistente al refrescar, recuperación de contraseña, cierre de sesión y redirección según rol. La revisión de código no reemplaza esta prueba.
-- [ ] **Funcionalidad de IA:** completar pruebas reales de `mejorar-sobre` en staging: proveedor principal, fallback de Groq, errores/timeout, cuotas de usuarios registrados, único uso anónimo, liberación de cuota ante fallos y persistencia del estado tras refrescar. Revisar también los mensajes y estados de UX/UI.
+- [ ] **Funcionalidad de IA:** primero reintegrar el frontend con `mejorar-sobre` y los mecanismos de cuota; el `index.html` actual no invoca la función. Después probar proveedores, errores/timeout, cuotas y estado anónimo en staging.
 - [ ] **UX/UI de la asistencia IA:** revisar claridad del botón, presentación de la propuesta, comparación con el original, aplicación/rechazo y mensajes de cuota o indisponibilidad.
 
 
 - [ ] **Google Search Console (después del merge a producción):** verificar la propiedad de dominio `matchempleos.com.ar` con el registro TXT en el DNS, pedir indexación de `https://matchempleos.com.ar/` y enviar `sitemap.xml`. Revisar que `matchempleos.netlify.app` no aparezca indexado.
-- [ ] **Imagen para compartir** de 1200×630 para `og:image` (hoy se usa `img/ilus-hero.png`).
+- [ ] **Imagen para compartir** de 1200×630: `og:image` apunta actualmente a `img/seniala-celular.png`; falta validar encuadre y proporción para redes.
 - [ ] **Subir el `site.webmanifest` corregido** a `img/` (nombre, rutas de íconos relativas).
 - [x] **`robots.txt` y `sitemap.xml`** en la raíz de `test-empleos`. Pasan a producción con el pull request.
 - [x] **Landing con una sola fuente de texto** (HTML estático en `#root`).
@@ -490,7 +490,7 @@ Segunda iteración sobre la referencia **`Match Empleos Landing (copia).pdf`**, 
 - [x] test-empleos/main contiene la versión actual de la aplicación y la landing rediseñada.
 - [x] Se verificó que los cuatro bloques script ejecutables de index.html compilan sintácticamente. Esto no demuestra que todos los flujos funcionen en ejecución.
 - [x] La selección de entorno del frontend apunta a staging para hosts de prueba y a producción solo para matchempleos.com.ar y www.matchempleos.com.ar.
-- [x] Se eliminó el modo demo del frontend y se dejó `freshState()` sin datos ficticios. No se borraron datos históricos de staging.
+- [ ] El modo demo sigue habilitado en staging (`DEMO_HABILITADO = true`) y oculto en producción. No se borraron datos históricos de staging.
 - [ ] Ejecutar node --test tests/real-user-offers.test.mjs en un entorno Node y registrar el resultado. La existencia del test no equivale a una ejecución aprobada.
 - [ ] Completar el checklist manual de la sección 10 con dos cuentas reales y validar los flujos de registro, recuperación, postulaciones, respuestas, chat, CV, Storage y Realtime.
 - [ ] Comparar visualmente la landing en navegador desktop y mobile contra el diseño aprobado.
