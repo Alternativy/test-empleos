@@ -3314,7 +3314,16 @@
           padding: 12px;
         }
       }
-    </style>
+    
+      .chat-ai-suggestions{margin:14px 0 18px;padding:14px;border:1px solid rgba(54,244,140,.28);border-radius:14px;background:rgba(0,33,71,.035);color:var(--navy)}
+      .chat-ai-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+      .chat-ai-head strong{font-size:13px}
+      .chat-ai-options{display:grid;gap:8px;margin-top:12px}
+      .chat-ai-option{width:100%;padding:11px 13px;border:1px solid #d6e0e9;border-radius:10px;background:#fff;color:var(--navy);font:inherit;font-size:13px;line-height:1.45;text-align:left;cursor:pointer}
+      .chat-ai-option:hover{border-color:var(--green-deep);background:#f6fff9}
+      .chat-ai-status{margin:9px 0 0;color:var(--t3);font-size:12px}
+      .chat-ai-status:empty{display:none}
+</style>
   </head>
   <body>
     <div id="root"> 
@@ -4313,8 +4322,14 @@
             : kind === "e"
               ? `Le pediste más información a ${esc(c.con.split(" ")[0])}.`
               : `Respondieron tu postulación a ${esc(c.puesto)}.`;
+          const aiModule = kind === "e" ? `<section class="chat-ai-suggestions" aria-label="Respuestas sugeridas con inteligencia artificial">
+            <div class="chat-ai-head"><strong>Respuestas sugeridas con IA</strong><button class="btn out sm" type="button" data-action="generar-respuestas-chat" data-id="${id}" ${c.aiLoading ? "disabled" : ""}>${c.aiLoading ? "Generando…" : c.aiSuggestions?.length ? "Generar otras" : "Generar 3 respuestas"}</button></div>
+            ${c.aiLoading ? '<p class="chat-ai-status" role="status">Estamos preparando tres respuestas con los datos de tu empresa y esta búsqueda…</p>' : ""}
+            ${c.aiError ? `<p class="chat-ai-status" role="alert">${esc(c.aiError)}</p>` : ""}
+            ${c.aiSuggestions?.length ? `<div class="chat-ai-options">${c.aiSuggestions.map((suggestion, index) => `<button type="button" class="chat-ai-option" data-action="usar-respuesta-chat" data-id="${id}" data-index="${index}">${esc(suggestion)}</button>`).join("")}</div><p class="chat-ai-status">Elegí una opción para cargarla en el chat. Podés editarla antes de enviarla.</p>` : ""}
+          </section>` : "";
           return `<div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map((m) => `<div class="fila ${m.de}"><div class="bub ${m.de}">${esc(m.t)}</div></div>`).join("")}${c.typing ? `<p class="typing">${esc(c.con.split(" ")[0])} está escribiendo…</p>` : ""}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
-  <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>`;
+  <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>${aiModule}`;
         }
         function mensajes(kind, id) {
           const items = convItems(kind, id);
@@ -4873,6 +4888,48 @@ async function toggleBusqueda(id) {
           render();
         }
 
+        async function generarRespuestasChat(id) {
+          const c = S.e.chats[id];
+          if (!c || c.aiLoading) return;
+          c.aiLoading = true;
+          c.aiError = "";
+          render(true);
+          const chatId = c.key?.startsWith("chat:") ? c.key.slice(5) : id;
+          try {
+            const { data, error } = await sb.functions.invoke("sugerir-respuestas-chat", {
+              body: { chatId },
+            });
+            if (error) throw error;
+            if (!Array.isArray(data?.suggestions) || data.suggestions.length !== 3 ||
+                data.suggestions.some((item) => typeof item !== "string" || !item.trim())) {
+              throw new Error("La IA no devolvió tres respuestas válidas.");
+            }
+            c.aiSuggestions = data.suggestions;
+            c.aiModel = data.model || "";
+          } catch (error) {
+            console.error("[ia] sugerir-respuestas-chat", error);
+            c.aiError = "No pudimos generar las respuestas. Probá nuevamente.";
+          } finally {
+            c.aiLoading = false;
+            render(true);
+          }
+        }
+        function usarRespuestaChat(id, index) {
+          const c = S.e.chats[id];
+          const suggestion = c?.aiSuggestions?.[index];
+          if (!suggestion) return;
+          const form = Array.from(document.querySelectorAll('form[data-form="chat"][data-kind="e"]'))
+            .find((item) => item.dataset.id === id && item.getClientRects().length);
+          const input = form?.querySelector("input");
+          if (!input) {
+            toast("No encontramos el campo del mensaje.");
+            return;
+          }
+          input.value = suggestion;
+          input.focus();
+          input.setSelectionRange(input.value.length, input.value.length);
+        }
+
         async function sendChat(kind, id, text) {
           const chats = kind === "e" ? S.e.chats : S.c.chats;
           const c = chats[id];
@@ -5208,6 +5265,14 @@ async function toggleBusqueda(id) {
             return;
           }
           const act = t.dataset.action;
+          if (act === "generar-respuestas-chat") {
+            generarRespuestasChat(t.dataset.id);
+            return;
+          }
+          if (act === "usar-respuesta-chat") {
+            usarRespuestaChat(t.dataset.id, Number(t.dataset.index));
+            return;
+          }
           if (act === "descartar") {
             S.c.idx++;
             render(true);
