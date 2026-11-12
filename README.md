@@ -110,12 +110,13 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 ---
 
-## 6. Modo demo (solo staging)
+## 6. Estado inicial y carga de datos
 
-- En el `index.html` actual, `DEMO_HABILITADO = true`. Los accesos demo se muestran solo cuando `ENTORNO !== "prod"`; por lo tanto, están disponibles en staging/local y ocultos en los hosts de producción.
-- `entrarDemo(kind)` crea una sesión local sin usuario de Supabase y las escrituras se omiten cuando `ME.demo` es true.
-- No asumir que el modo demo fue eliminado. Antes de habilitar el registro público o publicar cambios, decidir expresamente si debe desactivarse y comprobar que no queden datos de muestra en vistas reales.
-- `freshState()` y las consultas reales deben mantenerse separados de cualquier dato demo. No borrar datos históricos de staging como parte de un cambio de frontend sin una instrucción y respaldo específicos.
+- `freshState()` contiene colecciones vacías para ofertas, postulaciones, búsquedas, candidatos, chats y notificaciones. No incorpora registros ficticios ni conversaciones precargadas.
+- Después de autenticar, `hidratar()` obtiene las publicaciones, postulaciones, estados, chats y mensajes correspondientes desde Supabase.
+- `apply()` solo permite postularse a ofertas marcadas como provenientes de Supabase (`real: true`) y utiliza `DB.postular()`; no simula cambios de estado ni respuestas automáticas.
+- `sendChat()` guarda únicamente el mensaje que envía el usuario. La respuesta debe llegar desde la otra cuenta mediante la base de datos y Realtime.
+- No borrar datos históricos de staging como parte de un cambio de frontend sin una instrucción y respaldo específicos.
 
 ## 6c. Mejora del campo “Sobre vos” con IA
 
@@ -212,13 +213,13 @@ Los campos conservan lo escrito al volver atrás: `regField()` y los inputs de `
 
 | Entorno | Proyecto | Uso |
 |---|---|---|
-| Staging | `gtnxlkqumppeintdpycn` (us-east-1) | Entorno de pruebas. Conserva datos y estructuras históricas; el frontend ya no ofrece acceso demo ni los precarga. |
+| Staging | `gtnxlkqumppeintdpycn` (us-east-1) | Entorno de pruebas. Conserva datos y estructuras históricas; el frontend carga únicamente registros reales de Supabase. |
 | Producción | `mijmzywmrazzaqypuwhu` (us-east-2) | Dominio `matchempleos.com.ar`. Arranca limpio, sin datos de prueba. |
 
 Los dos proyectos se configuran por separado: esquema, permisos, buckets, URLs de redirección y SMTP. Las migraciones se aplican a cada uno por separado.
 
 Diferencias intencionales entre staging y producción (ver migración `009`):
-- Staging conserva columnas y una política de la versión demo de chats: `mensajes.de`, `mensajes.chat_key`, la restricción `mensajes_de_check`, el índice `mensajes_chat_idx` y la política "historial anterior solo lectura". Producción no los tiene.
+- Staging conserva columnas y una política heredadas del esquema anterior de chats: `mensajes.de`, `mensajes.chat_key`, la restricción `mensajes_de_check`, el índice `mensajes_chat_idx` y la política "historial anterior solo lectura". Producción no los tiene. No se eliminan en esta tarea porque forman parte del esquema remoto y pueden contener registros históricos.
 - Producción tiene la función `rls_auto_enable`, creada por la opción "Enable automatic RLS" del dashboard.
 - Staging tenía un bucket `subidas` sin uso que hay que borrar desde el dashboard.
 
@@ -241,7 +242,7 @@ Diferencias intencionales entre staging y producción (ver migración `009`):
 | `chats` | Un chat por postulación con Match mutuo. Sin vencimiento. | `postulacion_id` único; `candidato_id` y `empresa_id` → `perfiles`. |
 | `mensajes` | Mensajes de un chat. `autor_id` identifica al que escribe; `texto` y `h` (hora). Inmutables: no tienen UPDATE ni DELETE. | `chat_id` → `chats`; `autor_id` → `perfiles`. |
 
-Staging además conserva `mensajes.de` y `mensajes.chat_key` (historial demo).
+Staging además conserva `mensajes.de` y `mensajes.chat_key` de un esquema anterior de conversaciones.
 
 ### Funciones del servidor
 
@@ -324,10 +325,10 @@ Estos puntos **bloquean o condicionan producción**. Están documentados para qu
 7. **Correo no editable desde la app.** Los datos de "Datos personales" (candidato) y "Datos empresariales" (empresa) se editan todos, salvo el correo, que es el usuario de acceso. Cambiarlo requiere el flujo de cambio de correo de Auth, que todavía no está implementado.
 8. **Notificaciones.** Las notificaciones del candidato no se persisten en una tabla; son estado de UI. El frontend no precarga notificaciones ficticias.
 9. **El CV se sube solo con sesión.** Si el registro requiere confirmar el correo, el archivo elegido en el paso 5 no se puede guardar; el usuario tiene que subirlo después desde "Datos personales".
-10. **Pruebas automatizadas parciales.** `tests/real-user-offers.test.mjs` verifica que no exista acceso demo, que el estado inicial esté vacío y que las ofertas se carguen desde Supabase. Ejecutar con `node --test tests/real-user-offers.test.mjs`. El resto de los flujos sigue requiriendo el checklist manual de la sección 10.
-11. **Respuestas automáticas.** Se eliminaron las respuestas simuladas y los temporizadores de demostración. Los mensajes y respuestas deben originarse en acciones reales de los usuarios.
+10. **Pruebas automatizadas parciales.** `tests/real-user-offers.test.mjs` verifica que el estado inicial esté vacío y que las ofertas se carguen desde Supabase. Ejecutar con `node --test tests/real-user-offers.test.mjs`. El resto de los flujos sigue requiriendo el checklist manual de la sección 10.
+11. **Interacciones reales.** Se eliminaron las respuestas automáticas y las transiciones simuladas de postulaciones. Los mensajes y cambios de estado deben originarse en acciones reales de los usuarios.
 12. **Métodos heredados.** `DB.setCupo` y `DB.setTasa` son no-ops; la app ya no escribe esos valores desde el cliente.
-13. **Columnas heredadas en staging.** `mensajes.de` y `mensajes.chat_key` siguen en staging por el historial demo. No se replican en producción.
+13. **Columnas heredadas en staging.** `mensajes.de` y `mensajes.chat_key` siguen en staging por compatibilidad con registros históricos del esquema anterior. No se replican en producción.
 
 ---
 
@@ -335,7 +336,7 @@ Estos puntos **bloquean o condicionan producción**. Están documentados para qu
 
 Antes de mergear a `main` o de publicar en producción, probar en **staging** con dos cuentas reales (una empresa y un candidato):
 
-**Ausencia de datos demo**
+**Ausencia de datos ficticios**
 - [ ] La pantalla de login no ofrece accesos de demostración.
 - [ ] Sin una sesión autenticada, las rutas privadas redirigen al login.
 - [ ] Una cuenta nueva comienza sin ofertas, postulaciones, chats ni notificaciones precargadas.
@@ -393,7 +394,7 @@ Si sos un agente que trabaja en este repo, seguí estas reglas:
 9. **Permisos explícitos.** Toda tabla nueva necesita `grant` explícito para `authenticated`, y RLS activo. No asumas que la plataforma los da.
 10. **Nunca dejes que el cliente escriba `cupo`, `tasa` ni `rol`.** Esos valores los calcula el servidor.
 11. **Después de cambiar `index.html`, validá la sintaxis** de cada `<script>` (por ejemplo con `node --check` sobre el contenido extraído).
-12. **No reintroduzcas un acceso de demostración ni datos ficticios en `freshState()`.**
+12. **No reintroduzcas datos ficticios en `freshState()` ni accesos que permitan navegar sin una sesión autenticada.**
 13. **No reutilices las claves `c:<oferta>` / `e:<candidato>` para un chat real nuevo.** Las conversaciones reales usan `chats` y `mensajes.chat_id`.
 14. **No reintroduzcas respuestas automáticas simuladas.** `sendChat()` debe guardar el mensaje escrito por el usuario; las respuestas deben venir de acciones reales de la otra cuenta.
 15. **Al modificar `hidratar()`, cargá los datos desde Supabase sin mezclarlos con datos de muestra.** `freshState()` debe seguir vacío.
@@ -490,7 +491,7 @@ Segunda iteración sobre la referencia **`Match Empleos Landing (copia).pdf`**, 
 - [x] test-empleos/main contiene la versión actual de la aplicación y la landing rediseñada.
 - [x] Se verificó que los cuatro bloques script ejecutables de index.html compilan sintácticamente. Esto no demuestra que todos los flujos funcionen en ejecución.
 - [x] La selección de entorno del frontend apunta a staging para hosts de prueba y a producción solo para matchempleos.com.ar y www.matchempleos.com.ar.
-- [ ] El modo demo sigue habilitado en staging (`DEMO_HABILITADO = true`) y oculto en producción. No se borraron datos históricos de staging.
+- [x] Se eliminó el modo de acceso sin autenticación y los datos ficticios del frontend. No se borraron datos históricos de staging.
 - [ ] Ejecutar node --test tests/real-user-offers.test.mjs en un entorno Node y registrar el resultado. La existencia del test no equivale a una ejecución aprobada.
 - [ ] Completar el checklist manual de la sección 10 con dos cuentas reales y validar los flujos de registro, recuperación, postulaciones, respuestas, chat, CV, Storage y Realtime.
 - [ ] Comparar visualmente la landing en navegador desktop y mobile contra el diseño aprobado.
@@ -563,7 +564,7 @@ Esta sección prevalece sobre descripciones anteriores cuando haya contradiccion
 - **Recuperación de contraseña:** se quitó el mensaje en pasado que afirmaba que el correo ya había sido enviado antes de pulsar “Enviar”. El formulario conserva el texto introductorio en futuro, llama a `recuperarForm()` y luego muestra un aviso genérico. No se probó la entrega real del correo.
 - **Login:** el formulario está conectado a `iniciarSesionForm()`, valida los campos, llama a `sb.auth.signInWithPassword`, contempla correo sin confirmar y credenciales incorrectas, y restablece el botón en `finally`. El código actual no incluye un `catch` para errores inesperados de red. La UX/UI sigue pendiente y no hay prueba E2E con cuentas reales.
 - **Animaciones de landing:** el código actual contiene `lp-reveal` e `IntersectionObserver`. Su existencia no demuestra que las animaciones cumplan la dirección, tiempos y comportamiento solicitados. La validación visual desktop/mobile sigue pendiente; consultar la auditoría de la sección 15.
-- **Modo demo:** `DEMO_HABILITADO = true`; se ofrece solo fuera de producción. No describir el proyecto como “sin modo demo” hasta que esa constante y los accesos asociados se desactiven y se pruebe el flujo.
+- **Datos de la aplicación:** el estado inicial está vacío y la interfaz se hidrata con datos de Supabase. No se incluyen publicaciones, postulaciones, perfiles ni chats de muestra.
 
 ### Funcionalidades cuya documentación histórica no coincide con el frontend actual
 
@@ -584,7 +585,7 @@ Los siguientes puntos son importantes: existen commits o archivos de backend/SQL
 - [ ] Resolver el manejo de excepciones inesperadas en `iniciarSesionForm()` y `recuperarForm()`; probar credenciales incorrectas, correo sin confirmar, errores de red, sesión persistente, recuperación, cambio de contraseña, cierre de sesión y redirección por rol.
 - [ ] Completar la revisión UX/UI responsive del login y de los flujos de IA.
 - [ ] Probar las animaciones de scroll con navegador real, desktop y mobile, incluyendo `prefers-reduced-motion`.
-- [ ] Decidir si el modo demo debe permanecer habilitado en staging o eliminarse por completo.
+- [x] Eliminado el modo demo del frontend y los flujos simulados de postulaciones y chats. Pendiente validar los recorridos completos con dos cuentas reales.
 - [ ] Antes de producción, resolver los bloqueantes de seguridad y configuración documentados en la sección 15 y comparar el diff completo con el repositorio de producción.
 
 ### Reglas para agentes de IA que retomen el trabajo
