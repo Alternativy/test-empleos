@@ -639,3 +639,17 @@ Los siguientes puntos son importantes: existen commits o archivos de backend/SQL
 - La función «Mejorar sobre mí» permanece en la rama `Implementar-IA`; no está integrada en `main`. La Edge Function `mejorar-sobre` sigue activa en Supabase testing (versión 19). La UI de registro/edición y sus manejadores no forman parte del HTML de `main`; no se fusionó la rama completa para evitar sobrescribir correcciones posteriores del proyecto.
 - Commits frontend de esta corrección: `7b2bb6b993409b1c8b414394b37ffaec5d902f2b` y `a8ffdbfeb514c7626a1e5ed000bfb5823e605d13`.
 - Verificación realizada: relectura del archivo desde `main` y comprobaciones estáticas de filtrado de ofertas, marcadores de lectura, contador global y manejo de chats no hidratados. Pendiente: probar con dos sesiones reales que una postulación desaparezca del feed y que un mensaje recibido con la sesión cerrada genere el badge al volver a entrar.
+
+## 21. Mejora del campo «Sobre vos» con IA (12 de noviembre de 2026)
+
+- Se integró en el frontend la Edge Function existente `mejorar-sobre`, sin modificar ni desplegar el backend.
+- Disponible en staging para postulantes y empresas, tanto durante el registro como en la edición del perfil:
+  - Postulante: `rc-sobre` (registro) y `ed-sobre` (edición).
+  - Empresa: `re-desc` (registro) y `ede-desc` (edición).
+- El usuario debe escribir una descripción de hasta 4.000 caracteres. La IA devuelve una propuesta editable; el texto original no se reemplaza hasta pulsar «Usar esta versión». Si el texto original cambia después de generar la propuesta, no se permite aplicar una sugerencia desactualizada.
+- Al aplicar una propuesta durante la edición del perfil, se actualiza el textarea y se marca el campo como mejorado en `ME.datos.ai`; el cambio queda persistido al guardar el perfil. En registro, se actualiza el borrador local del campo.
+- Se envía un identificador UUID anónimo persistido en el navegador para permitir la mejora gratuita previa al registro. Para usuarios autenticados, el backend valida la sesión y aplica sus cuotas por cuenta. El frontend muestra el límite informado por el servicio; la validación y reserva de uso siguen del lado servidor.
+- Límites definidos por el backend: 5 mejoras por día y 50 por mes para cuentas autenticadas; una mejora gratuita por navegador para visitantes. Se conserva el guard de entorno: la interfaz se muestra en staging, no en producción.
+- Se verificó en Supabase testing que `mejorar-sobre` está ACTIVE (versión 19), con validación manual de sesión, y que existen los RPC de reserva/cierre de cuotas para usuarios y visitantes. No se cambió la Edge Function, las claves ni las tablas.
+- Verificación frontend: relectura de `index.html` desde `main` y comprobaciones estáticas de los cuatro puntos de entrada, invocación de la función, envío del identificador anónimo, aplicación condicionada a que el original no haya cambiado y persistencia de las marcas por tipo de perfil. Pendiente: prueba interactiva en navegador con cuenta de postulante, cuenta de empresa y visitante anónimo.
+- Commit frontend: `5c4c67c74295bc3494a1c8f88fa9e725e8a78256`.
