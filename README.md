@@ -537,7 +537,7 @@ No abrir todavía el pull request de producción ni hacer merge. Primero resolve
 ## 14. Verificaciones y pendientes de login e IA (12/11/2026)
 
 - Login: inspección estática de `login()`, `iniciarSesionForm()`, `setSesion()` y `route()`. Se verificó validación de correo/contraseña, llamada a Supabase Auth, consulta de `perfiles`, protección de rutas privadas y redirección por rol. Los scripts JavaScript ejecutables del HTML pasaron el chequeo de sintaxis. No se probó una sesión real porque esta revisión no contó con credenciales de prueba ni ejecución del sitio en navegador.
-- Punto de atención del login: `iniciarSesionForm()` maneja los errores devueltos por Supabase, pero no tiene un `catch` explícito para excepciones de red o fallos inesperados. Conviene incorporar un mensaje visible para esos casos en la próxima mejora funcional.
+- Manejo de errores del login: `iniciarSesionForm()` distingue credenciales incorrectas y correo sin confirmar; además, captura excepciones de red/fallos inesperados, muestra un mensaje visible y siempre restablece el botón de envío.
 - UX/UI del login: pendiente una revisión específica de diseño responsive, jerarquía, accesibilidad, textos y estados de error/carga.
 - IA: la Edge Function implementa Gemini con fallback a Groq, reservas de cuota para usuarios registrados y visitantes, y confirma el consumo solo ante respuesta exitosa. Falta validar el comportamiento operativo con las claves/modelos desplegados en staging y completar pruebas de todos los caminos de error y cuota.
 - UX/UI de IA: pendiente mejorar el flujo de propuesta, comparación, aplicación y mensajes de disponibilidad/límite.
