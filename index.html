@@ -4356,7 +4356,7 @@
       <div class="steps3">${[1, 2, 3].map((i) => `<i class="${i <= stepsOf(p.estado) ? "on" : ""}"></i>`).join("")}</div>
       <p class="post-foot">${esc(p.pie || "")}</p>
     </a>
-    <div class="report-card-row"><button class="report-trigger" type="button" title="Denunciar" aria-label="Denunciar empresa" title="Denunciar" aria-label="Denunciar empresa" data-action="abrir-denuncia" data-post-id="${escAttr(p.id || "")}" data-company-id="${escAttr(p.empresaId || "")}" data-chat-id="${escAttr(p.chat || "")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M6 4h12l-3.5 4L18 12H6z" stroke-width="1.6" stroke-linejoin="round"/></svg>Denunciar</button></div>
+    <div class="report-card-row"><button class="report-trigger" type="button" title="Denunciar" aria-label="Denunciar empresa" data-action="abrir-denuncia" data-post-id="${escAttr(p.id || "")}" data-company-id="${escAttr(p.empresaId || "")}" data-chat-id="${escAttr(p.chat || "")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M6 4h12l-3.5 4L18 12H6z" stroke-width="1.6" stroke-linejoin="round"/></svg>Denunciar</button></div>
   </div>`,
             )
             .join("");
@@ -4404,7 +4404,7 @@
             ${c.aiSuggestions?.length ? `<div class="chat-ai-options">${c.aiSuggestions.map((suggestion, index) => `<button type="button" class="chat-ai-option" data-action="usar-respuesta-chat" data-id="${id}" data-index="${index}">${esc(suggestion)}</button>`).join("")}</div><p class="chat-ai-status">Elegí una opción para cargarla en el chat. Podés editarla antes de enviarla.</p>` : ""}
           </section>` : "";
           return `<div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map((m) => `<div class="fila ${m.de}"><div class="bub ${m.de}">${esc(m.t)}</div></div>`).join("")}${c.typing ? `<p class="typing">${esc(c.con.split(" ")[0])} está escribiendo…</p>` : ""}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
-  <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>${kind==="c"?`<div class="report-chat-action"><button class="report-trigger" type="button" data-action="abrir-denuncia" data-post-id="${escAttr(c.postulacionId||"")}" data-company-id="${escAttr(c.empresaId||"")}" data-chat-id="${escAttr(id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M6 4h12l-3.5 4L18 12H6z" stroke-width="1.6" stroke-linejoin="round"/></svg>Denunciar</button></div>${reportModal()}`:""}${aiModule}`;
+  <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>${kind==="c"?`<div class="report-chat-action"><button class="report-trigger" type="button" title="Denunciar" aria-label="Denunciar empresa" data-action="abrir-denuncia" data-post-id="${escAttr(c.postulacionId||"")}" data-company-id="${escAttr(c.empresaId||"")}" data-chat-id="${escAttr(id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M6 4h12l-3.5 4L18 12H6z" stroke-width="1.6" stroke-linejoin="round"/></svg>Denunciar</button></div>${reportModal()}`:""}${aiModule}`;
         }
         function mensajes(kind, id) {
           const items = convItems(kind, id);
