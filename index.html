@@ -5207,7 +5207,7 @@ async function toggleBusqueda(id) {
         /* ---------- Eventos ---------- */
         document.addEventListener("click", (e) => {
           const t = e.target.closest(
-            "[data-scroll],[data-go],[data-apply],[data-action],[data-chip],[data-filter],[data-cfilter],[data-plazo],[data-tpl],[data-notif],[data-bsel]",
+            "[data-scroll],[data-go],[data-apply],[data-action],[data-ad-link],[data-chip],[data-filter],[data-cfilter],[data-plazo],[data-tpl],[data-notif],[data-bsel]",
           );
           if (!t) return;
           if (t.dataset.scroll) {
