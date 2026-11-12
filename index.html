@@ -5346,9 +5346,15 @@ async function toggleBusqueda(id) {
             "confirmar",
           ];
           if (!ME.id && !ME.demo && a && !PUBLICAS.includes(a)) return login();
+          if ((ME.id || ME.demo) && !["c", "e"].includes(ME.rol)) {
+            // La sesión puede existir mientras todavía se recupera el perfil.
+            // No navegar desde route(): go() ejecuta render() sincrónicamente y puede crear recursión.
+            return loadingScreen();
+          }
           if ((ME.id || ME.demo) && ((a === "c" && ME.rol !== "c") || (a === "e" && ME.rol !== "e"))) {
-            go(ME.rol === "e" ? "#/e/panel" : "#/c/feed");
-            return "";
+            const destino = ME.rol === "e" ? "#/e/panel" : "#/c/feed";
+            if (location.hash !== destino) location.hash = destino;
+            return loadingScreen();
           }
           if (a === "privacidad" || a === "terminos" || a === "ayuda") return legalSite(a);
           if (a === "confirmar") return confirmar();
@@ -6078,6 +6084,10 @@ async function toggleBusqueda(id) {
               document.getElementById("lg-hint").innerHTML =
                 'Correo o contraseña incorrectos. <button type="button" data-go="#/recuperar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">¿Olvidaste tu contraseña?</button>';
             }
+          } catch (err) {
+            console.error("[auth] Error inesperado durante el login:", err);
+            const hint = document.getElementById("lg-hint");
+            if (hint) hint.textContent = "No pudimos iniciar sesión por un problema de conexión. Intentá nuevamente.";
           } finally {
             if (btn && btn.isConnected) {
               btn.classList.remove("cargando");
@@ -6418,11 +6428,17 @@ async function toggleBusqueda(id) {
           }
           ME.id = session.user.id;
           ME.demo = false;
-          const { data: perfil } = await sb
+          const { data: perfil, error: perfilError } = await sb
             .from("perfiles")
             .select("rol,nombre,datos,avatar_url")
             .eq("id", ME.id)
             .maybeSingle();
+          if (perfilError) {
+            cargandoSesion = false;
+            ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null, demo: false };
+            S = freshState();
+            throw perfilError;
+          }
           ME.rol = perfil?.rol || null;
           ME.nombre = perfil?.nombre || null;
           ME.datos = perfil?.datos || {};
@@ -6449,7 +6465,15 @@ async function toggleBusqueda(id) {
           setTimeout(async () => {
             const uid = session?.user?.id ?? null;
             ultimoUid = uid;
-            await setSesion(session);
+            try {
+              await setSesion(session);
+            } catch (err) {
+              console.error("[auth] No se pudo recuperar el perfil:", err);
+              cargandoSesion = false;
+              toast("No pudimos cargar tu cuenta. Probá de nuevo.");
+              render();
+              return;
+            }
             if (evento === "PASSWORD_RECOVERY") {
               go("#/nueva-clave");
               return;
