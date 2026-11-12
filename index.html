@@ -3491,8 +3491,6 @@
                 "id,postulacion_id,candidato_id,empresa_id,candidato:perfiles!candidato_id(id,nombre,avatar_url,datos)",
               );
             if (chatsR.error) throw chatsR.error;
-            const cupoR = await sb.rpc("cupo_actual");
-            if (cupoR.error) throw cupoR.error;
             return {
               perfiles: perfiles.data,
               postulaciones,
@@ -3501,7 +3499,6 @@
               candidatos,
               mensajes: mensajes.data,
               chats: chatsR.data,
-              cupo: cupoR.data,
             };
           }
           const [perfiles, postulaciones, busquedas, candidatosEstado, mensajes] = await Promise.all([
@@ -3530,6 +3527,9 @@
               "id,postulacion_id,candidato_id,empresa_id,empresa:perfiles!empresa_id(id,nombre,avatar_url,datos)",
             );
           if (chatsR.error) throw chatsR.error;
+          // El cupo semanal del postulante se calcula en el servidor.
+          const cupoR = await sb.rpc("cupo_actual");
+          if (cupoR.error) throw cupoR.error;
           return {
             perfiles: perfiles.data,
             postulaciones: postulaciones.data,
@@ -3538,6 +3538,7 @@
             empresas,
             mensajes: mensajes.data,
             chats: chatsR.data,
+            cupo: cupoR.data,
           };
         },
 
