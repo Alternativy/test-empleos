@@ -3631,9 +3631,10 @@
               "id,postulacion_id,candidato_id,empresa_id,empresa:perfiles!empresa_id(id,nombre,avatar_url,datos)",
             );
           if (chatsR.error) throw chatsR.error;
+          const idsEmpresasVerificables = [...new Set([...empresaIds, ...chatsR.data.map((ch) => ch.empresa_id)])];
           let verificadas = [];
-          if (empresaIds.length) {
-            const vr = await sb.from("empresas_verificadas").select("empresa_id").in("empresa_id", empresaIds);
+          if (idsEmpresasVerificables.length) {
+            const vr = await sb.from("empresas_verificadas").select("empresa_id").in("empresa_id", idsEmpresasVerificables);
             if (vr.error) throw vr.error;
             verificadas = vr.data.map((v) => v.empresa_id);
           }
@@ -4388,7 +4389,7 @@
           return `<div class="app auth cand"><div class="match-top">${'<svg viewBox="0 0 390 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H390V24C300 24 240 40 170 70C90 104 30 150 0 180Z" fill="#E9E9E9"/><path d="M0 0H390V4C310 4 250 22 180 52C100 86 30 132 0 160Z" fill="#36F48C"/></svg>'}</div>
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
-    <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)}${o.verificada ? " (empresa verificada)" : ""} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
+    <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)}${verifiedMark(o.verificada)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
     <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || phSrc()}" alt="${esc(o.emp)}"></div>
     <p class="note-match" style="max-width:342px">Ya podés coordinar los próximos pasos en el chat.</p>
   </div>
@@ -4431,7 +4432,7 @@
             .map((k) => {
               const c = chats[k];
               const last = c.msgs[c.msgs.length - 1];
-              return `<a class="conv-item" href="#/${kind}/chat/${k}" ${k === active ? 'aria-current="true"' : ""}>${avatarOf(kind, k)}<div class="grow"><div style="display:flex;justify-content:space-between;gap:8px"><h3>${esc(c.con)}</h3><span class="t-note" style="flex:none">${esc(last ? last.h : "")}</span></div><p>${last ? (last.de === "me" ? "Vos: " : "") + "«" + esc(last.t) + "»" : esc(c.puesto) + " · escribí el primer mensaje"}</p></div></a>`;
+              return `<a class="conv-item" href="#/${kind}/chat/${k}" ${k === active ? 'aria-current="true"' : ""}>${avatarOf(kind, k)}<div class="grow"><div style="display:flex;justify-content:space-between;gap:8px"><h3>${esc(c.con)}${kind === "c" ? verifiedMark(c.verificada) : ""}</h3><span class="t-note" style="flex:none">${esc(last ? last.h : "")}</span></div><p>${last ? (last.de === "me" ? "Vos: " : "") + "«" + esc(last.t) + "»" : esc(c.puesto) + " · escribí el primer mensaje"}</p></div></a>`;
             })
             .join("");
         }
