@@ -621,6 +621,19 @@
           transform: rotate(360deg);
         }
       }
+      .verified-mark {
+        display: inline-flex;
+        width: 17px;
+        height: 17px;
+        vertical-align: -3px;
+        margin-left: 5px;
+        flex: none;
+      }
+      .verified-mark svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
       .hint {
         min-height: 18px;
         font-size: 13px;
@@ -3618,6 +3631,12 @@
               "id,postulacion_id,candidato_id,empresa_id,empresa:perfiles!empresa_id(id,nombre,avatar_url,datos)",
             );
           if (chatsR.error) throw chatsR.error;
+          let verificadas = [];
+          if (empresaIds.length) {
+            const vr = await sb.from("empresas_verificadas").select("empresa_id").in("empresa_id", empresaIds);
+            if (vr.error) throw vr.error;
+            verificadas = vr.data.map((v) => v.empresa_id);
+          }
           // El cupo semanal del postulante se calcula en el servidor.
           const cupoR = await sb.rpc("cupo_actual");
           if (cupoR.error) throw cupoR.error;
@@ -3627,6 +3646,7 @@
             busquedas: busquedas.data,
             candidatosEstado: candidatosEstado.data,
             empresas,
+            verificadas,
             mensajes: mensajes.data,
             chats: chatsR.data,
             cupo: cupoR.data,
@@ -4305,13 +4325,18 @@
         function offerById(id) {
           return S.c.ofertas.find((o) => o.id === id);
         }
+        function verifiedMark(verificada) {
+          return verificada
+            ? '<span class="verified-mark" role="img" aria-label="Empresa verificada manualmente" title="Empresa verificada"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="#36F48C"/><path d="m5.4 10.2 3 3 6.2-6.4" fill="none" stroke="#002147" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+            : "";
+        }
         function offerCard(o) {
           return `<article class="offer swipe-card" data-swipe-card="${esc(o.id)}">
     <span class="swipe-badge like">Me interesa</span>
     <span class="swipe-badge nope">Descartar</span>
     ${o.foto ? `<img loading="lazy" decoding="async" class="ph" src="${o.foto}" alt="Preparación de café en ${esc(o.emp)}" draggable="false">` : ""}
     <div class="bd">
-      <div class="co">${o.logo ? `<img loading="lazy" decoding="async" src="${esc(o.logo)}" alt="" draggable="false">` : '<span class="sq"></span>'}${esc(o.emp)}</div>
+      <div class="co">${o.logo ? `<img loading="lazy" decoding="async" src="${esc(o.logo)}" alt="" draggable="false">` : '<span class="sq"></span>'}${esc(o.emp)}${verifiedMark(o.verificada)}</div>
       <h2>${esc(o.puesto)}</h2>
       <div class="chips">${o.fchips.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>
       <div class="strip"><span class="dot"></span><span>Contesta el ${o.tasa}% de las postulaciones, en ${o.dias} días promedio</span></div>
@@ -4329,7 +4354,7 @@
         function offerDetail(o, withBack, showActions = true) {
           const ya = applied(o.id);
           return `${withBack ? `<div class="hdr">${backBtn("#/c/feed")}<span class="side">Guardar</span></div>` : ""}
-  <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px"><span class="sq" style="width:40px;height:40px;border-radius:10px"></span><div><p style="font-weight:500">${esc(o.emp)}</p><p class="t-note">${esc(o.meta)}</p></div></div>
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px"><span class="sq" style="width:40px;height:40px;border-radius:10px"></span><div><p style="font-weight:500">${esc(o.emp)}${verifiedMark(o.verificada)}</p><p class="t-note">${esc(o.meta)}</p></div></div>
   <h1 class="t-title" style="margin-bottom:16px">${esc(o.puesto)}</h1>
   <div class="chips" style="margin-bottom:16px">${o.chips.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>
   <div class="resp-box"><p class="lbl">Esta empresa responde:</p>
@@ -4363,7 +4388,7 @@
           return `<div class="app auth cand"><div class="match-top">${'<svg viewBox="0 0 390 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0H390V24C300 24 240 40 170 70C90 104 30 150 0 180Z" fill="#E9E9E9"/><path d="M0 0H390V4C310 4 250 22 180 52C100 86 30 132 0 160Z" fill="#36F48C"/></svg>'}</div>
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
-    <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
+    <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)}${o.verificada ? " (empresa verificada)" : ""} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
     <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || phSrc()}" alt="${esc(o.emp)}"></div>
     <p class="note-match" style="max-width:342px">Ya podés coordinar los próximos pasos en el chat.</p>
   </div>
@@ -4416,7 +4441,7 @@
             kind === "e"
               ? esc(c.puesto)
               : `${esc(c.puesto)}${c.tasa ? " · responde el " + c.tasa + "%" : ""}`;
-          return `<div class="chat-head"><button class="back" data-go="${back}" aria-label="Volver">‹</button>${avatarOf(kind, id).replace(/44px/g, "36px")}<div><b>${c.perfilUrl ? `<a href="${c.perfilUrl}" style="color:inherit">${esc(c.con)}</a>` : esc(c.con)}</b><p class="t-note">${sub}</p></div></div>`;
+          return `<div class="chat-head"><button class="back" data-go="${back}" aria-label="Volver">‹</button>${avatarOf(kind, id).replace(/44px/g, "36px")}<div><b>${c.perfilUrl ? `<a href="${c.perfilUrl}" style="color:inherit">${esc(c.con)}</a>` : esc(c.con)}${kind === "c" ? verifiedMark(c.verificada) : ""}</b><p class="t-note">${sub}</p></div></div>`;
         }
         function chatBody(kind, id) {
           const chats = kind === "e" ? S.e.chats : S.c.chats;
@@ -5804,6 +5829,7 @@ async function toggleBusqueda(id) {
                 puesto: post?.puesto || "",
                 postId: ch.postulacion_id,
                 empresaId: ch.empresa_id,
+                verificada: (d.verificadas || []).includes(ch.empresa_id),
                 match: true,
                 key: "chat:" + ch.id,
                 avatar: ep.avatar_url || "",
@@ -5891,6 +5917,7 @@ async function toggleBusqueda(id) {
             return {
               id: b.id,
               emp: ep?.nombre || "Empresa",
+              verificada: (d.verificadas || []).includes(b.empresa_id),
               meta: [ec["re-rubro"], ec["re-tam"]].filter(Boolean).join(" · "),
               puesto: b.puesto,
               chips: [ec["re-ubi"], ecx.etipo, ecx.emodo, ecx.ehora].flat().filter(Boolean),
