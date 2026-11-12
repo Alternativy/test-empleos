@@ -6150,6 +6150,12 @@ async function toggleBusqueda(id) {
               document.getElementById("lg-hint").innerHTML =
                 'Correo o contraseña incorrectos. <button type="button" data-go="#/recuperar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">¿Olvidaste tu contraseña?</button>';
             }
+          } catch (error) {
+            console.warn("[auth] login no disponible:", error);
+            const hint = document.getElementById("lg-hint");
+            if (hint) {
+              hint.textContent = "No pudimos conectar con el servicio de acceso. Revisá tu conexión e intentá nuevamente.";
+            }
           } finally {
             if (btn && btn.isConnected) {
               btn.classList.remove("cargando");
