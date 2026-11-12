@@ -110,12 +110,12 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 ---
 
-## 6. Sin modo demo
+## 6. Modo demo (solo staging)
 
-- Se eliminaron del frontend los botones de acceso de demostración, el estado de sesión demo y la función que permitía entrar sin autenticación.
-- `freshState()` comienza con listas y objetos vacíos. Los perfiles, búsquedas, postulaciones, conversaciones y datos de empresa se obtienen de Supabase.
-- Se quitaron los perfiles y ofertas ficticios, las notificaciones precargadas y las respuestas automáticas simuladas.
-- Este cambio afecta al código del frontend. **No se borraron datos ni se aplicaron migraciones en Supabase**: staging conserva datos y columnas históricas de pruebas. No deben confundirse con datos actuales de usuarios ni mostrarse en la aplicación.
+- En el `index.html` actual, `DEMO_HABILITADO = true`. Los accesos demo se muestran solo cuando `ENTORNO !== "prod"`; por lo tanto, están disponibles en staging/local y ocultos en los hosts de producción.
+- `entrarDemo(kind)` crea una sesión local sin usuario de Supabase y las escrituras se omiten cuando `ME.demo` es true.
+- No asumir que el modo demo fue eliminado. Antes de habilitar el registro público o publicar cambios, decidir expresamente si debe desactivarse y comprobar que no queden datos de muestra en vistas reales.
+- `freshState()` y las consultas reales deben mantenerse separados de cualquier dato demo. No borrar datos históricos de staging como parte de un cambio de frontend sin una instrucción y respaldo específicos.
 
 ## 6c. Mejora del campo “Sobre vos” con IA
 
@@ -152,7 +152,7 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 
 1. **`#/registro`**: el usuario elige "Busco trabajo" o "Busco gente para mi empresa". Antes escribe correo y contraseña. Los botones quedan deshabilitados hasta que son válidos.
 2. **Paso 1** (`#/registro/c/1`): nombre, apellido, correo y contraseña. El correo y la contraseña tienen que coincidir con los de la pantalla anterior (`verificarCoincidencia`).
-3. **Pasos 2 a 5**: edad, ubicación, experiencia, rubros, tipo de empleo, modalidad, horario, perfil y **CV en PDF** (paso 5). Los datos se mantienen en memoria (`regDraft` y `S.reg.chips`) y se guardan como borrador local durante un máximo de 7 días (`me_registro_borrador_v1`). Las contraseñas se excluyen del almacenamiento. El PDF se conserva en IndexedDB (`me_registro_archivos_v1`) y se recupera al volver al registro. El borrador y el archivo local se limpian cuando `signUp` se completa correctamente.
+3. **Pasos 2 a 5**: edad, ubicación, experiencia, rubros, tipo de empleo, modalidad, horario, perfil y **CV en PDF** (paso 5). En el `index.html` actual, los campos se mantienen en `regDraft` y los chips en `S.reg`, ambos en memoria JavaScript. El PDF seleccionado se mantiene en `regCvFile`. **No hay persistencia en localStorage ni IndexedDB en el código actual**: refrescar la página puede perder los datos y el CV aún no subido. La persistencia entre refrescos sigue pendiente.
 4. **Términos** (`#/registro/terminos/c`): el botón "Crear mi cuenta" llama a `crearCuenta()`.
 5. **`crearCuenta()`** llama a `sb.auth.signUp` con:
    ```js
@@ -170,7 +170,7 @@ La app usa rutas por hash (`#/...`). No hay servidor de rutas.
 - Si el correo no está confirmado, se muestra un mensaje con el botón "Reenviar correo" (`sb.auth.resend`).
 - Si las credenciales no coinciden, se muestra un mensaje genérico con el enlace "¿Olvidaste tu contraseña?". El motivo real se registra en la consola (`[auth] login falló`).
 - Ante un login exitoso, `setSesion()` obtiene `rol`, `nombre`, `datos` y `avatar_url` desde `perfiles`, hidrata los datos de la cuenta y redirige a `#/c/feed` o `#/e/panel` según el rol. Si la cuenta no tiene perfil o rol, se cierra la sesión y se informa el problema.
-- **Verificación de código (12/11/2026):** se comprobó la presencia de la validación, `signInWithPassword`, la carga de perfil, la guardia de rutas privadas y la redirección por rol. Los scripts JavaScript ejecutables de `index.html` pasaron el chequeo de sintaxis. No se realizó una prueba end-to-end contra Supabase con credenciales reales; queda pendiente en el checklist manual.
+- **Verificación estática actual (12/11/2026):** se comprobó la validación, `signInWithPassword`, la carga de perfil, la guardia de rutas y la redirección por rol. El bloque `try/finally` restablece el botón, pero el código actual no tiene `catch` para excepciones inesperadas de red. No se realizó una prueba end-to-end contra Supabase con credenciales reales.
 
 ### Recuperación de contraseña
 
@@ -537,7 +537,60 @@ No abrir todavía el pull request de producción ni hacer merge. Primero resolve
 ## 14. Verificaciones y pendientes de login e IA (12/11/2026)
 
 - Login: inspección estática de `login()`, `iniciarSesionForm()`, `setSesion()` y `route()`. Se verificó validación de correo/contraseña, llamada a Supabase Auth, consulta de `perfiles`, protección de rutas privadas y redirección por rol. Los scripts JavaScript ejecutables del HTML pasaron el chequeo de sintaxis. No se probó una sesión real porque esta revisión no contó con credenciales de prueba ni ejecución del sitio en navegador.
-- Manejo de errores del login: `iniciarSesionForm()` distingue credenciales incorrectas y correo sin confirmar; además, captura excepciones de red/fallos inesperados, muestra un mensaje visible y siempre restablece el botón de envío.
+- Manejo de errores del login: `iniciarSesionForm()` distingue credenciales incorrectas y correo sin confirmar y restablece el botón en `finally`. En el código actual no hay `catch` para excepciones inesperadas de red; agregarlo y probarlo es pendiente.
 - UX/UI del login: pendiente una revisión específica de diseño responsive, jerarquía, accesibilidad, textos y estados de error/carga.
 - IA: la Edge Function implementa Gemini con fallback a Groq, reservas de cuota para usuarios registrados y visitantes, y confirma el consumo solo ante respuesta exitosa. Falta validar el comportamiento operativo con las claves/modelos desplegados en staging y completar pruebas de todos los caminos de error y cuota.
 - UX/UI de IA: pendiente mejorar el flujo de propuesta, comparación, aplicación y mensajes de disponibilidad/límite.
+
+
+---
+
+## 16. Estado real del repositorio verificado (12 de noviembre de 2026)
+
+Esta sección prevalece sobre descripciones anteriores cuando haya contradicciones. Se contrastó el contenido de `main`, especialmente `index.html`, con los archivos de funciones y SQL presentes en el repositorio. No equivale a una prueba funcional en navegador ni a una auditoría de los proyectos remotos de Supabase.
+
+### Referencia de versión
+
+- Repositorio de trabajo: `Alternativy/test-empleos`.
+- Rama revisada: `main`.
+- HEAD al momento de esta actualización: `1b735ba9963df6fc9d92eed4ed5efcb8715eb4b6` — `Cambia ilustración principal por seniala-celular`.
+- Archivo principal del frontend: `index.html`. No hay proceso de build ni gestor de paquetes para la app.
+- No editar `Alternativy/MatchEmpleos` ni el proyecto Supabase de producción como parte del flujo habitual de desarrollo.
+
+### Cambios recientes confirmados en el código
+
+- **Ilustración principal:** la landing utiliza `img/seniala-celular.png`. Se actualizaron las cuatro referencias en `index.html`: Open Graph, Twitter Card, imagen del SVG/landing y `img.lp-hero-art`. El archivo existe en `img/`. Ya no debe documentarse `ilus-hero.png` como imagen activa del hero.
+- **Recuperación de contraseña:** se quitó el mensaje en pasado que afirmaba que el correo ya había sido enviado antes de pulsar “Enviar”. El formulario conserva el texto introductorio en futuro, llama a `recuperarForm()` y luego muestra un aviso genérico. No se probó la entrega real del correo.
+- **Login:** el formulario está conectado a `iniciarSesionForm()`, valida los campos, llama a `sb.auth.signInWithPassword`, contempla correo sin confirmar y credenciales incorrectas, y restablece el botón en `finally`. El código actual no incluye un `catch` para errores inesperados de red. La UX/UI sigue pendiente y no hay prueba E2E con cuentas reales.
+- **Animaciones de landing:** el código actual contiene `lp-reveal` e `IntersectionObserver`. Su existencia no demuestra que las animaciones cumplan la dirección, tiempos y comportamiento solicitados. La validación visual desktop/mobile sigue pendiente; consultar la auditoría de la sección 15.
+- **Modo demo:** `DEMO_HABILITADO = true`; se ofrece solo fuera de producción. No describir el proyecto como “sin modo demo” hasta que esa constante y los accesos asociados se desactiven y se pruebe el flujo.
+
+### Funcionalidades cuya documentación histórica no coincide con el frontend actual
+
+Los siguientes puntos son importantes: existen commits o archivos de backend/SQL relacionados, pero **no están conectados al frontend de `main` en la versión inspeccionada**. No presentarlos como funcionalidades disponibles para usuarios.
+
+1. **Mejorar “Sobre vos” con IA:** existe `supabase/functions/mejorar-sobre/index.ts`, con validación de texto, autenticación, reservas de cuota y proveedores Gemini/Groq. Sin embargo, el `index.html` actual no contiene el botón, no llama a `sb.functions.invoke` ni referencia `mejorar-sobre`. La integración visible del frontend debe considerarse pendiente. Tampoco se verificó en esta revisión el despliegue de la función, los secretos ni las cuotas remotas.
+2. **Sugerencias de respuesta para chats:** existe `supabase/functions/sugerir-respuestas-chat/index.ts`. El frontend actual no invoca esa función. No afirmar que la asistencia IA en chats está activa.
+3. **Límite anónimo de IA:** existe `supabase/sql/anonymous_sobre_ai_single_use.sql`, que define almacenamiento privado y RPC para reservar/completar un único uso anónimo. El frontend actual no envía `anonymousId` ni llama a la Edge Function; el límite no está integrado de punta a punta.
+4. **Denuncias y verificación de empresas:** existe `supabase/sql/denuncias_y_verificacion_empresas.sql`, con tablas para denuncias, empresas verificadas y revisiones internas, más políticas RLS. El `index.html` actual no contiene botón “Denunciar”, formulario de motivos, consulta de estado verificado ni insignia de empresa verificada. El archivo SQL no es una migración numerada; su comentario indica que fue aplicado en el proyecto de testing, pero esa aplicación remota no se verificó en esta revisión. Confirmar el estado real en staging antes de modificar o volver a ejecutar el SQL.
+5. **Persistencia del registro:** los commits históricos `f506d83` y `3d6bd5b` implementaron borrador local y persistencia de CV, pero el `index.html` actual no contiene las claves `me_registro_borrador_v1` / `me_registro_archivos_v1`, ni uso de localStorage o IndexedDB. Hoy `regDraft`, `S.reg` y `regCvFile` son estado en memoria. La persistencia tras refrescar debe reimplementarse o recuperarse y volver a verificarse antes de darla por terminada.
+
+### Pendientes prioritarios
+
+- [ ] Reintegrar y probar la persistencia del registro y del CV, sin guardar contraseñas en almacenamiento local.
+- [ ] Reintegrar el flujo de “Mejorar con IA” en los campos previstos, incluyendo reserva/consumo de cuota solo tras respuesta exitosa, manejo de fallos y límites tanto autenticados como anónimos.
+- [ ] Verificar despliegue y secretos de `mejorar-sobre` y `sugerir-respuestas-chat` en staging; no asumir que los archivos fuente están desplegados.
+- [ ] Implementar en frontend el botón naranja “Denunciar”, el panel de motivos, el envío vinculado a la postulación/chat y la presentación del estado de verificación de empresa. Revisar primero el esquema y las políticas ya existentes en Supabase staging.
+- [ ] Resolver el manejo de excepciones inesperadas en `iniciarSesionForm()` y `recuperarForm()`; probar credenciales incorrectas, correo sin confirmar, errores de red, sesión persistente, recuperación, cambio de contraseña, cierre de sesión y redirección por rol.
+- [ ] Completar la revisión UX/UI responsive del login y de los flujos de IA.
+- [ ] Probar las animaciones de scroll con navegador real, desktop y mobile, incluyendo `prefers-reduced-motion`.
+- [ ] Decidir si el modo demo debe permanecer habilitado en staging o eliminarse por completo.
+- [ ] Antes de producción, resolver los bloqueantes de seguridad y configuración documentados en la sección 15 y comparar el diff completo con el repositorio de producción.
+
+### Reglas para agentes de IA que retomen el trabajo
+
+- Leer esta sección y verificar el HEAD de `main` antes de asumir que una funcionalidad documentada en otra sección sigue implementada.
+- Distinguir siempre entre: archivo fuente presente, función desplegada en Supabase, integración activa en frontend y prueba funcional completada. Son cuatro estados diferentes.
+- No volver a ejecutar scripts SQL existentes a ciegas. Inspeccionar primero tablas, funciones, políticas y migraciones del proyecto staging.
+- Trabajar en `Alternativy/test-empleos` y Supabase staging. Producción requiere autorización explícita.
+- Después de cada cambio, informar archivos, commit, validaciones realmente ejecutadas y pruebas que siguen pendientes. No llamar “verificado” a un flujo que solo pasó una inspección estática.
