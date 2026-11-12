@@ -4386,7 +4386,7 @@
             kind === "e"
               ? esc(c.puesto)
               : `${esc(c.puesto)}${c.tasa ? " · responde el " + c.tasa + "%" : ""}`;
-          return `<div class="chat-head"><button class="back" data-go="${back}" aria-label="Volver">‹</button>${avatarOf(kind, id).replace(/44px/g, "36px")}<div><b>${c.perfilUrl ? `<a href="${c.perfilUrl}" style="color:inherit">${esc(c.con)}</a>` : esc(c.con)}</b><p class="t-note">${sub}</p></div></div>`;
+          return `<div class="chat-head"><button class="back" data-go="${back}" aria-label="Volver">‹</button>${avatarOf(kind, id).replace(/44px/g, "36px")}<div><b>${c.perfilUrl ? `<a href="${c.perfilUrl}" style="color:inherit">${esc(c.con)}</a>` : esc(c.con)}${kind === "c" && c.empresaVerificada ? '<span class="company-verified">✓ Verificada</span>' : ""}</b><p class="t-note">${sub}</p></div></div>`;
         }
         function chatBody(kind, id) {
           const chats = kind === "e" ? S.e.chats : S.c.chats;
@@ -5877,6 +5877,13 @@ async function toggleBusqueda(id) {
               };
           });
           const empresaMap = new Map((d.empresas || []).map((p) => [p.id, p]));
+          S.c.posts.forEach((post) => {
+            const job = busquedasPorId.get(post.oid);
+            const company = job ? empresaMap.get(job.empresa_id) : null;
+            post.empresaId = job?.empresa_id || null;
+            post.emp = company?.nombre || post.emp || "Empresa";
+            post.empresaVerificada = empresasVerificadasIds.has(job?.empresa_id);
+          });
           const ofertasReales = d.busquedas.map((b) => {
             const ep = empresaMap.get(b.empresa_id);
             const ec = ep?.datos?.campos || {};
