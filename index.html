@@ -5443,7 +5443,7 @@ async function toggleBusqueda(id) {
                 .find(Boolean);
               if (!c) {
                 if (de === "them") {
-                  const routeMatch = (location.hash || "").match(/^#\\/(c|e)\\/chat\\/([^/]+)/);
+                  const routeMatch = (location.hash || "").match(/^#\/(c|e)\/chat\/([^/]+)/);
                   const chatAbierto = routeMatch && k === "chat:" + routeMatch[2];
                   if (chatAbierto) markChatRead(k, [{ dbId: m.id }]);
                   else {
