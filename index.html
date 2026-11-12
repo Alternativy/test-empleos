@@ -2877,22 +2877,19 @@
         .landing-v2 .lp-section {
           position: relative;
         }
-        /* Animaciones sutiles por elemento al entrar en el viewport */
-        .landing-v2 .lp-animate {
+        /* Aparición progresiva de los bloques al entrar en el viewport */
+        .landing-v2 .lp-section.lp-reveal {
           opacity: 0;
-          transition: opacity 720ms ease-in, transform 720ms ease-in;
+          transform: translateY(28px);
+          transition: opacity 700ms ease-in, transform 700ms ease-in;
           will-change: opacity, transform;
         }
-        .landing-v2 .lp-animate[data-reveal="left"] { transform: translateX(-34px); }
-        .landing-v2 .lp-animate[data-reveal="right"] { transform: translateX(34px); }
-        .landing-v2 .lp-animate[data-reveal="up"] { transform: translateY(28px); }
-        .landing-v2 .lp-animate[data-reveal="zoom"] { transform: scale(.94); }
-        .landing-v2 .lp-animate.is-visible {
+        .landing-v2 .lp-section.lp-reveal.is-visible {
           opacity: 1;
-          transform: translate3d(0, 0, 0) scale(1);
+          transform: translateY(0);
         }
         @media (prefers-reduced-motion: reduce) {
-          .landing-v2 .lp-animate {
+          .landing-v2 .lp-section.lp-reveal {
             opacity: 1;
             transform: none;
             transition: none;
@@ -3235,114 +3232,7 @@
         }
       }
 
-      .ai-assist {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        margin-top: 12px;
-        width: 100%;
-      }
-      .ai-assist .ai-explainer,
-      .ai-assist .ai-privacy,
-      .ai-assist .ai-result-note,
-      .ai-assist .ai-count {
-        color: var(--sub);
-        font-size: 12px;
-        line-height: 1.5;
-        margin: 0;
-      }
-      .ai-assist .ai-privacy {
-        opacity: .85;
-      }
-      .ai-assist .ai-count {
-        align-self: flex-end;
-        font-variant-numeric: tabular-nums;
-      }
-      .ai-assist .ai-count[data-over-limit="true"] {
-        color: #f0a36c;
-        font-weight: 600;
-      }
-      .ai-assist .ai-status {
-        margin: 0;
-        min-height: 18px;
-      }
-      .ai-assist .ai-result {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        padding: 14px;
-        border: 1px solid var(--bd);
-        border-radius: 14px;
-        background: color-mix(in srgb, var(--fg) 4%, transparent);
-      }
-      .ai-assist .ai-result[hidden] {
-        display: none;
-      }
-      .ai-assist .ai-result-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        width: 100%;
-      }
-      .ai-assist .ai-result-head .flabel {
-        padding-left: 0;
-        margin: 0;
-      }
-      .ai-assist .ai-tag {
-        border: 1px solid var(--bd);
-        border-radius: 99px;
-        padding: 2px 8px;
-        color: var(--sub);
-        font-size: 11px;
-      }
-      .ai-assist .ai-result textarea {
-        min-height: 150px;
-      }
-      .ai-assist .btn.cargando {
-        color: var(--fg) !important;
-        padding-right: 42px;
-      }
-      .ai-assist .btn.cargando::after {
-        right: 14px;
-      }
-      @media (max-width: 520px) {
-        .ai-assist .ai-result {
-          padding: 12px;
-        }
-      }
-    
-      .chat-ai-suggestions{margin:14px 0 18px;padding:14px;border:1px solid rgba(54,244,140,.28);border-radius:14px;background:rgba(0,33,71,.035);color:var(--navy)}
-      .chat-ai-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-      .chat-ai-head strong{font-size:13px}
-      .chat-ai-options{display:grid;gap:8px;margin-top:12px}
-      .chat-ai-option{width:100%;padding:11px 13px;border:1px solid #d6e0e9;border-radius:10px;background:#fff;color:var(--navy);font:inherit;font-size:13px;line-height:1.45;text-align:left;cursor:pointer}
-      .chat-ai-option:hover{border-color:var(--green-deep);background:#f6fff9}
-      .chat-ai-status{margin:9px 0 0;color:var(--t3);font-size:12px}
-      .chat-ai-status:empty{display:none}
-
-      .company-verified{display:inline-flex;align-items:center;gap:5px;margin-left:7px;padding:3px 7px;border-radius:999px;background:#e8f8ef;color:#167445;font-size:10px;font-weight:700;vertical-align:middle}
-      .report-trigger{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#d97706;font:inherit;font-size:12px;font-weight:600;cursor:pointer;padding:7px 4px}
-      .report-trigger svg{width:15px;height:15px;fill:#f59e0b;stroke:#b45309}
-      .report-card-row{display:flex;justify-content:flex-end;align-items:center;margin-top:8px}
-      .report-modal-backdrop{position:fixed;inset:0;z-index:1000;background:rgba(7,22,39,.62);display:flex;align-items:center;justify-content:center;padding:16px}
-      .report-modal{width:min(100%,540px);max-height:min(90vh,760px);overflow:auto;background:#fff;border-radius:18px;padding:22px;color:var(--navy);box-shadow:0 20px 70px rgba(0,0,0,.25)}
-      .report-modal h2{font-size:20px;font-weight:650;margin:0 0 7px}
-      .report-modal .report-intro{font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:18px}
-      .report-reasons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}
-      .report-reason{display:flex;align-items:flex-start;gap:8px;padding:10px;border:1px solid #dce4eb;border-radius:10px;font-size:12px;line-height:1.35;cursor:pointer}
-      .report-reason input{accent-color:#f59e0b;margin-top:2px}
-      .report-modal textarea{width:100%;min-height:110px;resize:vertical}
-      .report-modal .report-actions{display:flex;gap:10px;margin-top:16px}
-      .report-modal .report-actions>*{flex:1}
-      .report-modal .report-counter{font-size:11px;color:var(--t3);text-align:right;margin-top:4px}
-      .report-card-link{display:block;flex:1;min-width:0;color:inherit;text-decoration:none}
-      .report-chat-action{display:flex;justify-content:flex-end;margin:4px 0 12px}
-      @media(max-width:540px){.report-reasons{grid-template-columns:1fr}.report-modal{padding:18px}.report-modal .report-actions{flex-direction:column}}
-</style>
+    </style>
   </head>
   <body>
     <div id="root"> 
@@ -3355,7 +3245,7 @@
             <path fill="#002147" d="M 0 0 L 1440 0 L 1440 501 C 1440 666.68 1305.68 801 1140 801 L 0 801 Z"/>
             <path fill="#e9e9e9" d="M -12.05 698.56 C 1332.74 686.21 1360.8 745.33 1442 401 L 1442 835.28 C 138.13 835.28 -0.42 1059.27 -12.05 1367.7 L -12.05 1545 C -12.05 1483.64 -14.18 1424.25 -12.05 1367.7 Z"/>
             <image href="img/foto-como.jpg" x="-6.33" y="1581" width="1448.7" height="815" preserveAspectRatio="none"/>
-            <image href="img/seniala-celular.png" x="900.62" y="396.46" width="351.22" height="379.54" preserveAspectRatio="none"/>
+            <image href="img/ilus-hero.png" x="900.62" y="396.46" width="351.22" height="379.54" preserveAspectRatio="none"/>
             <image href="img/foto-quienes.jpg" x="-6.8" y="819.8" width="1460" height="760.4" preserveAspectRatio="none" clip-path="url(#lp-clip-quienes)"/>
             <rect fill="#002147" fill-opacity="0.85" x="0" y="896" width="1442" height="685"/>
             <path fill="#38f48c" fill-opacity="0.85" d="M -2 1581 L 1440 1581 L 1440 2348 L 498 2348 C 221.86 2348 -2 2124.14 -2 1848 Z"/>
@@ -3386,15 +3276,15 @@
               <div class="lp-panel">
                 <h1>Bienvenido a Match Empleos</h1>
                 <p>Tu próxima oportunidad empieza con un MATCH</p>
-                <img class="lp-hero-art" src="img/seniala-celular.png" alt="Dos jóvenes mirando juntos un celular" width="351" height="380">
-                <button class="lp-scroll" data-reveal="left" type="button" data-scroll="quienes">¡Deslizá para conocer más!</button>
+                <img class="lp-hero-art" src="img/ilus-hero.png" alt="Dos jóvenes mirando juntos un celular" width="351" height="380">
+                <button class="lp-scroll" type="button" data-scroll="quienes">¡Deslizá para conocer más!</button>
               </div>
             </section>
 
             <section class="lp-section lp-about" id="quienes" aria-labelledby="quienes-titulo">
               <div class="lp-panel">
-                <h2 id="quienes-titulo" data-reveal="up"><span class="lp-b">¿</span>Quiénes somos<span class="lp-b">?</span></h2>
-                <div class="lp-about-copy" data-reveal="up">
+                <h2 id="quienes-titulo"><span class="lp-b">¿</span>Quiénes somos<span class="lp-b">?</span></h2>
+                <div class="lp-about-copy">
                   <p>Somos un equipo de cinco estudiantes que desarrollamos una plataforma digital pensada para facilitar el acceso de los jóvenes al mundo laboral y generar nuevas formas de conexión con empresas y reclutadores.</p>
                   <p>De esta búsqueda nace Match Empleos, una plataforma digital que conecta a postulantes con empresas y reclutadores que buscan talentos.</p>
                   <p>La propuesta busca transformar la manera tradicional de buscar empleo, haciendo que el proceso sea más simple, dinámico y personalizado. En lugar de enfrentarse a una gran cantidad de ofertas, los usuarios reciben oportunidades relevantes para su perfil y pueden mostrar interés en aquellas que realmente les resulten atractivas.</p>
@@ -3404,17 +3294,17 @@
 
             <section class="lp-section lp-situation" id="situacion" aria-labelledby="situacion-titulo">
               <div class="lp-panel">
-                <h2 id="situacion-titulo" data-reveal="left">Situación actual en <span class="lp-b">Argentina</span></h2>
+                <h2 id="situacion-titulo">Situación actual en <span class="lp-b">Argentina</span></h2>
                 <div class="lp-stats">
-                  <article class="lp-stat lp-stat-light" data-reveal="right">
+                  <article class="lp-stat lp-stat-light">
                     <strong>16,5%</strong>
                     <p>Desocupación en personas <br class="lp-br">entre 14 y 29 años, <br class="lp-br">con un 7,5% general.</p>
                   </article>
-                  <article class="lp-stat lp-stat-dark" data-reveal="right">
+                  <article class="lp-stat lp-stat-dark">
                     <strong>43%</strong>
                     <p>De la generación Z sufrió <br class="lp-br">ghosting al postularse. <br class="lp-br">El 45% dudó de sus <br class="lp-br">capacidades.</p>
                   </article>
-                  <article class="lp-stat lp-stat-light" data-reveal="right">
+                  <article class="lp-stat lp-stat-light">
                     <strong>0,17%</strong>
                     <p>Es la tasa de 1.500 <br class="lp-br">inserciones sobre <br class="lp-br">900.000 beneficiarios.</p>
                   </article>
@@ -3427,7 +3317,7 @@
               <div class="lp-panel">
                 <h2 id="como-titulo"><span class="lp-b">¿</span>Cómo funciona<span class="lp-b">?</span></h2>
                 <div class="lp-profiles">
-                  <article class="lp-profile lp-profile-candidate" data-reveal="zoom">
+                  <article class="lp-profile lp-profile-candidate">
                     <h3>Perfil Postulante</h3>
                     <ul>
                       <li>Creá tu perfil de postulante verificado.</li>
@@ -3439,7 +3329,7 @@
                       <li>Si te aceptan, felicidades, hay MATCH.</li>
                     </ul>
                   </article>
-                  <article class="lp-profile lp-profile-company" data-reveal="zoom">
+                  <article class="lp-profile lp-profile-company">
                     <h3>Perfil Empresa</h3>
                     <ul>
                       <li>Creá tu perfil de empresa verificado.</li>
@@ -3462,11 +3352,11 @@
                   <p>En Match Empleos creemos que todas las oportunidades cuentan.</p>
                   <h2 id="cta-titulo"><span class="lp-b">¡</span>El futuro no espera, vos tampoco<span class="lp-b">!</span></h2>
                   <p>Tu próxima oportunidad puede estar más cerca de lo que pensás.</p>
-                  <div class="lp-register-card lp-register-candidate" data-reveal="up">
+                  <div class="lp-register-card lp-register-candidate">
                     <h3>Perfil Postulante</h3>
                     <a href="#/registro/c/1">Registrar usuario</a>
                   </div>
-                  <div class="lp-register-card lp-register-company" data-reveal="up">
+                  <div class="lp-register-card lp-register-company">
                     <h3>Perfil Empresa</h3>
                     <a href="#/registro/e/1">Registrar empresa</a>
                   </div>
@@ -3535,13 +3425,16 @@
       console.info("[db] entorno:", ENTORNO);
 
       // Debe leerse antes de crear el cliente: Supabase limpia el hash al procesarlo
-      const VINO_DE_CORREO = /[#&]type=(signup|email)/.test(location.hash);
+      const VINO_DE_CORREO_CONFIRMADO = /[#&]type=(signup|email)/.test(location.hash);
+      // Un enlace de correo también puede volver con ?code= (PKCE) o con #access_token: en esos casos hay que entrar a la app
+      const VINO_DE_CORREO = VINO_DE_CORREO_CONFIRMADO || /[?&]code=/.test(location.search) || /[#&]access_token=/.test(location.hash);
       const sb = supabase.createClient(ENTORNOS[ENTORNO].url, ENTORNOS[ENTORNO].key);
 
-      let ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null };
+      let ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null, demo: false }; // demo: sesión local, nunca escribe en la base
 
       // Ejecuta una escritura y avisa si falla, sin romper la UI
       function persistir(query, etiqueta) {
+        if (ME.demo) return Promise.resolve(null); // modo demo: no se escribe en la base
         return query
           .then(({ data, error }) => {
             if (error) throw error;
@@ -3612,15 +3505,18 @@
               cupo: cupoR.data,
             };
           }
-          const [perfiles, postulaciones, busquedas, candidatosEstado, mensajes, empresasVerificadas] = await Promise.all([
+          const [perfiles, postulaciones, busquedas, candidatosEstado, mensajes] = await Promise.all([
             sb.from("perfiles").select("*").eq("id", ME.id),
-            sb.from("postulaciones").select("*").eq("candidato_id", ME.id).order("created_at", { ascending: false }),
-            sb.from("busquedas").select("*").order("created_at", { ascending: false }),
+            sb
+              .from("postulaciones")
+              .select("*")
+              .eq("candidato_id", ME.id)
+              .order("created_at", { ascending: false }),
+            sb.from("busquedas").select("*").eq("estado", "Activa").order("created_at", { ascending: false }),
             sb.from("candidatos_estado").select("*").eq("empresa_id", ME.id),
             sb.from("mensajes").select("*").order("id", { ascending: true }),
-            sb.from("empresas_verificadas").select("empresa_id"),
           ]);
-          const err = [perfiles, postulaciones, busquedas, candidatosEstado, mensajes, empresasVerificadas].find((r) => r.error);
+          const err = [perfiles, postulaciones, busquedas, candidatosEstado, mensajes].find((r) => r.error);
           if (err) throw err.error;
           const empresaIds = [...new Set(busquedas.data.map((b) => b.empresa_id))];
           let empresas = [];
@@ -3641,7 +3537,6 @@
             busquedas: busquedas.data,
             candidatosEstado: candidatosEstado.data,
             empresas,
-            empresasVerificadas: empresasVerificadas.data || [],
             mensajes: mensajes.data,
             chats: chatsR.data,
           };
@@ -3909,15 +3804,273 @@
           },
         };
 
-        /* ---------- Estado inicial vacío ---------- */
+        /* ---------- Estado simulado ---------- */
         function freshState() {
           return {
-            c: { cupo: 3, idx: 0, ofertas: [], posts: [], chats: {}, notifs: [] },
-            e: { tasa: 0, demora: 0, plazo: 3, busquedas: [], pend: [], chats: {}, resp: [], notifs: [] },
+            c: {
+              cupo: 3,
+              idx: 0,
+              ofertas: [
+                {
+                  id: "cafe",
+                  emp: "Café Mercado",
+                  meta: "Gastronomía · 12 empleados",
+                  puesto: ePuestoActual(),
+                  chips: ["Lomas de Zamora", "Medio tiempo", "Sin experiencia"],
+                  fchips: ["Lomas de Zamora", "Part Time", "Sin experiencia"],
+                  tasa: 94,
+                  dias: 3,
+                  foto: "img/oferta-cafe.jpg",
+                  logo: "img/logo-cafe-mercado.png",
+                  match: true,
+                  desc: "Buscamos a alguien para sumarse a la cocina por la tarde. No hace falta experiencia: te enseñamos. Sí pedimos ganas, puntualidad y trabajo en equipo.",
+                },
+                {
+                  id: "libreria",
+                  emp: "Librería Laprida",
+                  meta: "Comercio · 6 empleados",
+                  puesto: "Atención al público",
+                  chips: ["Lomas de Zamora", "Part Time", "Sin experiencia"],
+                  fchips: ["Lomas de Zamora", "Part Time", "Sin experiencia"],
+                  tasa: 91,
+                  dias: 4,
+                  desc: "Atención en mostrador y armado de pedidos escolares. Buscamos alguien amable y ordenado. Te capacitamos en el sistema de ventas.",
+                },
+                {
+                  id: "logis",
+                  emp: "Distribuidora Sur",
+                  meta: "Logística · 40 empleados",
+                  puesto: "Auxiliar de depósito",
+                  chips: ["Banfield", "Full Time", "Sin experiencia"],
+                  fchips: ["Banfield", "Full Time", "Sin experiencia"],
+                  tasa: 88,
+                  dias: 5,
+                  desc: "Recepción de mercadería, control de stock y preparación de envíos. Valoramos responsabilidad y ganas de aprender.",
+                },
+                {
+                  id: "estudio",
+                  emp: "Estudio Contable Ruiz",
+                  meta: "Administración · 8 empleados",
+                  puesto: "Asistente administrativo",
+                  chips: ["Lomas de Zamora", "Pasantía", "Estudiantes"],
+                  fchips: ["Lomas de Zamora", "Pasantía", "Estudiantes"],
+                  tasa: 97,
+                  dias: 2,
+                  desc: "Carga de comprobantes, archivo y atención telefónica. Ideal si estudiás Ciencias Económicas o algo afín.",
+                },
+              ],
+              posts: [
+                {
+                  id: "p1",
+                  puesto: "Repositor",
+                  emp: "Supermercado Norte",
+                  estado: "Vista",
+                  pie: "La vieron hace 1 día",
+                },
+                {
+                  id: "p2",
+                  puesto: "Atención al cliente",
+                  emp: "Tienda Ruiz",
+                  estado: "Enviada",
+                  pie: "Enviada hace 3 días",
+                },
+                {
+                  id: "p3",
+                  puesto: "Cadete",
+                  emp: "Farmacia Sur",
+                  estado: "Respondida",
+                  pie: "Te contestaron ayer",
+                  chat: "farmacia",
+                },
+              ],
+              chats: {
+                farmacia: {
+                  con: "Farmacia Sur",
+                  puesto: "Cadete",
+                  tasa: 89,
+                  match: false,
+                  msgs: [
+                    {
+                      de: "them",
+                      t: "Hola Tomás, gracias por postularte. Buscamos a alguien que pueda arrancar el lunes. ¿Tenés bici o moto?",
+                      h: "10:24",
+                    },
+                  ],
+                },
+              },
+              notifs: [
+                {
+                  t: "Te contestaron",
+                  d: "Farmacia Sur respondió tu postulación a Cadete.",
+                  cuando: "1 día",
+                  go: "#/c/chat/farmacia",
+                  nuevo: true,
+                },
+                {
+                  t: "Tu postulación fue vista",
+                  d: "Supermercado Norte abrió tu perfil. Tiene 7 días para contestarte.",
+                  cuando: "1 día",
+                  go: "#/c/postulaciones",
+                  nuevo: true,
+                },
+                {
+                  t: "Se libera tu cupo",
+                  d: "El lunes volvés a tener 5 postulaciones disponibles.",
+                  cuando: "3 días",
+                  go: "#/c/feed",
+                  nuevo: false,
+                },
+                {
+                  t: "Sumá tu experiencia",
+                  d: "Los perfiles completos reciben el doble de respuestas.",
+                  cuando: "5 días",
+                  go: "#/c/datos",
+                  nuevo: false,
+                },
+              ],
+            },
+            e: {
+              tasa: 87,
+              demora: 4,
+              plazo: 3,
+              busquedas: [
+                { id: "b1", puesto: "Ayudante de cocina", total: 12, estado: "Activa" },
+                { id: "b2", puesto: "Cajero fin de semana", total: 5, estado: "Activa" },
+              ],
+              pend: [
+                {
+                  id: "tomas",
+                  nombre: "Tomás Ferreyra",
+                  corto: "Tomás F.",
+                  edad: 20,
+                  zona: "Lomas de Zamora",
+                  linea: "Primer trabajo · Lomas",
+                  busca: "Busca su primer trabajo",
+                  hace: 5,
+                  quedan: 2,
+                  avatar: "img/avatar-tomas.png",
+                  porque:
+                    "«Trabajé ayudando en el kiosco de mi tía los fines de semana. Me gusta la cocina y quiero aprender en serio. Vivo a diez cuadras del local.»",
+                  sabe: [
+                    "Atención al público",
+                    "Manipulación de alimentos",
+                    "Trabajo en equipo",
+                    "Disponibilidad tarde",
+                  ],
+                  estudios: "Secundario completo · Escuela Técnica N.º 4, Lomas de Zamora",
+                },
+                {
+                  id: "aylen",
+                  nombre: "Aylén Ríos",
+                  corto: "Aylén R.",
+                  edad: 22,
+                  zona: "Banfield",
+                  linea: "Ya trabajó · Banfield",
+                  busca: "Ya trabajó en atención al público",
+                  hace: 4,
+                  quedan: 3,
+                  porque:
+                    "«Trabajé seis meses en una panadería atendiendo el mostrador. Quiero aprender cocina y el horario de la tarde me queda perfecto.»",
+                  sabe: ["Atención al público", "Manipulación de alimentos", "Puntualidad"],
+                  estudios: "Secundario completo",
+                },
+                {
+                  id: "nicolas",
+                  nombre: "Nicolás Pereyra",
+                  corto: "Nicolás P.",
+                  edad: 19,
+                  zona: "Temperley",
+                  linea: "Primer trabajo · Temperley",
+                  busca: "Busca su primer trabajo",
+                  hace: 2,
+                  quedan: 5,
+                  porque:
+                    "«Siempre cocino en casa y me encantaría hacerlo en un lugar de verdad. Aprendo rápido y no tengo problema con los horarios.»",
+                  sabe: ["Trabajo en equipo", "Disponibilidad tarde", "Ganas de aprender"],
+                  estudios: "Secundario completo",
+                },
+                {
+                  id: "sofia",
+                  nombre: "Sofía Romero",
+                  corto: "Sofía R.",
+                  edad: 21,
+                  zona: "Lomas de Zamora",
+                  linea: "Estudia Gastronomía · Lomas",
+                  busca: "Estudia Gastronomía",
+                  hace: 1,
+                  quedan: 6,
+                  porque:
+                    "«Estoy en primer año de Gastronomía y busco mi primera experiencia en una cocina real.»",
+                  sabe: ["Pastelería básica", "Atención al público", "Disponibilidad tarde"],
+                  estudios: "Tecnicatura en Gastronomía · en curso",
+                },
+              ],
+              chats: {
+                malena: {
+                  con: "Malena T.",
+                  puesto: "Ayudante de cocina",
+                  match: true,
+                  msgs: [
+                    {
+                      de: "me",
+                      t: "Hola Malena, nos interesó tu perfil. ¿Podés venir el jueves a las 16?",
+                      h: "Hoy",
+                    },
+                    { de: "them", t: "Perfecto, el jueves a las 16 estoy", h: "hace 1 h" },
+                  ],
+                },
+                lucia: {
+                  con: "Lucía M.",
+                  puesto: "Cajero fin de semana",
+                  match: true,
+                  msgs: [
+                    {
+                      de: "them",
+                      t: "¡Hola! Gracias por responder. ¿Qué día puedo pasar?",
+                      h: "hace 3 días",
+                    },
+                    { de: "me", t: "Te esperamos el martes", h: "hace 3 días" },
+                  ],
+                },
+              },
+              resp: [
+                { nombre: "Malena T.", tipo: "si", chat: "malena" },
+                { nombre: "Lucía M.", tipo: "si", chat: "lucia" },
+                { nombre: "Joaquín D.", tipo: "no" },
+                { nombre: "Brenda S.", tipo: "no" },
+              ],
+              notifs: [
+                {
+                  t: "La postulación más vieja vence en 2 días",
+                  d: "Tomás F. se postuló a Ayudante de cocina hace 5 días.",
+                  go: "#/e/candidato/tomas",
+                  nuevo: true,
+                },
+                {
+                  t: "Malena T. te escribió",
+                  d: "Ayudante de cocina: «Perfecto, el jueves a las 16 estoy»",
+                  go: "#/e/chat/malena",
+                  nuevo: true,
+                },
+                {
+                  t: "Tu tasa bajó a 87%",
+                  d: "Respondé a tiempo para volver a superar el 90% y aparecer entre las destacadas.",
+                  go: "#/e/empresa",
+                  nuevo: false,
+                },
+                {
+                  t: "Nueva postulación",
+                  d: "Sofía R. se postuló a Ayudante de cocina.",
+                  go: "#/e/candidato/sofia",
+                  nuevo: false,
+                },
+              ],
+            },
             reg: { chips: {} },
           };
         }
         let S = freshState();
+        const timers = [];
         let cargandoSesion = false;
         let editandoPerfil = false;
         let EDIT_BACKUP = null; // datos guardados al entrar en edición, para poder cancelar
@@ -4017,13 +4170,13 @@
         }
         // La landing vive en el HTML (#root). home() reutiliza ese HTML y solo ajusta lo que depende de la sesión.
         function landingHref() {
-          return ME.id ? (ME.rol === "e" ? "#/e/panel" : "#/c/feed") : "#/login";
+          return (ME.id || ME.demo) ? (ME.rol === "e" ? "#/e/panel" : "#/c/feed") : "#/login";
         }
         function navCuenta() {
-          if (!ME.id) return '<nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>';
+          if (!(ME.id || ME.demo)) return '<nav aria-label="Cuenta"><a href="#/login">Iniciar sesión</a><a href="#/registro">Registrarse</a></nav>';
           const emp = ME.rol === "e";
           const to = emp ? "#/e/panel" : "#/c/feed";
-          const img = ME.avatarUrl || phSrc();
+          const img = ME.demo ? (emp ? "img/logo-cafe-mercado.png" : "img/avatar-tomas.png") : (ME.avatarUrl || phSrc());
           return `<nav aria-label="Cuenta"><a href="${emp ? "#/e/salir" : "#/c/salir"}">Cerrar sesión</a><a href="${to}" class="top-av" aria-label="Ir a ${emp ? "el panel" : "el feed"}"><img loading="lazy" decoding="async" src="${img}" alt="" style="width:48px;height:48px;border-radius:12px;object-fit:cover;background:#fff;display:block"></a></nav>`;
         }
         function home() {
@@ -4056,7 +4209,7 @@
       <button class="btn out" type="button" data-go="#/recuperar">¿Has olvidado tu contraseña?</button>
     </div>
   </form>
-  <p class="linkline" style="margin-top:56px">¿Aún no te has registrado?<button data-go="#/registro">Registraté</button></p>
+  <p class="linkline" style="margin-top:56px">¿Aún no te has registrado?<button data-go="#/registro">Registraté</button></p>${DEMO_VISIBLE ? `<p class="linkline" style="margin-top:14px">Demo (sin base de datos):<button data-action="demo" data-kind="c">Entrar como candidato</button><button data-action="demo" data-kind="e">Entrar como empresa</button></p>` : ""}
   `);
         }
         function recuperar() {
@@ -4065,6 +4218,7 @@
   <p class="t-note">Ingresá el email asociado a tu cuenta y te enviaremos instrucciones para crear una nueva contraseña.</p>
   <form data-form="recuperar" class="stack" style="margin-top:56px">
     <label class="vh" for="rc-mail">Correo</label><input class="field" id="rc-mail" type="email" placeholder="ejemplo@correo.com" required>
+    <p class="t-note" style="margin-top:44px">Te enviamos un enlace para recuperar tu contraseña a tu dirección de email.<br>Si no encontrás el correo, revisá también la carpeta de spam o correo no deseado.</p>
     <button class="btn pri" type="submit" style="margin-top:28px">Enviar</button>
   </form>`);
         }
@@ -4113,36 +4267,7 @@
             ? `<div class="hdr">${WM}${backBtn(back)}</div>`
             : `<div class="reg-top"><span class="reg-bar"></span>${backBtn(back)}</div>`;
         }
-        function sobreIA(inputId, initialValue = "") {
-          // La asistencia con IA solo está disponible en staging.
-          if (ENTORNO !== "staging") return "";
-          const yaAplicada = inputId === "rc-sobre"
-            ? regDraftAIUsed
-            : inputId === "ed-sobre" && !!ME.datos?.ai?.sobreAplicado;
-          const anonYaUsada = inputId === "rc-sobre" && !ME.id &&
-            (() => { try { return localStorage.getItem("me_sobre_ai_anon_used") === "1"; } catch { return false; } })();
-          if (yaAplicada || anonYaUsada) return "";
-          const outputId = inputId + "-ia";
-          const initialLength = String(initialValue || "").length;
-          return `<div class="ai-assist">
-            <p class="ai-explainer">Podés mejorar la claridad y presentación de tu descripción sin agregar experiencias que no hayas mencionado.</p>
-            <button class="btn out sm ai-generate" id="${outputId}-toggle" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
-            <p class="ai-count" id="${outputId}-count">${initialLength} / 4.000 caracteres</p>
-            <p class="hint ai-status" id="${outputId}-status" role="status" aria-live="polite"></p>
-            <div class="ai-result" id="${outputId}-wrap" hidden>
-              <div class="ai-result-head">
-                <label class="flabel" for="${outputId}">Sugerencia editable</label>
-                <span class="ai-tag">Borrador</span>
-              </div>
-              <textarea class="field" id="${outputId}" aria-label="Sugerencia editable de IA"></textarea>
-              <p class="ai-result-note">Compará esta propuesta con tu texto original y corregí lo que haga falta antes de aplicarla.</p>
-              <button class="btn pri sm" id="${outputId}-use" type="button" data-action="usar-sobre-ia" data-target="${inputId}" data-output="${outputId}" disabled>Usar esta versión</button>
-            </div>
-          </div>`;
-        }
         function writeHere(id) {
-          if (id === "rc-sobre")
-            return `<textarea class="field" id="${id}" data-ai-source="true" placeholder="Escribí aquí">${esc(regDraft[id] || "")}</textarea>${sobreIA(id, regDraft[id] || "")}`;
           if (regDraft[id])
             return `<textarea class="field" id="${id}" placeholder="Escribí aquí">${esc(regDraft[id])}</textarea>`;
           return `<button class="btn pri" data-action="write" data-target="${id}">Escribí aquí</button>`;
@@ -4222,7 +4347,7 @@
     <span class="swipe-badge nope">Descartar</span>
     ${o.foto ? `<img loading="lazy" decoding="async" class="ph" src="${o.foto}" alt="Preparación de café en ${esc(o.emp)}" draggable="false">` : ""}
     <div class="bd">
-      <div class="co">${o.logo ? `<img loading="lazy" decoding="async" src="${esc(o.logo)}" alt="" draggable="false">` : '<span class="sq"></span>'}${esc(o.emp)}${o.verificada ? '<span class="company-verified" title="Empresa verificada">✓ Verificada</span>' : ""}</div>
+      <div class="co">${o.logo ? `<img loading="lazy" decoding="async" src="${esc(o.logo)}" alt="" draggable="false">` : '<span class="sq"></span>'}${esc(o.emp)}</div>
       <h2>${esc(o.puesto)}</h2>
       <div class="chips">${o.fchips.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>
       <div class="strip"><span class="dot"></span><span>Contesta el ${o.tasa}% de las postulaciones, en ${o.dias} días promedio</span></div>
@@ -4240,7 +4365,7 @@
         function offerDetail(o, withBack, showActions = true) {
           const ya = applied(o.id);
           return `${withBack ? `<div class="hdr">${backBtn("#/c/feed")}<span class="side">Guardar</span></div>` : ""}
-  <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px"><span class="sq" style="width:40px;height:40px;border-radius:10px"></span><div><p style="font-weight:500">${esc(o.emp)}${o.verificada ? '<span class="company-verified">✓ Verificada</span>' : ""}</p><p class="t-note">${esc(o.meta)}</p></div></div>
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px"><span class="sq" style="width:40px;height:40px;border-radius:10px"></span><div><p style="font-weight:500">${esc(o.emp)}</p><p class="t-note">${esc(o.meta)}</p></div></div>
   <h1 class="t-title" style="margin-bottom:16px">${esc(o.puesto)}</h1>
   <div class="chips" style="margin-bottom:16px">${o.chips.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>
   <div class="resp-box"><p class="lbl">Esta empresa responde:</p>
@@ -4253,8 +4378,7 @@
           const o = S.c.ofertas[S.c.idx];
           let inner = hdr(WM);
           if (!o) {
-            const sinBusquedasReales = S.c.ofertas.length === 0;
-            inner += `<div class="empty"><p style="font-size:18px;color:var(--white);font-weight:600">${sinBusquedasReales ? "Todavía no hay búsquedas publicadas" : "Viste todas las búsquedas de hoy"}</p><p>${sinBusquedasReales ? "Cuando una empresa publique una oportunidad, vas a poder encontrarla acá." : "Mañana te mostramos nuevas oportunidades para tu perfil. Mientras tanto, seguí tus postulaciones."}</p><button class="btn out sm" data-go="#/c/postulaciones">Ver mis postulaciones</button>${sinBusquedasReales ? "" : '<button class="btn out sm" data-action="feed-reset">Volver a ver las búsquedas</button>'}</div>`;
+            inner += `<div class="empty"><p style="font-size:18px;color:var(--white);font-weight:600">Viste todas las búsquedas de hoy</p><p>Mañana te mostramos nuevas oportunidades para tu perfil. Mientras tanto, seguí tus postulaciones.</p><button class="btn out sm" data-go="#/c/postulaciones">Ver mis postulaciones</button><button class="btn out sm" data-action="feed-reset">Volver a ver las búsquedas</button></div>`;
             return shell("c", "#/c/feed", inner);
           }
           const ya = applied(o.id);
@@ -4275,66 +4399,12 @@
   <main class="screen"><div class="match-hero">
     <h1>¡Hay match!</h1>
     <p style="color:var(--t2);font-size:15px;max-width:340px">${esc(o.emp)} también quiere hablar con vos por el puesto de ${esc(o.puesto)}.</p>
-    <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || phSrc()}" alt="${esc(o.emp)}"></div>
+    <div class="match-pair"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="${esc(miNombre())}" data-action="foto" title="Cambiar foto"><i></i><img loading="lazy" decoding="async" src="${o.logo || (ME.demo ? "img/logo-cafe-mercado.png" : phSrc())}" alt="${esc(o.emp)}"></div>
     <p class="note-match" style="max-width:342px">Ya podés coordinar los próximos pasos en el chat.</p>
   </div>
   <div class="stack" style="margin-top:60px"><button class="btn pri" data-go="#/c/chat/${o.id}">Escribirle ahora</button><button class="btn out" data-go="#/c/feed">Seguir viendo búsquedas</button></div>
   </main><div class="dock plain">${waveSVG("", "#36F48C", "#E9E9E9")}<div class="band"></div></div></div>`;
         }
-        let reportContext = null;
-        let reportSending = false;
-        const REPORT_REASONS = ["Es una empresa falsa","Suplantación de identidad","Lenguaje inapropiado","Condiciones Inaceptables","Contenidos obscenos o de odio","Spam o Confuso","Otros"];
-        function reportModal() {
-          if (!reportContext) return "";
-          return `<div class="report-modal-backdrop" role="presentation">
-            <section class="report-modal" role="dialog" aria-modal="true" aria-labelledby="report-title">
-              <h2 id="report-title">Denunciar empresa</h2>
-              <p class="report-intro">Contanos qué ocurrió. El equipo de Match Empleos revisará la denuncia. Tu identidad no se mostrará a la empresa denunciada.</p>
-              <form data-form="denuncia">
-                <label class="flabel">Motivos de denuncia</label>
-                <div class="report-reasons">${REPORT_REASONS.map((reason,i)=>`<label class="report-reason"><input type="radio" name="report-reason" value="${escAttr(reason)}" ${i===0?"required":""}><span>${esc(reason)}</span></label>`).join("")}</div>
-                <div class="rf" id="report-other-wrap" hidden><label class="flabel" for="report-other">Especificá el motivo</label><input class="field" id="report-other" maxlength="180" placeholder="Describí brevemente el motivo"></div>
-                <div class="rf" style="margin-top:14px"><label class="flabel" for="report-message">Mensaje (opcional, hasta 2000 caracteres)</label><textarea class="field" id="report-message" maxlength="2000" placeholder="Agregá detalles que ayuden a revisar la denuncia"></textarea><p class="report-counter"><span id="report-count">0</span> / 2000</p></div>
-                <p class="hint" id="report-error" role="alert"></p>
-                <div class="report-actions"><button class="btn out" type="button" data-action="cerrar-denuncia">Cancelar</button><button class="btn pri" type="submit" ${reportSending?"disabled":""}>${reportSending?"Enviando…":"Enviar Denunciar"}</button></div>
-              </form>
-            </section>
-          </div>`;
-        }
-        function abrirDenuncia(context) {
-          if (!context?.postId || !context?.companyId) { toast("No pudimos identificar la postulación para denunciar."); return; }
-          reportContext = context; reportSending = false; render(true);
-        }
-        async function enviarDenuncia(form) {
-          if (!reportContext || reportSending) return;
-          const reason = form.querySelector('input[name="report-reason"]:checked')?.value;
-          const other = form.querySelector("#report-other")?.value.trim() || "";
-          const message = form.querySelector("#report-message")?.value || "";
-          const error = form.querySelector("#report-error");
-          if (!reason) { if(error)error.textContent="Seleccioná un motivo de denuncia."; return; }
-          if (reason === "Otros" && !other) { if(error)error.textContent="Especificá el motivo de la denuncia."; return; }
-          if (message.length > 2000) { if(error)error.textContent="El mensaje supera los 2000 caracteres."; return; }
-          reportSending = true;
-          const submit = form.querySelector('button[type="submit"]');
-          if(submit){submit.disabled=true;submit.textContent="Enviando…";}
-          try {
-            const {error:dbError}=await sb.from("denuncias").insert({
-              empresa_id:reportContext.companyId,
-              postulacion_id:reportContext.postId,
-              chat_id:reportContext.chatId || null,
-              motivo:reason,
-              motivo_otro:reason==="Otros"?other:null,
-              mensaje:message.trim(),
-            });
-            if(dbError)throw dbError;
-            reportContext=null;reportSending=false;render(true);toast("Denuncia enviada. El equipo de Match Empleos la revisará.");
-          } catch(err) {
-            console.error("[denuncias] No se pudo guardar",err);reportSending=false;
-            if(error)error.textContent="No pudimos enviar la denuncia. Revisá tu conexión e intentá nuevamente.";
-            if(submit){submit.disabled=false;submit.textContent="Enviar Denuncia";}
-          }
-        }
-
         let postFilter = "Todas";
         function cPost() {
           const f = postFilter;
@@ -4349,25 +4419,30 @@
             .map(
               (
                 p,
-              ) => `<div class="item" style="display:block">
-    <a class="report-card-link" href="${p.chat ? "#/c/chat/" + p.chat : p.oid ? "#/c/oferta/" + p.oid : "#/c/postulaciones"}">
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h3>${esc(p.puesto)}</h3><p class="t-note">${esc(p.emp)}${p.empresaVerificada ? '<span class="company-verified">✓ Verificada</span>' : ""}${p.match ? ' · <span class="tag-sm">Match</span>' : ""}</p></div><span class="state ${p.estado}">${p.estado}</span></div>
-      <div class="steps3">${[1, 2, 3].map((i) => `<i class="${i <= stepsOf(p.estado) ? "on" : ""}"></i>`).join("")}</div>
-      <p class="post-foot">${esc(p.pie || "")}</p>
-    </a>
-    <div class="report-card-row"><button class="report-trigger" type="button" title="Denunciar" aria-label="Denunciar empresa" data-action="abrir-denuncia" data-post-id="${escAttr(p.id || "")}" data-company-id="${escAttr(p.empresaId || "")}" data-chat-id="${escAttr(p.chat || "")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M6 4h12l-3.5 4L18 12H6z" stroke-width="1.6" stroke-linejoin="round"/></svg>Denunciar</button></div>
-  </div>`,
+              ) => `<a class="item" href="${p.chat ? "#/c/chat/" + p.chat : p.oid ? "#/c/oferta/" + p.oid : "#/c/postulaciones"}">
+    <div class="grow"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h3>${esc(p.puesto)}</h3><p class="t-note">${esc(p.emp)}${p.match ? ' · <span class="tag-sm">Match</span>' : ""}</p></div><span class="state ${p.estado}">${p.estado}</span></div>
+    <div class="steps3">${[1, 2, 3].map((i) => `<i class="${i <= stepsOf(p.estado) ? "on" : ""}"></i>`).join("")}</div>
+    <p class="post-foot">${esc(p.pie || "")}</p></div></a>`,
             )
             .join("");
           const inner = `<div class="hdr"><h1 style="font-size:18px;font-weight:600">Mis postulaciones</h1><span class="side" style="color:var(--t2)">${S.c.posts.length} activas</span></div>
     <div class="chips" style="margin-bottom:18px">${["Todas", "Sin respuesta", "Con match"].map((x) => `<button class="chip" data-filter="${x}" aria-pressed="${x === f}">${x}</button>`).join("")}</div>
     <div class="stack grid2">${items || '<div class="empty">No tenés postulaciones en este filtro.</div>'}</div>
-    <p class="cupo">${cupoTxt()}</p>${reportModal()}`;
+    <p class="cupo">${cupoTxt()}</p>`;
           return shell("c", "#/c/postulaciones", inner);
         }
         function avatarOf(kind, k) {
           const ch = (kind === "e" ? S.e.chats : S.c.chats)[k];
-          return avPh("width:44px;height:44px;border-radius:12px", ch?.avatar);
+          if (ch?.avatar)
+            return `<img loading="lazy" decoding="async" class="avatar" src="${esc(ch.avatar)}" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">`;
+          if (!ME.demo) return avPh("width:44px;height:44px;border-radius:12px");
+          if (kind === "e")
+            return k === "tomas"
+              ? '<img loading="lazy" decoding="async" class="avatar" src="img/avatar-tomas.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
+              : '<span class="avatar" style="width:44px;height:44px;border-radius:12px;background:var(--navy2)"></span>';
+          return k === "cafe"
+            ? '<img loading="lazy" decoding="async" class="avatar" src="img/logo-cafe-mercado.png" alt="" style="width:44px;height:44px;border-radius:12px;background:#fff">'
+            : '<span class="sq" style="width:44px;height:44px;border-radius:12px"></span>';
         }
         function convItems(kind, active) {
           const chats = kind === "e" ? S.e.chats : S.c.chats;
@@ -4385,7 +4460,7 @@
             kind === "e"
               ? esc(c.puesto)
               : `${esc(c.puesto)}${c.tasa ? " · responde el " + c.tasa + "%" : ""}`;
-          return `<div class="chat-head"><button class="back" data-go="${back}" aria-label="Volver">‹</button>${avatarOf(kind, id).replace(/44px/g, "36px")}<div><b>${c.perfilUrl ? `<a href="${c.perfilUrl}" style="color:inherit">${esc(c.con)}</a>` : esc(c.con)}${kind === "c" && c.empresaVerificada ? '<span class="company-verified">✓ Verificada</span>' : ""}</b><p class="t-note">${sub}</p></div></div>`;
+          return `<div class="chat-head"><button class="back" data-go="${back}" aria-label="Volver">‹</button>${avatarOf(kind, id).replace(/44px/g, "36px")}<div><b>${c.perfilUrl ? `<a href="${c.perfilUrl}" style="color:inherit">${esc(c.con)}</a>` : esc(c.con)}</b><p class="t-note">${sub}</p></div></div>`;
         }
         function chatBody(kind, id) {
           const chats = kind === "e" ? S.e.chats : S.c.chats;
@@ -4396,14 +4471,8 @@
             : kind === "e"
               ? `Le pediste más información a ${esc(c.con.split(" ")[0])}.`
               : `Respondieron tu postulación a ${esc(c.puesto)}.`;
-          const aiModule = kind === "e" ? `<section class="chat-ai-suggestions" aria-label="Respuestas sugeridas con inteligencia artificial">
-            <div class="chat-ai-head"><strong>Respuestas sugeridas con IA</strong><button class="btn out sm" type="button" data-action="generar-respuestas-chat" data-id="${id}" ${c.aiLoading ? "disabled" : ""}>${c.aiLoading ? "Generando…" : c.aiSuggestions?.length ? "Generar otras" : "Generar 3 respuestas"}</button></div>
-            ${c.aiLoading ? '<p class="chat-ai-status" role="status">Estamos preparando tres respuestas con los datos de tu empresa y esta búsqueda…</p>' : ""}
-            ${c.aiError ? `<p class="chat-ai-status" role="alert">${esc(c.aiError)}</p>` : ""}
-            ${c.aiSuggestions?.length ? `<div class="chat-ai-options">${c.aiSuggestions.map((suggestion, index) => `<button type="button" class="chat-ai-option" data-action="usar-respuesta-chat" data-id="${id}" data-index="${index}">${esc(suggestion)}</button>`).join("")}</div><p class="chat-ai-status">Elegí una opción para cargarla en el chat. Podés editarla antes de enviarla.</p>` : ""}
-          </section>` : "";
           return `<div class="chat-wrap" data-chatlog><p class="day">Hoy</p>${c.msgs.map((m) => `<div class="fila ${m.de}"><div class="bub ${m.de}">${esc(m.t)}</div></div>`).join("")}${c.typing ? `<p class="typing">${esc(c.con.split(" ")[0])} está escribiendo…</p>` : ""}<p class="note-match"><span class="dot"></span><span>${note}</span></p></div>
-  <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>${kind==="c"?`<div class="report-chat-action"><button class="report-trigger" type="button" title="Denunciar" aria-label="Denunciar empresa" data-action="abrir-denuncia" data-post-id="${escAttr(c.postulacionId||"")}" data-company-id="${escAttr(c.empresaId||"")}" data-chat-id="${escAttr(id)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M6 4h12l-3.5 4L18 12H6z" stroke-width="1.6" stroke-linejoin="round"/></svg>Denunciar</button></div>${reportModal()}`:""}${aiModule}`;
+  <form class="composer" data-form="chat" data-kind="${kind}" data-id="${id}"><label class="vh" for="msg-${kind}">Mensaje</label><input id="msg-${kind}" placeholder="Escribí un mensaje" autocomplete="off"><button class="btn pri sm" type="submit">Enviar</button></form>`;
         }
         function mensajes(kind, id) {
           const items = convItems(kind, id);
@@ -4435,7 +4504,7 @@
           const env = S.c.posts.length,
             resp = S.c.posts.filter((p) => p.estado === "Respondida").length,
             mt = S.c.posts.filter((p) => p.match).length;
-          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
+          const inner = `<div style="max-width:720px"><div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="${esc(miNombre())}" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato() || '<span style="color:var(--t3)">Sin localidad cargada</span>'}</p></div></div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">${[
     [env, "enviadas"],
     [resp, "respuestas"],
@@ -4458,9 +4527,9 @@
         }
         function profHead(kind) {
           if (kind === "e") {
-            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
+            return `<h1 style="font-size:20px;font-weight:600;margin-bottom:14px">Mi empresa</h1><div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" data-action="foto" title="Cambiar logo"><div><h1>${esc(miNombre("e"))}</h1><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>`;
           }
-          return `<div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc()}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
+          return `<div class="prof-head"><img loading="lazy" decoding="async" src="${fotoSrc("img/avatar-tomas.png")}" alt="" data-action="foto" title="Cambiar foto"><div><h1>${esc(miNombre())}</h1><p class="t-note">${subtituloCandidato()}</p></div></div>`;
         }
         function configScreen(kind) {
           const e = kind === "e";
@@ -4475,8 +4544,30 @@
           return shell(kind, e ? "#/e/empresa" : "#/c/perfil", inner);
         }
         function cDatos() {
-          const campos = ME.datos?.campos || {};
-          const chips = ME.datos?.chips || {};
+          const EJEMPLO = [
+            ["Edad", "20"],
+            ["Ubicación", "Lomas de Zamora"],
+            ["Experiencia", "Sin experiencia"],
+            ["Tipo de empleo", "Part Time"],
+            ["Modalidad", "Presencial"],
+            ["Horario", "Mañana"],
+          ];
+          const campos = ME.demo
+            ? {
+                "rc-edad": "20",
+                "rc-ubi": "Lomas de Zamora",
+                "rc-puesto": "Ayudante de cocina",
+                "rc-sobre": "Soy Tomás Ferreyra, busco mis primeras experiencias.",
+              }
+            : ME.datos?.campos || {};
+          const chips = ME.demo
+            ? {
+                tipo: ["Part Time"],
+                modo: ["Presencial"],
+                hora: ["Mañana"],
+                rubros: ["Gastronomía", "Ventas"],
+              }
+            : ME.datos?.chips || {};
           if (editandoPerfil) {
             const inner = `<div style="max-width:720px"><div class="hdr"><button class="back" data-action="cancelar-edicion">‹&nbsp;&nbsp;Cancelar</button></div>
       <h1 class="t-title" style="margin-bottom:18px">Editar datos personales</h1>
@@ -4493,7 +4584,7 @@
         <p class="reg-lbl">Tipo de empleo</p>${chipToggles("tipo", TIPO)}
         <p class="reg-lbl">Modalidad</p>${chipToggles("modo", MODO)}
         <p class="reg-lbl">Horario</p>${chipToggles("hora", HORA)}
-        <div class="rf"><label class="flabel" for="ed-sobre">Sobre vos</label><textarea class="field" id="ed-sobre" data-ai-source="true">${esc(campos["rc-sobre"] || "")}</textarea>${sobreIA("ed-sobre", campos["rc-sobre"] || "")}</div>
+        <div class="rf"><label class="flabel" for="ed-sobre">Sobre vos</label><textarea class="field" id="ed-sobre">${esc(campos["rc-sobre"] || "")}</textarea></div>
         <button class="btn pri" type="submit">Guardar cambios</button>
       </form></div>`;
             return shell("c", "#/c/perfil", inner);
@@ -4501,7 +4592,9 @@
           const exp = [campos["rx-puesto"], campos["rx-emp"], campos["rx-dur"]]
             .filter((x) => x && String(x).trim())
             .join(" · ");
-          const filas = [
+          const filas = ME.demo
+            ? EJEMPLO
+            : [
                 ["Correo", ME.email],
                 ["Edad", campos["rc-edad"]],
                 ["Ubicación", campos["rc-ubi"]],
@@ -4516,13 +4609,18 @@
             const txt = Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
             return txt.trim() ? esc(txt) : '<span style="color:var(--t3)">Sin completar</span>';
           };
-          const subt = campos["rc-ubi"]
+          const subt = ME.demo
+            ? "Lomas de Zamora · Busco mi primer trabajo"
+            : campos["rc-ubi"]
               ? esc(campos["rc-ubi"])
               : "";
-          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
+          const inner = `<div style="max-width:720px">${hdr(backBtn("#/c/config"), '<button class="back" data-action="editar-perfil" style="color:var(--green);font-weight:600">Editar</button>')}<div style="display:flex;gap:14px;align-items:center;margin-bottom:22px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/avatar-tomas.png")}" data-action="foto" title="Cambiar foto" alt="" style="width:64px;height:64px;border-radius:16px;background:#fff"><div><h1 style="font-size:20px;font-weight:600">${esc(miNombre())}</h1><p class="t-note">${subt}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${campos["rc-sobre"] ? `<p class="t-sec">Sobre mí</p><p style="color:var(--t2);line-height:1.6">${esc(campos["rc-sobre"])}</p>` : ""}
-  ${`<div class="rowline"><span>Currículum (PDF)</span><span class="v">${ME.datos?.cv ? esc(ME.datos.cv.nombre) : '<span style="color:var(--t3)">Sin cargar</span>'}</span></div>
+  ${
+    ME.demo
+      ? ""
+      : `<div class="rowline"><span>Currículum (PDF)</span><span class="v">${ME.datos?.cv ? esc(ME.datos.cv.nombre) : '<span style="color:var(--t3)">Sin cargar</span>'}</span></div>
   <div class="stack" style="margin-top:12px">${ME.datos?.cv ? `<button class="btn out sm" data-action="ver-cv" data-cv="${esc(ME.datos.cv.path)}">Ver mi CV</button>` : ""}<label class="btn out sm" for="cv-up" style="cursor:pointer">${ME.datos?.cv ? "Reemplazar CV" : "Subir CV"}</label><input id="cv-up" type="file" accept=".pdf,application/pdf" hidden></div>`
   }
   <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar mis datos</button></div>`;
@@ -4552,7 +4650,19 @@
           const pendCard = p
             ? `<a class="card" data-bsel="all" href="#/e/candidatos" style="display:block;text-decoration:none"><h2 style="font-size:20px;font-weight:500;line-height:1.3;margin-bottom:10px">Te faltan responder ${p} postulaci${p === 1 ? "ón" : "ones"}</h2><p class="t-note">La más vieja lleva ${vieja.hace} días esperando. Te quedan ${vieja.quedan} para contestarla sin que baje tu tasa.</p></a>`
             : `<div class="card"><h2 style="font-size:20px;font-weight:500;margin-bottom:8px">Estás al día</h2><p class="t-note">Respondiste todas las postulaciones. Ya podés publicar una búsqueda nueva.</p></div>`;
-          const busquedasEmpresa = S.e.busquedas;
+          const camposEmpresa = ME.demo ? {} : ME.datos?.campos || {};
+          const busquedasEmpresa = ME.demo
+            ? S.e.busquedas
+            : S.e.busquedas.length
+              ? S.e.busquedas
+              : [
+                  {
+                    id: "registro",
+                    puesto: camposEmpresa["re-puesto"] || "Búsqueda de empleo",
+                    total: 0,
+                    estado: "Activa",
+                  },
+                ];
           const inner = `<div class="hdr">${WM_INV}<span class="side">${esc(miNombre("e"))}</span></div>
   <h1 class="t-title only-d" style="margin-bottom:20px">Búsquedas</h1>
   <div class="grid2" style="gap:12px">${pendCard}
@@ -4596,12 +4706,14 @@
         }
         let candFilter = "pend";
         let candBusqueda = "all"; // 'all' o id de búsqueda
-        // Postulación -> búsqueda asociada en Supabase.
+        // Postulación -> búsqueda. En demo, los postulantes sin oferta pertenecen a b1.
         function ofertaDe(c) {
-          return c.oferta_id || null;
+          return c.oferta_id || (ME.demo ? "b1" : null);
         }
         function ePuestoActual() {
-          return (ME.datos?.campos || {})["re-puesto"] || "Búsqueda de empleo";
+          return ME.demo
+            ? "Ayudante de cocina"
+            : (ME.datos?.campos || {})["re-puesto"] || "Búsqueda de empleo";
         }
 let EDIT_BUSQUEDA = null; // id de la búsqueda en edición
         function eBusqueda(id) {
@@ -4650,7 +4762,7 @@ let EDIT_BUSQUEDA = null; // id de la búsqueda en edición
           b.jornada = [...(S.reg.chips.pjor || [])];
           b.turno = [...(S.reg.chips.ptur || [])];
           EDIT_BUSQUEDA = null;
-          await DB.guardarBusqueda(b);
+          if (!ME.demo) await DB.guardarBusqueda(b);
           toast("Búsqueda actualizada.");
           render(true);
         }
@@ -4658,8 +4770,10 @@ async function toggleBusqueda(id) {
           const b = S.e.busquedas.find((x) => x.id === id);
           if (!b) return;
           const nuevo = b.estado === "Pausada" ? "Activa" : "Pausada";
-          const ok = await DB.cambiarEstadoBusqueda(b.id, nuevo);
-          if (!ok) return;
+          if (!ME.demo) {
+            const ok = await DB.cambiarEstadoBusqueda(b.id, nuevo);
+            if (!ok) return;
+          }
           b.estado = nuevo;
           toast(nuevo === "Pausada" ? "Búsqueda pausada." : "Búsqueda reactivada.");
           render(true);
@@ -4668,9 +4782,11 @@ async function toggleBusqueda(id) {
           const b = S.e.busquedas.find((x) => x.id === id);
           if (!b) return;
           if (!window.confirm(`¿Eliminar “${b.puesto}”? Se borran también sus postulaciones y chats.`)) return;
-          const ok = await DB.borrarBusqueda(id);
-          if (!ok) return;
-          await hidratar();
+          if (!ME.demo) {
+            const ok = await DB.borrarBusqueda(id);
+            if (!ok) return;
+            await hidratar();
+          }
           S.e.busquedas = S.e.busquedas.filter((x) => x.id !== id);
           S.e.pend = S.e.pend.filter((p) => ofertaDe(p) !== id);
           S.e.resp = S.e.resp.filter((r) => r.oid !== id);
@@ -4803,7 +4919,7 @@ async function toggleBusqueda(id) {
             .format(new Date())
             .replace(/^./, (c) => c.toUpperCase());
           const inner = `<div style="max-width:720px"><h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa() || '<span style="color:var(--t3)">Completá los datos de tu empresa</span>'}</p></div></div>
   <div class="card"><div class="row2"><div><p class="bignum">${S.e.tasa}%</p><p class="t-note">de respuesta</p></div><div><p class="bignum">${S.e.demora} días</p><p class="t-note">de demora</p></div></div><div class="progress" style="margin:14px 0"><i style="width:${S.e.tasa}%"></i></div><p class="t-note">Con 90% o más entrás en el grupo de empresas destacadas y tus búsquedas aparecen primero.</p></div>
   <h2 class="t-sec">Historial de respuesta</h2>
   ${[[mesActual, S.e.tasa]].map(([m, v]) => `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span>${m}</span><span>${v}%</span></div><div class="progress"><i style="width:${v}%;background:var(--navy)"></i></div></div>`).join("")}
@@ -4812,8 +4928,18 @@ async function toggleBusqueda(id) {
           return shell("e", "#/e/empresa", inner);
         }
         function eDatos() {
-          const campos = ME.datos?.campos || {};
-          const chips = ME.datos?.chips || {};
+          const campos = ME.demo
+            ? {
+                "re-resp": "Carolina Gómez",
+                "re-puesto": "Ayudante de cocina",
+                "re-rubro": "Gastronomía",
+                "re-tam": "12 empleados",
+                "re-ubi": "Lomas de Zamora",
+                "re-desc":
+                  "Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.",
+              }
+            : ME.datos?.campos || {};
+          const chips = ME.demo ? {} : ME.datos?.chips || {};
           if (editandoPerfil) {
             const inner = `<div style="max-width:720px"><div class="hdr"><button class="back" data-action="cancelar-edicion">‹&nbsp;&nbsp;Cancelar</button></div>
       <h1 class="t-title" style="margin-bottom:18px">Editar datos de la empresa</h1>
@@ -4834,25 +4960,35 @@ async function toggleBusqueda(id) {
       </form></div>`;
             return shell("e", "#/e/empresa", inner);
           }
-          const filas = [
-            ["Responsable", campos["re-resp"]],
-            ["Puesto a cubrir", campos["re-puesto"]],
-            ["Rubro", campos["re-rubro"]],
-            ["Tamaño", campos["re-tam"]],
-            ["Ubicación", campos["re-ubi"]],
-            ["Sector", chips.esector],
-            ["Tipo de empleo", chips.etipo],
-            ["Experiencia requerida", chips.eexp],
-            ["Modalidad", chips.emodo],
-            ["Horario", chips.ehora],
-          ];
+          const filas = ME.demo
+            ? [
+                ["Rubro", "Gastronomía"],
+                ["Ubicación", "Lomas de Zamora"],
+                ["Tamaño", "12 empleados"],
+              ]
+            : [
+                ["Responsable", campos["re-resp"]],
+                ["Puesto a cubrir", campos["re-puesto"]],
+                ["Rubro", campos["re-rubro"]],
+                ["Tamaño", campos["re-tam"]],
+                ["Ubicación", campos["re-ubi"]],
+                ["Sector", chips.esector],
+                ["Tipo de empleo", chips.etipo],
+                ["Experiencia requerida", chips.eexp],
+                ["Modalidad", chips.emodo],
+                ["Horario", chips.ehora],
+              ];
           const fmt = (v) => {
             const t = Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v);
             return t.trim() ? esc(t) : '<span style="color:var(--t3)">Sin completar</span>';
           };
-          const descr = campos["re-desc"] ? esc(campos["re-desc"]).replace(/\n/g, "<br>") : "";
+          const descr = ME.demo
+            ? "Somos Café Mercado, buscamos incorporar jóvenes con ganas de aprender, trabajar en equipo y dar sus primeros pasos en el mundo de la gastronomía.<br>No es necesario contar con experiencia previa: valoramos principalmente la responsabilidad, las ganas de aprender, el compromiso y la buena predisposición."
+            : campos["re-desc"]
+              ? esc(campos["re-desc"]).replace(/\n/g, "<br>")
+              : "";
           const inner = `<div style="max-width:720px">${hdr(backBtn("#/e/empresa"), '<button class="back" data-action="editar-perfil" style="color:var(--navy);font-weight:700">Editar</button>')}<h1 class="t-title" style="margin-bottom:16px;font-size:20px">Mi empresa</h1>
-  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc()}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
+  <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px"><img loading="lazy" decoding="async" class="avatar" src="${fotoSrc("img/logo-cafe-mercado.png")}" alt="" style="background:#fff" data-action="foto" title="Cambiar logo"><div><h2 style="font-size:20px;font-weight:500">${esc(miNombre("e"))}</h2><p style="font-size:13px">${subtituloEmpresa()}</p></div></div>
   ${filas.map(([k, v]) => `<div class="rowline"><span>${k}</span><span class="v">${fmt(v)}</span></div>`).join("")}
   ${descr ? `<h2 class="t-sec">Descripción</h2><p style="line-height:1.6">${descr}</p>` : ""}
   <button class="btn out sm" style="margin-top:22px" data-action="editar-perfil">Editar datos empresariales</button></div>`;
@@ -4919,6 +5055,14 @@ async function toggleBusqueda(id) {
           card.addEventListener("pointercancel", endDrag);
         }
 
+        function later(ms, fn) {
+          timers.push(
+            setTimeout(() => {
+              fn();
+              softRender();
+            }, ms),
+          );
+        }
         function softRender() {
           // re-render sin perder lo que se está escribiendo
           const a = document.activeElement;
@@ -4936,74 +5080,143 @@ async function toggleBusqueda(id) {
         async function apply(oid) {
           const o = offerById(oid);
           if (!o || applied(oid) || S.c.cupo <= 0) return;
-          if (o.real !== true) {
-            toast("Esta búsqueda ya no está disponible.");
+          if (!ME.demo && o.real) {
+            const post = {
+              id: "p" + crypto.randomUUID(),
+              oid,
+              puesto: o.puesto,
+              emp: o.emp,
+              estado: "Enviada",
+              pie: "Enviada recién",
+            };
+            const restante = await DB.postular(post, oid);
+            if (restante === null) {
+              render();
+              return;
+            }
+            S.c.cupo = restante;
+            S.c.posts.unshift(post);
+            S.c.idx++;
+            toast(
+              `Te postulaste a ${o.puesto}. ${S.c.cupo > 0 ? `Te quedan ${S.c.cupo}.` : "Usaste tu cupo semanal."}`,
+            );
+            render();
+            return;
+          }
+          S.c.cupo--;
+          DB.setCupo(S.c.cupo);
+          if (o.match) {
+            const post = {
+              id: "p" + Date.now(),
+              oid,
+              puesto: o.puesto,
+              emp: o.emp,
+              estado: "Respondida",
+              pie: "Te contestaron recién",
+              match: true,
+              chat: oid,
+            };
+            const msg = {
+              de: "them",
+              t: `¡Hola ${miPrimerNombre()}! Vimos tu perfil y nos interesa. ¿Podés venir el jueves a las 16?`,
+              h: now(),
+            };
+            S.c.posts.unshift(post);
+            S.c.chats[oid] = {
+              con: o.emp,
+              puesto: o.puesto,
+              tasa: o.tasa,
+              match: true,
+              msgs: [msg],
+              auto: [
+                "Av. Meeks 250, Lomas. Preguntá por Caro en el mostrador.",
+                "¡Genial! Nos vemos el jueves.",
+                "Perfecto, cualquier cosa escribinos por acá.",
+              ],
+            };
+            DB.guardarPostulacion(post, oid, chatMeta(S.c.chats[oid]));
+            DB.nuevoMensaje("c:" + oid, msg.de, msg.t, msg.h);
+            S.c.notifs.unshift({
+              t: "¡Hay match!",
+              cuando: "ahora",
+              d: `${o.emp} también quiere hablar con vos por ${o.puesto}.`,
+              go: "#/c/chat/" + oid,
+              nuevo: true,
+            });
+            S.c.idx++;
+            go("#/c/match/" + oid);
             return;
           }
           const post = {
-            id: "p" + crypto.randomUUID(),
+            id: "p" + Date.now(),
             oid,
             puesto: o.puesto,
             emp: o.emp,
             estado: "Enviada",
             pie: "Enviada recién",
           };
-          const restante = await DB.postular(post, oid);
-          if (restante === null) {
-            render();
-            return;
-          }
-          S.c.cupo = restante;
           S.c.posts.unshift(post);
+          DB.guardarPostulacion(post, oid, null);
           S.c.idx++;
           toast(
             `Te postulaste a ${o.puesto}. ${S.c.cupo > 0 ? `Te quedan ${S.c.cupo}.` : "Usaste tu cupo semanal."}`,
           );
+          if (S.c.cupo === 0)
+            S.c.notifs.unshift({
+              t: "Usaste tus 5 postulaciones",
+              d: "Se libera tu cupo el lunes. Mientras tanto, seguí tus postulaciones.",
+              go: "#/c/postulaciones",
+              nuevo: true,
+            });
+          later(6000, () => {
+            post.estado = "Vista";
+            post.pie = "La vieron recién";
+            DB.guardarPostulacion(post, oid, null);
+            S.c.notifs.unshift({
+              t: "Tu postulación fue vista",
+              cuando: "ahora",
+              d: `${o.emp} abrió tu perfil. Tiene 7 días para contestarte.`,
+              go: "#/c/postulaciones",
+              nuevo: true,
+            });
+            toast(`${o.emp} vio tu postulación`);
+          });
+          later(14000, () => {
+            post.estado = "Respondida";
+            post.pie = "Te contestaron recién";
+            post.chat = oid;
+            const msg = {
+              de: "them",
+              t: `Hola ${miPrimerNombre()}, gracias por postularte a ${o.puesto}. Nos gustaría conocerte. ¿Te queda bien pasar el miércoles a las 15?`,
+              h: now(),
+            };
+            S.c.chats[oid] = { con: o.emp, puesto: o.puesto, tasa: o.tasa, match: false, msgs: [msg] };
+            DB.guardarPostulacion(post, oid, chatMeta(S.c.chats[oid]));
+            DB.nuevoMensaje("c:" + oid, msg.de, msg.t, msg.h);
+            S.c.notifs.unshift({
+              t: "Te contestaron",
+              cuando: "ahora",
+              d: `${o.emp} respondió tu postulación a ${o.puesto}.`,
+              go: "#/c/chat/" + oid,
+              nuevo: true,
+            });
+            toast(`${o.emp} te respondió`);
+          });
           render();
         }
 
-        async function generarRespuestasChat(id) {
-          const c = S.e.chats[id];
-          if (!c || c.aiLoading) return;
-          c.aiLoading = true;
-          c.aiError = "";
-          render(true);
-          const chatId = c.key?.startsWith("chat:") ? c.key.slice(5) : id;
-          try {
-            const { data, error } = await sb.functions.invoke("sugerir-respuestas-chat", {
-              body: { chatId },
-            });
-            if (error) throw error;
-            if (!Array.isArray(data?.suggestions) || data.suggestions.length !== 3 ||
-                data.suggestions.some((item) => typeof item !== "string" || !item.trim())) {
-              throw new Error("La IA no devolvió tres respuestas válidas.");
-            }
-            c.aiSuggestions = data.suggestions;
-            c.aiModel = data.model || "";
-          } catch (error) {
-            console.error("[ia] sugerir-respuestas-chat", error);
-            c.aiError = "No pudimos generar las respuestas. Probá nuevamente.";
-          } finally {
-            c.aiLoading = false;
-            render(true);
-          }
-        }
-        function usarRespuestaChat(id, index) {
-          const c = S.e.chats[id];
-          const suggestion = c?.aiSuggestions?.[index];
-          if (!suggestion) return;
-          const form = Array.from(document.querySelectorAll('form[data-form="chat"][data-kind="e"]'))
-            .find((item) => item.dataset.id === id && item.getClientRects().length);
-          const input = form?.querySelector("input");
-          if (!input) {
-            toast("No encontramos el campo del mensaje.");
-            return;
-          }
-          input.value = suggestion;
-          input.focus();
-          input.setSelectionRange(input.value.length, input.value.length);
-        }
-
+        const AUTO = {
+          c: [
+            "¡Genial! Te esperamos. Cualquier duda escribinos por acá.",
+            "Perfecto, lo anotamos. Traé el DNI el día de la entrevista.",
+            "Gracias por responder rápido. Te confirmamos mañana.",
+          ],
+          e: [
+            "¡Dale! Muchas gracias por la oportunidad.",
+            "Perfecto, ahí estaré. ¿Tengo que llevar algo?",
+            "Buenísimo, cualquier cosa les escribo por acá.",
+          ],
+        };
         async function sendChat(kind, id, text) {
           const chats = kind === "e" ? S.e.chats : S.c.chats;
           const c = chats[id];
@@ -5016,6 +5229,23 @@ async function toggleBusqueda(id) {
           const saved = await DB.nuevoMensaje(key, "me", body, h);
           if (saved?.id) c.msgs[c.msgs.length - 1].dbId = saved.id;
           render(true);
+          if (ME.demo) {
+            timers.push(
+              setTimeout(() => {
+                c.typing = true;
+                softRender();
+              }, 700),
+            );
+            timers.push(
+              setTimeout(() => {
+                c.typing = false;
+                const m = { de: "them", t: (c.auto || AUTO[kind])[(c.n - 1) % 3], h: now() };
+                c.msgs.push(m);
+                DB.nuevoMensaje(key, "them", m.t, m.h);
+                softRender();
+              }, 2400),
+            );
+          }
         }
 
         async function enviarResp(id, tipo, text) {
@@ -5028,7 +5258,7 @@ async function toggleBusqueda(id) {
           S.e.resp.unshift(rec);
           S.e.tasa = calcTasa();
           DB.setTasa(S.e.tasa);
-          const abreChat = tipo === "si";
+          const abreChat = tipo === "si" || (ME.demo && tipo === "mas");
           if (abreChat) {
             rec.chat = c.id;
             const key = "chat:" + c.id;
@@ -5064,6 +5294,27 @@ async function toggleBusqueda(id) {
               go: "#/e/chat/" + c.id,
               nuevo: true,
             });
+          if (ME.demo && abreChat)
+            later(3500, () => {
+              const ch = S.e.chats[c.id];
+              if (ch) {
+                const t =
+                  tipo === "si"
+                    ? "¡Hola! Muchas gracias por responder. Sí, el jueves a las 16 puedo. ¿Pregunto por alguien en especial?"
+                    : "¡Hola! Puedo de lunes a viernes por la tarde. La libreta la estoy tramitando, la tengo la semana que viene.";
+                const m = { de: "them", t, h: now() };
+                ch.msgs.push(m);
+                DB.nuevoMensaje("chat:" + c.id, "them", t, m.h);
+                S.e.notifs.unshift({
+                  t: `${c.corto} te escribió`,
+                  cuando: "ahora",
+                  d: ePuestoActual(),
+                  go: "#/e/chat/" + c.id,
+                  nuevo: true,
+                });
+                toast(`${c.corto} te respondió`);
+              }
+            });
           tplSel = null;
           toast(`Respuesta enviada a ${c.corto}. Tu tasa de respuesta es ahora ${S.e.tasa}%.`);
           if (!S.e.pend.length)
@@ -5094,8 +5345,8 @@ async function toggleBusqueda(id) {
             "registro",
             "confirmar",
           ];
-          if (!ME.id && a && !PUBLICAS.includes(a)) return login();
-          if (ME.id && ((a === "c" && ME.rol !== "c") || (a === "e" && ME.rol !== "e"))) {
+          if (!ME.id && !ME.demo && a && !PUBLICAS.includes(a)) return login();
+          if ((ME.id || ME.demo) && ((a === "c" && ME.rol !== "c") || (a === "e" && ME.rol !== "e"))) {
             go(ME.rol === "e" ? "#/e/panel" : "#/c/feed");
             return "";
           }
@@ -5189,7 +5440,7 @@ async function toggleBusqueda(id) {
         let landingRevealObserver = null;
         function initLandingReveal() {
           if (landingRevealObserver) landingRevealObserver.disconnect();
-          const blocks = document.querySelectorAll(".landing-v2 [data-reveal]");
+          const blocks = document.querySelectorAll(".landing-v2 main > .lp-section:not(.lp-hero)");
           if (!blocks.length) return;
           if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             blocks.forEach((block) => block.classList.add("is-visible"));
@@ -5202,15 +5453,9 @@ async function toggleBusqueda(id) {
                 observer.unobserve(entry.target);
               }
             });
-          }, {
-            // Dispara cuando el borde superior del elemento entra en el 88 % visible
-            // del viewport. No exige que un bloque alto alcance un porcentaje de área.
-            threshold: 0,
-            rootMargin: "0px 0px -12% 0px",
-          });
+          }, { threshold: 0.12, rootMargin: "0px 0px -5% 0px" });
           blocks.forEach((block) => {
-            // Aplicar primero el estado inicial para evitar un frame sin animación.
-            block.classList.add("lp-animate");
+            block.classList.add("lp-reveal");
             landingRevealObserver.observe(block);
           });
         }
@@ -5309,7 +5554,6 @@ async function toggleBusqueda(id) {
             }
             arr = arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
             S.reg.chips[k] = arr;
-            guardarBorradorRegistro();
             savePub();
             render(true);
             return;
@@ -5340,19 +5584,6 @@ async function toggleBusqueda(id) {
             return;
           }
           const act = t.dataset.action;
-          if (act === "abrir-denuncia") {
-            abrirDenuncia({postId:t.dataset.postId,companyId:t.dataset.companyId,chatId:t.dataset.chatId||null});
-            return;
-          }
-          if (act === "cerrar-denuncia") { reportContext=null;reportSending=false;render(true);return; }
-          if (act === "generar-respuestas-chat") {
-            generarRespuestasChat(t.dataset.id);
-            return;
-          }
-          if (act === "usar-respuesta-chat") {
-            usarRespuestaChat(t.dataset.id, Number(t.dataset.index));
-            return;
-          }
           if (act === "descartar") {
             S.c.idx++;
             render(true);
@@ -5370,50 +5601,6 @@ async function toggleBusqueda(id) {
           if (act === "leidas") {
             (t.dataset.kind === "e" ? S.e.notifs : S.c.notifs).forEach((n) => (n.nuevo = false));
             render(true);
-            return;
-          }
-          if (act === "mejorar-sobre") {
-            mejorarSobre(t);
-            return;
-          }
-          if (act === "usar-sobre-ia") {
-            const original = document.getElementById(t.dataset.target);
-            const sugerido = document.getElementById(t.dataset.output);
-            const wrap = document.getElementById(t.dataset.output + "-wrap");
-            const toggle = document.getElementById(t.dataset.output + "-toggle");
-            if (original && sugerido && sugerido.value.trim() && sugerido.dataset.source === (original.value || "").trim()) {
-              original.value = sugerido.value.trim();
-              original.dispatchEvent(new Event("input", { bubbles: true }));
-              if (wrap) wrap.hidden = true;
-              if (toggle) toggle.hidden = true;
-              if (t.dataset.target === "rc-sobre") {
-                regDraftAIUsed = true;
-              } else if (t.dataset.target === "ed-sobre") {
-                ME.datos = { ...(ME.datos || {}), ai: { ...(ME.datos?.ai || {}), sobreAplicado: true } };
-              }
-              const status = document.getElementById(t.dataset.output + "-status");
-              if (status) status.textContent = "Versión aplicada. La sugerencia se cerró y la mejora con IA quedó desactivada para este campo.";
-              original.focus();
-              toast("Versión aplicada. La sugerencia de IA se cerró.");
-            } else {
-              toast("El texto original cambió. Generá una nueva sugerencia antes de aplicarla.");
-            }
-            return;
-          }
-          if (act === "mantener-original") {
-            const wrap = document.getElementById(t.dataset.output + "-wrap");
-            const toggle = document.getElementById(t.dataset.output + "-toggle");
-            if (wrap) wrap.hidden = true;
-            if (toggle) {
-              toggle.textContent = "Mejorar con IA";
-              toggle.dataset.action = "mejorar-sobre";
-              toggle.disabled = toggle.dataset.quotaExhausted === "true" ||
-                (document.getElementById(t.dataset.target)?.value || "").length > 4000;
-            }
-            const status = document.getElementById(t.dataset.output + "-status");
-            if (status) status.textContent = toggle?.dataset.quotaExhausted === "true"
-              ? "Se mantuvo tu texto original, pero alcanzaste tu límite de mejoras con IA."
-              : "Se mantuvo tu texto original.";
             return;
           }
           if (act === "write") {
@@ -5469,10 +5656,17 @@ async function toggleBusqueda(id) {
             return;
           }
           if (act === "logout") {
-            ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null };
+            timers.forEach(clearTimeout);
+            timers.length = 0;
+            const eraDemo = ME.demo;
+            ME = { id: null, rol: null, nombre: null, demo: false };
             S = freshState();
-            sb.auth.signOut();
+            if (!eraDemo) sb.auth.signOut();
             go("#/login");
+            return;
+          }
+          if (act === "demo") {
+            entrarDemo(t.dataset.kind);
             return;
           }
           if (act === "pub-next") {
@@ -5534,142 +5728,6 @@ async function toggleBusqueda(id) {
             return;
           }
         });
-        function actualizarCuotaIA(count, daily, monthly, button) {
-          if (daily == null || monthly == null) return;
-          const d = Math.max(0, Number(daily));
-          const m = Math.max(0, Number(monthly));
-          if (!Number.isFinite(d) || !Number.isFinite(m)) return;
-          if (count) {
-            count.textContent = `Te quedan ${d} mejoras hoy y ${m} este mes.`;
-            count.dataset.dailyRemaining = String(d);
-            count.dataset.monthlyRemaining = String(m);
-          }
-          if (button) {
-            button.dataset.quotaExhausted = String(d === 0 || m === 0);
-            if (d === 0 || m === 0) button.hidden = true;
-          }
-        }
-
-        async function leerDetalleErrorIA(error) {
-          const response = error?.context;
-          if (!response || typeof response.clone !== "function") return null;
-          try {
-            return await response.clone().json();
-          } catch {
-            return null;
-          }
-        }
-
-        async function mejorarSobre(button) {
-          const input = document.getElementById(button.dataset.target);
-          const outputId = button.dataset.output;
-          const output = document.getElementById(outputId);
-          const wrap = document.getElementById(outputId + "-wrap");
-          const status = document.getElementById(outputId + "-status");
-          const useButton = document.getElementById(outputId + "-use");
-          const texto = (input?.value || "").trim();
-          if (!texto) {
-            if (status) status.textContent = "Escribí primero una descripción para poder mejorarla.";
-            input?.focus();
-            return;
-          }
-          if (texto.length > 4000) {
-            if (status) status.textContent = "El texto supera el límite de 4.000 caracteres. Acortalo para continuar.";
-            return;
-          }
-          button.disabled = true;
-          button.classList.add("cargando");
-          button.setAttribute("aria-busy", "true");
-          const labelOriginal = button.textContent;
-          button.textContent = "Procesando…";
-          if (useButton) useButton.disabled = true;
-          if (status) status.textContent = "Estamos revisando tu texto y preparando una propuesta…";
-          let progresoA = setTimeout(() => {
-            if (status) status.textContent = "La generación está tardando un poco más. Seguimos intentando obtener una respuesta…";
-          }, 9000);
-          let progresoB = setTimeout(() => {
-            if (status) status.textContent = "Estamos probando una alternativa disponible. No cierres esta pantalla todavía…";
-          }, 22000);
-          try {
-            const anonymous = !ME.id;
-            let anonymousId = null;
-            if (anonymous) {
-              try {
-                anonymousId = localStorage.getItem("me_sobre_ai_anon_id");
-                if (!anonymousId) {
-                  anonymousId = crypto.randomUUID();
-                  localStorage.setItem("me_sobre_ai_anon_id", anonymousId);
-                }
-              } catch {
-                throw new Error("Este navegador no permite guardar el uso único de IA. Habilitá el almacenamiento local para continuar.");
-              }
-            }
-            const { data, error } = await sb.functions.invoke("mejorar-sobre", {
-              body: { text: texto, anonymousId },
-            });
-            if (error) throw error;
-            if (!data?.improvedText) throw new Error("Respuesta vacía del servicio de IA.");
-            output.value = data.improvedText;
-            output.dataset.source = texto;
-            if (anonymous) {
-              try { localStorage.setItem("me_sobre_ai_anon_used", "1"); } catch {}
-              button.hidden = true;
-              button.dataset.anonymousUsed = "true";
-            } else {
-              actualizarCuotaIA(
-                document.getElementById(outputId + "-quota"),
-                data.dailyRemaining,
-                data.monthlyRemaining,
-                button,
-              );
-            }
-            wrap.hidden = false;
-            const originalSigueIgual = (input?.value || "").trim() === texto;
-            if (useButton) useButton.disabled = !originalSigueIgual;
-            if (originalSigueIgual && button.dataset.action === "mejorar-sobre") {
-              button.textContent = "Mantener original";
-              button.dataset.action = "mantener-original";
-            }
-            if (status) status.textContent = originalSigueIgual
-              ? (anonymous
-                ? "Propuesta lista. Tu uso gratuito para visitantes ya fue utilizado. Revisala y editá lo que necesites."
-                : "Propuesta lista. Revisala y editá lo que necesites; el texto original sigue intacto.")
-              : "La propuesta se generó sobre una versión anterior del texto. Volvé a generarla para poder aplicarla.";
-          } catch (err) {
-            console.error("[ia] mejorar-sobre", err);
-            const detail = await leerDetalleErrorIA(err);
-            actualizarCuotaIA(
-              document.getElementById(outputId + "-quota"),
-              detail?.dailyRemaining,
-              detail?.monthlyRemaining,
-              button,
-            );
-            const quotaAgotada = detail?.code === "anonymous_already_used" ||
-              detail?.code === "quota_exceeded" ||
-              /límite.*(alcanzado|agotado)|ya fue utilizada/i.test(detail?.error || "");
-            if (quotaAgotada) {
-              button.hidden = true;
-              if (status) status.textContent = "Ya utilizaste las mejoras disponibles.";
-            } else {
-              const mensaje = detail?.error || "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
-              if (status) status.textContent = mensaje;
-              toast(mensaje);
-            }
-          } finally {
-            clearTimeout(progresoA);
-            clearTimeout(progresoB);
-            button.disabled = !button.hidden && button.dataset.action === "mejorar-sobre" &&
-              ((input?.value || "").length > 4000 || button.dataset.quotaExhausted === "true");
-            button.classList.remove("cargando");
-            if (button.dataset.action === "mejorar-sobre" || button.dataset.action === "mantener-original") {
-              button.textContent = button.dataset.action === "mantener-original" ? "Mantener original" : "Mejorar con IA";
-            } else {
-              button.textContent = labelOriginal;
-            }
-            button.removeAttribute("aria-busy");
-          }
-        }
-
         function savePub() {
           const a = document.getElementById("pb-puesto"),
             b = document.getElementById("pb-desc");
@@ -5692,7 +5750,7 @@ async function toggleBusqueda(id) {
             };
             ME.nombre = nom;
             ME.datos = { ...(ME.datos || {}), campos: nuevosCampos, chips: { ...S.reg.chips } };
-            await DB.guardarDatosPerfil(nom, ME.datos);
+            if (!ME.demo) await DB.guardarDatosPerfil(nom, ME.datos);
           } else {
             const nom = (document.getElementById("ede-nom")?.value || "").trim() || miNombre("e");
             const nuevosCampos = {
@@ -5707,7 +5765,7 @@ async function toggleBusqueda(id) {
             };
             ME.nombre = nom;
             ME.datos = { ...(ME.datos || {}), campos: nuevosCampos, chips: { ...S.reg.chips } };
-            await DB.guardarDatosPerfil(nom, ME.datos);
+            if (!ME.demo) await DB.guardarDatosPerfil(nom, ME.datos);
           }
           EDIT_BACKUP = null;
           S.reg.chips = {};
@@ -5734,13 +5792,8 @@ async function toggleBusqueda(id) {
             const inp = f.querySelector("input");
             sendChat(f.dataset.kind, f.dataset.id, inp.value);
           }
-          if (f.dataset.form === "denuncia") enviarDenuncia(f);
         });
         document.addEventListener("change", (e) => {
-          if (e.target.name === "report-reason") {
-            const wrap=document.getElementById("report-other-wrap");
-            if(wrap)wrap.hidden=e.target.value!=="Otros";
-          }
           if (e.target.id === "cv-up" && e.target.files[0]) {
             const f = e.target.files[0];
             e.target.value = "";
@@ -5749,8 +5802,6 @@ async function toggleBusqueda(id) {
           if (e.target.id === "rc-cv" && e.target.files[0]) {
             regCvFile = e.target.files[0];
             regDraft["rc-cv-name"] = e.target.files[0].name;
-            guardarBorradorRegistro();
-            guardarArchivoCVRegistro(regCvFile).catch((err) => console.warn("[registro] No se pudo guardar el CV", err));
             const s = document.querySelector("[data-cvname]");
             if (s) s.textContent = "CV cargado: " + e.target.files[0].name;
           }
@@ -5774,7 +5825,7 @@ async function toggleBusqueda(id) {
         }
         let mensajesChannel = null;
         function suscribirMensajesRealtime() {
-          if (mensajesChannel || !ME.id) return;
+          if (mensajesChannel || ME.demo || !ME.id) return;
           mensajesChannel = sb
             .channel("mensajes-" + ME.id)
             .on("postgres_changes", { event: "INSERT", schema: "public", table: "mensajes" }, (payload) => {
@@ -5807,25 +5858,16 @@ async function toggleBusqueda(id) {
             return null;
           });
           if (!d) return;
+          const base = freshState();
           const perf = d.perfiles[0];
           if (ME.rol === "c" && d.cupo != null) S.c.cupo = d.cupo;
-          if (perf && ME.rol === "e") {
-            S.e.tasa = perf.tasa ?? 0;
-            S.e.demora = perf.demora ?? 0;
-            S.e.plazo = perf.plazo ?? 3;
-          }
+          if (perf && ME.rol === "e") S.e.tasa = perf.tasa;
           // Candidato: postulaciones y chats creados
-          const busquedasPorId = new Map((d.busquedas || []).map((b) => [b.id, b]));
-          const dbPosts = d.postulaciones.map((r) => ({
-            ...r.datos.post,
-            id: r.id,
-            oid: r.oferta_id,
-            empresaId: busquedasPorId.get(r.oferta_id)?.empresa_id || null,
-            estado: r.estado,
-          }));
-          const empresasVerificadasIds = new Set((d.empresasVerificadas || []).map((x) => x.empresa_id));
-          S.c.posts = dbPosts;
-          S.c.chats = {};
+          const dbPosts = d.postulaciones.map((r) => ({ ...r.datos.post, estado: r.estado }));
+          const postIds = new Set(dbPosts.map((p) => p.id));
+          S.c.posts =
+            ME.rol === "c" ? dbPosts : [...dbPosts, ...base.c.posts.filter((p) => !postIds.has(p.id))];
+          S.c.chats = ME.rol === "c" ? {} : { ...base.c.chats };
           if (ME.rol === "c")
             (d.chats || []).forEach((ch) => {
               const r = d.postulaciones.find((p) => p.id === ch.postulacion_id);
@@ -5838,16 +5880,16 @@ async function toggleBusqueda(id) {
                 key: "chat:" + ch.id,
                 avatar: ep.avatar_url || "",
                 perfilUrl: "#/c/oferta/" + (r?.oferta_id || ""),
-                empresaId: ch.empresa_id,
-                empresaVerificada: empresasVerificadasIds.has(ch.empresa_id),
-                postulacionId: ch.postulacion_id,
                 msgs: msgsDeChat(d, ch.id),
               };
               if (post) post.chat = ch.id;
             });
-          S.c.notifs = [];
-          S.e.notifs = [];
+          if (ME.rol === "c")
+            S.c.notifs = base.c.notifs.filter(
+              (n) => !/(Farmacia Sur|Supermercado Norte)/i.test((n.t || "") + " " + (n.d || "")),
+            );
           // Empresa: búsquedas y candidatos respondidos
+          if (ME.rol === "e") S.e.notifs = [];
           const dbBus = d.busquedas.map((b) => ({
             id: b.id,
             puesto: b.puesto,
@@ -5857,7 +5899,9 @@ async function toggleBusqueda(id) {
             jornada: b.jornada || [],
             turno: b.turno || [],
           }));
-          S.e.busquedas = dbBus;
+          const busIds = new Set(dbBus.map((b) => b.id));
+          S.e.busquedas =
+            ME.rol === "e" ? dbBus : [...dbBus, ...base.e.busquedas.filter((b) => !busIds.has(b.id))];
           const estados = new Map(d.candidatosEstado.map((r) => [r.id, r]));
           const perfilesPorId = new Map((d.candidatos || []).map((p) => [p.id, p]));
           const postulantes = d.postulaciones.map((r) => {
@@ -5913,21 +5957,12 @@ async function toggleBusqueda(id) {
               };
           });
           const empresaMap = new Map((d.empresas || []).map((p) => [p.id, p]));
-          S.c.posts.forEach((post) => {
-            const job = busquedasPorId.get(post.oid);
-            const company = job ? empresaMap.get(job.empresa_id) : null;
-            post.empresaId = job?.empresa_id || null;
-            post.emp = company?.nombre || post.emp || "Empresa";
-            post.empresaVerificada = empresasVerificadasIds.has(job?.empresa_id);
-          });
           const ofertasReales = d.busquedas.map((b) => {
             const ep = empresaMap.get(b.empresa_id);
             const ec = ep?.datos?.campos || {};
             const ecx = ep?.datos?.chips || {};
             return {
               id: b.id,
-              empresaId: b.empresa_id,
-              verificada: empresasVerificadasIds.has(b.empresa_id),
               emp: ep?.nombre || "Empresa",
               meta: [ec["re-rubro"], ec["re-tam"]].filter(Boolean).join(" · "),
               puesto: b.puesto,
@@ -5940,9 +5975,9 @@ async function toggleBusqueda(id) {
               real: true,
             };
           });
-          if (ME.rol === "c") {
-            S.c.ofertas = ofertasReales.filter((offer) => (d.busquedas || []).some((b) => b.id === offer.id && b.estado === "Activa"));
-            S.c.idx = 0;
+          if (ME.rol === "c" && ofertasReales.length) {
+            const ids = new Set(S.c.ofertas.map((o) => o.id));
+            S.c.ofertas = [...ofertasReales.filter((o) => !ids.has(o.id)), ...S.c.ofertas];
           }
           Object.keys(S.c.chats).forEach((k) => {
             S.c.chats[k].msgs = [...(S.c.chats[k].msgs || []), ...msgsDe(d, "c:" + k)];
@@ -5959,95 +5994,9 @@ async function toggleBusqueda(id) {
         }
 
         /* ---------- Autenticación ---------- */
-        const REG_DRAFT_KEY = "me_registro_borrador_v1";
-        const REG_CV_DB = "me_registro_archivos_v1";
         let regDraft = {};
-        let regDraftAIUsed = false;
-        function guardarBorradorRegistro() {
-          try {
-            const fields = Object.fromEntries(
-              Object.entries(regDraft).filter(([k]) => !/pass/i.test(k)),
-            );
-            localStorage.setItem(REG_DRAFT_KEY, JSON.stringify({
-              version: 1,
-              updatedAt: Date.now(),
-              fields,
-              chips: S.reg.chips || {},
-            }));
-          } catch (err) {
-            console.warn("[registro] No se pudo guardar el borrador", err);
-          }
-        }
-        function cargarBorradorRegistro() {
-          try {
-            const raw = localStorage.getItem(REG_DRAFT_KEY);
-            if (!raw) return;
-            const draft = JSON.parse(raw);
-            if (draft?.version !== 1 || Date.now() - draft.updatedAt > 7 * 24 * 60 * 60 * 1000) {
-              localStorage.removeItem(REG_DRAFT_KEY);
-              return;
-            }
-            regDraft = draft.fields && typeof draft.fields === "object" ? draft.fields : {};
-            S.reg.chips = draft.chips && typeof draft.chips === "object" ? draft.chips : {};
-          } catch (err) {
-            console.warn("[registro] No se pudo recuperar el borrador", err);
-          }
-        }
-        function guardarArchivoCVRegistro(file) {
-          return new Promise((resolve, reject) => {
-            const request = indexedDB.open(REG_CV_DB, 1);
-            request.onupgradeneeded = () => request.result.createObjectStore("files");
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => {
-              const db = request.result;
-              const tx = db.transaction("files", "readwrite");
-              tx.objectStore("files").put(file, "cv");
-              tx.oncomplete = () => { db.close(); resolve(); };
-              tx.onerror = () => { db.close(); reject(tx.error); };
-            };
-          });
-        }
-        async function recuperarArchivoCVRegistro() {
-          try {
-            const file = await new Promise((resolve, reject) => {
-              const request = indexedDB.open(REG_CV_DB, 1);
-              request.onupgradeneeded = () => request.result.createObjectStore("files");
-              request.onerror = () => reject(request.error);
-              request.onsuccess = () => {
-                const db = request.result;
-                const tx = db.transaction("files", "readonly");
-                const get = tx.objectStore("files").get("cv");
-                get.onsuccess = () => { db.close(); resolve(get.result || null); };
-                get.onerror = () => { db.close(); reject(get.error); };
-              };
-            });
-            if (file) {
-              regCvFile = new File([file], file.name || "curriculum.pdf", { type: file.type || "application/pdf" });
-              regDraft["rc-cv-name"] = regCvFile.name;
-              const label = document.querySelector("[data-cvname]");
-              if (label) label.textContent = "CV cargado: " + regCvFile.name;
-            }
-          } catch (err) {
-            console.warn("[registro] No se pudo recuperar el CV", err);
-          }
-        }
-        async function limpiarBorradorRegistro() {
-          try { localStorage.removeItem(REG_DRAFT_KEY); } catch {}
-          try {
-            await new Promise((resolve) => {
-              const request = indexedDB.deleteDatabase(REG_CV_DB);
-              request.onsuccess = request.onerror = request.onblocked = () => resolve();
-            });
-          } catch {}
-        }
-        cargarBorradorRegistro();
-        recuperarArchivoCVRegistro();
         const SOLO_LETRAS = /[^\p{Script=Latin}\s]/gu;
         document.addEventListener("input", (e) => {
-          if(e.target.id==="report-message"){
-            const counter=document.getElementById("report-count");
-            if(counter)counter.textContent=String(e.target.value.length);
-          }
           const id = e.target.id || "";
           if (e.target.dataset.letras) {
             const limpio = e.target.value.replace(SOLO_LETRAS, "");
@@ -6063,35 +6012,7 @@ async function toggleBusqueda(id) {
               toast("La edad se escribe solo con números.");
             }
           }
-          if (e.target.matches("[data-ai-source]")) {
-            const outputId = id + "-ia";
-            const count = document.getElementById(outputId + "-count");
-            const status = document.getElementById(outputId + "-status");
-            const useButton = document.getElementById(outputId + "-use");
-            const generateButton = document.getElementById(outputId + "-toggle");
-            const length = e.target.value.length;
-            if (count) {
-              count.textContent = length.toLocaleString("es-AR") + " / 4.000 caracteres";
-              count.dataset.overLimit = String(length > 4000);
-            }
-            if (generateButton) {
-              generateButton.disabled = length > 4000 ||
-                (generateButton.dataset.action === "mejorar-sobre" && generateButton.dataset.quotaExhausted === "true");
-            }
-            const suggestion = document.getElementById(outputId);
-            if (suggestion && suggestion.value && suggestion.dataset.source !== e.target.value.trim()) {
-              if (useButton) useButton.disabled = true;
-              if (generateButton && generateButton.dataset.action === "mantener-original") {
-                generateButton.dataset.action = "mejorar-sobre";
-                generateButton.textContent = "Mejorar con IA";
-              }
-              if (status) status.textContent = "El texto original cambió. Generá una nueva sugerencia para mantener ambas versiones sincronizadas.";
-            }
-          }
-          if (/^(rg|rc|re|rx)-/.test(id)) {
-            regDraft[id] = e.target.value;
-            guardarBorradorRegistro();
-          }
+          if (/^(rg|rc|re|rx)-/.test(id)) regDraft[id] = e.target.value;
           if (id === "pb-puesto" || id === "pb-desc") savePub();
         });
         const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -6137,23 +6058,25 @@ async function toggleBusqueda(id) {
           try {
             const { data, error } = await sb.auth.signInWithPassword({ email, password });
             if (!error) {
-              await setSesion(data.session);
+              try {
+                await setSesion(data.session);
+              } catch (e) {
+                console.error("[auth] setSesion", e);
+                cargandoSesion = false;
+                toast("No pudimos cargar tu cuenta. Probá de nuevo.");
+                render();
+                return;
+              }
               go(ME.rol === "e" ? "#/e/panel" : "#/c/feed");
               return;
             }
-            if (/not confirmed/i.test(error.message)) {
+            if (error.code === "email_not_confirmed" || /not confirmed/i.test(error.message)) {
               document.getElementById("lg-hint").innerHTML =
                 'Todavía no confirmaste tu correo. <button type="button" data-action="reenviar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">Reenviar correo de confirmación</button>';
             } else {
               console.warn("[auth] login falló:", error.message);
               document.getElementById("lg-hint").innerHTML =
                 'Correo o contraseña incorrectos. <button type="button" data-go="#/recuperar" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">¿Olvidaste tu contraseña?</button>';
-            }
-          } catch (error) {
-            console.warn("[auth] login no disponible:", error);
-            const hint = document.getElementById("lg-hint");
-            if (hint) {
-              hint.textContent = "No pudimos conectar con el servicio de acceso. Revisá tu conexión e intentá nuevamente.";
             }
           } finally {
             if (btn && btn.isConnected) {
@@ -6166,6 +6089,10 @@ async function toggleBusqueda(id) {
         let ultimoCorreo = "";
         let inputFoto = null;
         function abrirSelectorFoto() {
+          if (ME.demo) {
+            toast("En modo demo no se guardan cambios. Iniciá sesión para cambiar tu foto.");
+            return;
+          }
           if (!ME.id) return;
           if (!inputFoto) {
             inputFoto = document.createElement("input");
@@ -6268,7 +6195,7 @@ async function toggleBusqueda(id) {
             if (/^(rc|re|rx)-/.test(k) && !/(pass|mail|cv|cv-name)$/.test(k) && regDraft[k])
               campos[k] = regDraft[k];
           });
-          return { campos, chips: { ...S.reg.chips }, ai: { sobreAplicado: regDraftAIUsed } };
+          return { campos, chips: { ...S.reg.chips } };
         }
         async function reenviarConfirmacion() {
           const email = (ultimoCorreo || document.getElementById("lg-mail")?.value || "").trim();
@@ -6315,9 +6242,7 @@ async function toggleBusqueda(id) {
           const cvPend = regCvFile;
           regCvFile = null;
           regDraft = {};
-          regDraftAIUsed = false;
           S.reg = { chips: {} };
-          await limpiarBorradorRegistro();
           if (data.session) {
             if (cvPend && kind === "c") await subirCV(cvPend, data.user.id);
             go(kind === "e" ? "#/e/panel" : "#/c/feed");
@@ -6415,7 +6340,12 @@ async function toggleBusqueda(id) {
           );
         }
 
-        function miNombre() {
+        // Demo: sin login y sin escrituras en la base. Para quitarla, poner en false o borrar este bloque.
+        const DEMO_HABILITADO = true;
+        // Las cuentas de demo no se ofrecen en el dominio de producción
+        const DEMO_VISIBLE = DEMO_HABILITADO && ENTORNO !== "prod";
+        function miNombre(kind) {
+          if (ME.demo) return kind === "e" ? "Café Mercado" : "Tomás Ferreyra";
           return ME.nombre || "";
         }
         function phSrc() {
@@ -6423,15 +6353,18 @@ async function toggleBusqueda(id) {
           const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${fill}"/><circle cx="50" cy="40" r="18" fill="#FFFFFF" fill-opacity=".35"/><path d="M20 100Q20 64 50 64Q80 64 80 100Z" fill="#FFFFFF" fill-opacity=".35"/></svg>`;
           return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
         }
-        function fotoSrc() {
+        function fotoSrc(defecto) {
+          if (ME.demo) return defecto;
           return ME.avatarUrl || phSrc();
         }
         function avPh(size, avatarUrl) {
+          if (ME.demo) return `<span class="avatar" style="${size};background:var(--navy2)"></span>`;
           return avatarUrl
             ? `<img loading="lazy" decoding="async" class="avatar" src="${esc(avatarUrl)}" alt="" style="${size}">`
             : `<img loading="lazy" decoding="async" class="avatar" src="${phSrc()}" alt="" style="${size}">`;
         }
         function subtituloEmpresa() {
+          if (ME.demo) return "Gastronomía · 12 empleados · Lomas de Zamora";
           const c = ME.datos?.campos || {};
           return [c["re-rubro"], c["re-tam"], c["re-ubi"]]
             .filter((x) => x && String(x).trim())
@@ -6439,12 +6372,19 @@ async function toggleBusqueda(id) {
             .join(" · ");
         }
         function subtituloCandidato() {
+          if (ME.demo) return "Lomas de Zamora · Busco mi primer trabajo";
           const u = (ME.datos?.campos || {})["rc-ubi"];
           return u ? esc(u) : "";
         }
         const formatoFotoOK = ["image/jpeg", "image/png", "image/webp"];
         function miPrimerNombre() {
           return miNombre().split(" ")[0] || "";
+        }
+        function entrarDemo(kind) {
+          if (!DEMO_VISIBLE) return;
+          ME = { id: null, rol: kind, nombre: null, demo: true };
+          S = freshState();
+          go(kind === "e" ? "#/e/panel" : "#/c/feed");
         }
         async function asegurarBusquedaEmpresa() {
           if (ME.rol !== "e" || !ME.id) return;
@@ -6467,16 +6407,17 @@ async function toggleBusqueda(id) {
         async function setSesion(session) {
           if (!session) {
             cargandoSesion = false;
-            ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null };
+            ME = { id: null, rol: null, nombre: null, email: null, datos: {}, avatarUrl: null, demo: false };
             S = freshState();
             return;
           }
-          const yaCargado = ME.id === session.user.id && !!ME.rol;
+          const yaCargado = ME.id === session.user.id && !!ME.rol && !ME.demo;
           if (!yaCargado) {
             cargandoSesion = true;
             render();
           }
           ME.id = session.user.id;
+          ME.demo = false;
           const { data: perfil } = await sb
             .from("perfiles")
             .select("rol,nombre,datos,avatar_url")
@@ -6494,14 +6435,9 @@ async function toggleBusqueda(id) {
             return;
           }
           if (ME.rol === "e" && !yaCargado) await asegurarBusquedaEmpresa();
-          if (!yaCargado) {
-            S = freshState();
-          }
+          if (!yaCargado) S = freshState();
           await hidratar();
           cargandoSesion = false;
-          // La sesión puede recuperarse mientras ya está visible la landing.
-          // Volver a renderizar para reemplazar el menú inicial por el avatar de perfiles.avatar_url.
-          render(true);
         }
         document.addEventListener("db-error", () => toast("No se pudo guardar. Revisá tu conexión."));
         let ultimoUid = undefined;
@@ -6522,7 +6458,7 @@ async function toggleBusqueda(id) {
               location.hash.startsWith(h),
             );
             if (evento === "SIGNED_IN" && (VINO_DE_CORREO || enPantallaDeAcceso)) {
-              if (VINO_DE_CORREO) toast("¡Cuenta confirmada! Bienvenido/a a Match Empleos.");
+              if (VINO_DE_CORREO_CONFIRMADO) toast("¡Cuenta confirmada! Bienvenido/a a Match Empleos.");
               go(ME.rol === "e" ? "#/e/panel" : "#/c/feed");
             }
             render();
