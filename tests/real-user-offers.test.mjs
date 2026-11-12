@@ -93,3 +93,25 @@ test("el campo Sobre vos ofrece mejora con IA tanto en el registro como en edici
 test("la integración no expone la clave de OpenAI en el frontend", () => {
   assert.doesNotMatch(html, /OPENAI_API_KEY|sk-[A-Za-z0-9_-]{20,}/);
 });
+
+
+test("el chat de empresa ofrece tres respuestas sugeridas por IA", () => {
+  assert.match(html, /Respuestas sugeridas con IA/);
+  assert.match(html, /Generar 3 respuestas/);
+  assert.match(html, /data-action="generar-respuestas-chat"/);
+  assert.match(html, /data-action="usar-respuesta-chat"/);
+  assert.match(html, /sb\.functions\.invoke\("sugerir-respuestas-chat"/);
+  assert.match(html, /body: \{ chatId \}/);
+  assert.match(html, /c\.aiSuggestions = data\.suggestions/);
+});
+
+test("las sugerencias se cargan en el campo del chat para editarlas antes de enviar", () => {
+  assert.match(html, /async function usarRespuestaChat\(id, index\)/);
+  assert.match(html, /input\.value = suggestion/);
+  assert.match(html, /input\.focus\(\)/);
+  assert.match(html, /Podés editarla antes de enviarla/);
+});
+
+test("el chat de postulante no muestra el módulo de respuestas para empresas", () => {
+  assert.match(html, /const aiModule = kind === "e"/);
+});
