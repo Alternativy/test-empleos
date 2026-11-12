@@ -3806,7 +3806,7 @@
         /* ---------- Estado inicial: datos reales de Supabase ---------- */
         function freshState() {
           return {
-            c: { cupo: 5, idx: 0, ofertas: [], posts: [], chats: {}, notifs: [] },
+            c: { cupo: 0, idx: 0, ofertas: [], posts: [], chats: {}, notifs: [] },
             e: { tasa: 0, demora: 0, plazo: 3, busquedas: [], pend: [], todos: [], chats: {}, resp: [], notifs: [] },
             reg: { chips: {} },
           };
@@ -5205,7 +5205,7 @@ async function toggleBusqueda(id) {
           if (perf && ME.rol === "e") S.e.tasa = perf.tasa;
           // Candidato: postulaciones y chats creados
           const dbPosts = d.postulaciones.map((r) => ({ ...r.datos.post, estado: r.estado }));
-          S.c.posts = ME.rol === "c" ? dbPosts : [];
+          S.c.posts = dbPosts;
           S.c.chats = {};
           if (ME.rol === "c")
             (d.chats || []).forEach((ch) => {
