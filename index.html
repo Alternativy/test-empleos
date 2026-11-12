@@ -5559,6 +5559,11 @@ async function toggleBusqueda(id) {
             console.error("[ia] mejorar-sobre", err);
             const detail = await leerDetalleErrorIA(err);
             actualizarCuotaIA(document.getElementById(outputId + "-quota"), detail?.dailyRemaining, detail?.monthlyRemaining, button, detail?.anonymousRemaining);
+            if (detail?.code === "anonymous_already_used") {
+              button.dataset.quotaExhausted = "true";
+              const quota = document.getElementById(outputId + "-quota");
+              if (quota) quota.textContent = "La mejora gratuita para visitantes ya fue utilizada en este navegador. Registrate para seguir usando la herramienta.";
+            }
             const message = detail?.error || "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
             if (status) status.textContent = message;
             toast(message);
