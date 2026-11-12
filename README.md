@@ -618,3 +618,14 @@ Los siguientes puntos son importantes: existen commits o archivos de backend/SQL
 - Inspección de staging: los perfiles candidatos consultados tenían `cupo = 5`; no había postulaciones de esta semana y solo una postulación histórica en el conjunto consultado. No se modificaron datos ni funciones SQL.
 - Commit frontend: `0e5570715319e4ab4f42f31890f2009b968b7c20`.
 - Verificación realizada: relectura del archivo desde `main` y comprobación estática de que la rama candidata llama a `cupo_actual()`, devuelve `cupo` y `hidratar()` lo asigna a `S.c.cupo`. Pendiente: probar el login y la postulación desde navegador con una cuenta candidata real.
+
+
+## 19. Mensajes no leídos y denuncias desde el frontend (12 de noviembre de 2026)
+
+- El contador de navegación ahora contempla mensajes entrantes no leídos en el ítem «Mensajes» para postulantes y empresas. Los INSERT recibidos por Realtime actualizan la conversación y el contador; al abrir el chat se marca como leído.
+- Como la tabla `mensajes` no tiene una columna de lectura por usuario, el último ID leído por chat se guarda en `localStorage`, separado por usuario autenticado. Al inicializarse por primera vez, los mensajes históricos existentes se consideran leídos; los mensajes entrantes posteriores generan el contador. La lectura no se sincroniza entre dispositivos/navegadores.
+- Se conectó el botón naranja «⚑ Denunciar» en las tarjetas de postulaciones del postulante y dentro de sus chats. El formulario envía motivo, detalle y mensaje a `public.denuncias`, vinculando denunciante, postulación, empresa y, cuando corresponde, chat. Se usan los motivos permitidos por el CHECK constraint actual.
+- El backend de testing ya tenía `public.denuncias`, RLS activado y una política INSERT que exige que la postulación y la empresa correspondan al postulante autenticado; no se modificaron esquema, políticas ni datos. No había interfaz ni inserción desde el frontend, por eso la funcionalidad no aparecía.
+- El botón en una tarjeta requiere que el frontend pueda resolver el ID de empresa desde una búsqueda activa o desde un chat asociado. Para postulaciones históricas sin búsqueda visible ni chat, la política RLS actual puede impedir resolver/registrar la denuncia desde el frontend; no se amplió el acceso a búsquedas inactivas para evitar reintroducir dependencias RLS circulares.
+- Commits frontend: `0f82283e247a79f40d92fd5dc3f4631da3cdd0cf`, `026546bdd0071a323a81df5f03e367ae5f8b2c20`, `3c152f778b00a9951dfde84452d3d2f167c63c19` y `5f8534a5c57e9032596b4cda51d646a5f80bcfb6`.
+- Validación realizada: inspección de columnas, claves foráneas, RLS y política INSERT de `denuncias` en Supabase testing; relectura de `index.html` desde `main` y comprobación de que están conectados el listener Realtime, el contador de navegación, el formulario y la inserción. No se ejecutó una prueba E2E ni se creó una denuncia ficticia.
