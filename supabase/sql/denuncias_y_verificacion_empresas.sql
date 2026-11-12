@@ -34,6 +34,7 @@ alter table public.denuncias enable row level security;
 revoke all on public.denuncias from anon, authenticated;
 grant insert on public.denuncias to authenticated;
 
+drop policy if exists "Los postulantes pueden denunciar empresas vinculadas a sus postulaciones" on public.denuncias;
 create policy "Los postulantes pueden denunciar empresas vinculadas a sus postulaciones"
 on public.denuncias
 for insert
@@ -70,6 +71,7 @@ create table if not exists public.empresas_verificadas (
 alter table public.empresas_verificadas enable row level security;
 revoke all on public.empresas_verificadas from anon, authenticated;
 grant select on public.empresas_verificadas to authenticated;
+drop policy if exists "Usuarios autenticados pueden consultar empresas verificadas" on public.empresas_verificadas;
 create policy "Usuarios autenticados pueden consultar empresas verificadas"
 on public.empresas_verificadas
 for select
@@ -110,6 +112,7 @@ end;
 $$;
 revoke all on function private.sync_empresa_verificada() from public, anon, authenticated;
 
+drop trigger if exists sync_empresa_verificada on private.empresa_verificacion_revisiones;
 create trigger sync_empresa_verificada
 after insert or update of estado, revisado_at on private.empresa_verificacion_revisiones
 for each row execute function private.sync_empresa_verificada();
