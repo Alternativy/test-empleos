@@ -4120,7 +4120,9 @@
           const yaAplicada = inputId === "rc-sobre"
             ? regDraftAIUsed
             : inputId === "ed-sobre" && !!ME.datos?.ai?.sobreAplicado;
-          if (yaAplicada) return "";
+          const anonYaUsada = inputId === "rc-sobre" && !ME.id &&
+            (() => { try { return localStorage.getItem("me_sobre_ai_anon_used") === "1"; } catch { return false; } })();
+          if (yaAplicada || anonYaUsada) return "";
           const outputId = inputId + "-ia";
           const initialLength = String(initialValue || "").length;
           return `<div class="ai-assist">
@@ -5588,17 +5590,38 @@ async function toggleBusqueda(id) {
             if (status) status.textContent = "Estamos probando una alternativa disponible. No cierres esta pantalla todavía…";
           }, 22000);
           try {
-            const { data, error } = await sb.functions.invoke("mejorar-sobre", { body: { text: texto } });
+            const anonymous = !ME.id;
+            let anonymousId = null;
+            if (anonymous) {
+              try {
+                anonymousId = localStorage.getItem("me_sobre_ai_anon_id");
+                if (!anonymousId) {
+                  anonymousId = crypto.randomUUID();
+                  localStorage.setItem("me_sobre_ai_anon_id", anonymousId);
+                }
+              } catch {
+                throw new Error("Este navegador no permite guardar el uso único de IA. Habilitá el almacenamiento local para continuar.");
+              }
+            }
+            const { data, error } = await sb.functions.invoke("mejorar-sobre", {
+              body: { text: texto, anonymousId },
+            });
             if (error) throw error;
             if (!data?.improvedText) throw new Error("Respuesta vacía del servicio de IA.");
             output.value = data.improvedText;
             output.dataset.source = texto;
-            actualizarCuotaIA(
-              document.getElementById(outputId + "-quota"),
-              data.dailyRemaining,
-              data.monthlyRemaining,
-              button,
-            );
+            if (anonymous) {
+              try { localStorage.setItem("me_sobre_ai_anon_used", "1"); } catch {}
+              button.hidden = true;
+              button.dataset.anonymousUsed = "true";
+            } else {
+              actualizarCuotaIA(
+                document.getElementById(outputId + "-quota"),
+                data.dailyRemaining,
+                data.monthlyRemaining,
+                button,
+              );
+            }
             wrap.hidden = false;
             const originalSigueIgual = (input?.value || "").trim() === texto;
             if (useButton) useButton.disabled = !originalSigueIgual;
@@ -5607,7 +5630,9 @@ async function toggleBusqueda(id) {
               button.dataset.action = "mantener-original";
             }
             if (status) status.textContent = originalSigueIgual
-              ? "Propuesta lista. Revisala y editá lo que necesites; el texto original sigue intacto."
+              ? (anonymous
+                ? "Propuesta lista. Tu uso gratuito para visitantes ya fue utilizado. Revisala y editá lo que necesites."
+                : "Propuesta lista. Revisala y editá lo que necesites; el texto original sigue intacto.")
               : "La propuesta se generó sobre una versión anterior del texto. Volvé a generarla para poder aplicarla.";
           } catch (err) {
             console.error("[ia] mejorar-sobre", err);
