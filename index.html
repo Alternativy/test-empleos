@@ -3847,7 +3847,17 @@
         function calculateUnread(d) {
           const markers = readMarkers();
           unreadMessages = {};
-          (d.mensajes || []).forEach((m) => {
+          const mensajes = d.mensajes || [];
+          const latest = {};
+          mensajes.forEach((m) => {
+            const key = m.chat_id ? "chat:" + m.chat_id : m.chat_key;
+            if (key) latest[key] = Math.max(Number(latest[key] || 0), Number(m.id) || 0);
+          });
+          Object.keys(latest).forEach((key) => {
+            if (markers[key] == null) markers[key] = latest[key];
+          });
+          saveReadMarkers(markers);
+          mensajes.forEach((m) => {
             const key = m.chat_id ? "chat:" + m.chat_id : m.chat_key;
             const incoming = m.chat_id ? m.autor_id !== ME.id : m.de === "them";
             if (!key || !incoming || Number(m.id) <= Number(markers[key] || 0)) return;
@@ -5073,7 +5083,7 @@ async function toggleBusqueda(id) {
         /* ---------- Eventos ---------- */
         document.addEventListener("click", (e) => {
           const t = e.target.closest(
-            "[data-scroll],[data-go],[data-apply],[data-action],[data-chip],[data-filter],[data-cfilter],[data-plazo],[data-tpl],[data-notif],[data-bsel]",
+            "[data-scroll],[data-go],[data-apply],[data-action],[data-chip],[data-filter],[data-cfilter],[data-plazo],[data-tpl],[data-notif],[data-bsel],[data-denunciar]",
           );
           if (!t) return;
           if (t.dataset.scroll) {
