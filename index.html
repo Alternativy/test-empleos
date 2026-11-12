@@ -4129,8 +4129,6 @@
             <p class="ai-explainer">Podés mejorar la claridad y presentación de tu descripción sin agregar experiencias que no hayas mencionado.</p>
             <button class="btn out sm ai-generate" id="${outputId}-toggle" type="button" data-action="mejorar-sobre" data-target="${inputId}" data-output="${outputId}">Mejorar con IA</button>
             <p class="ai-count" id="${outputId}-count">${initialLength} / 4.000 caracteres</p>
-            <p class="ai-count ai-quota" id="${outputId}-quota">Límite: 5 mejoras por día y 50 por mes</p>
-            <p class="ai-privacy">Tu texto se envía al servicio de IA para generar una propuesta. Tu perfil no cambia hasta que elijas usarla.</p>
             <p class="hint ai-status" id="${outputId}-status" role="status" aria-live="polite"></p>
             <div class="ai-result" id="${outputId}-wrap" hidden>
               <div class="ai-result-head">
@@ -5546,7 +5544,10 @@ async function toggleBusqueda(id) {
             count.dataset.dailyRemaining = String(d);
             count.dataset.monthlyRemaining = String(m);
           }
-          if (button) button.dataset.quotaExhausted = String(d === 0 || m === 0);
+          if (button) {
+            button.dataset.quotaExhausted = String(d === 0 || m === 0);
+            if (d === 0 || m === 0) button.hidden = true;
+          }
         }
 
         async function leerDetalleErrorIA(error) {
@@ -5643,13 +5644,21 @@ async function toggleBusqueda(id) {
               detail?.monthlyRemaining,
               button,
             );
-            const mensaje = detail?.error || "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
-            if (status) status.textContent = mensaje;
-            toast(mensaje);
+            const quotaAgotada = detail?.code === "anonymous_already_used" ||
+              detail?.code === "quota_exceeded" ||
+              /límite.*(alcanzado|agotado)|ya fue utilizada/i.test(detail?.error || "");
+            if (quotaAgotada) {
+              button.hidden = true;
+              if (status) status.textContent = "Ya utilizaste las mejoras disponibles.";
+            } else {
+              const mensaje = detail?.error || "No pudimos generar la propuesta. Tu texto original sigue intacto; podés volver a intentarlo.";
+              if (status) status.textContent = mensaje;
+              toast(mensaje);
+            }
           } finally {
             clearTimeout(progresoA);
             clearTimeout(progresoB);
-            button.disabled = button.dataset.action === "mejorar-sobre" &&
+            button.disabled = !button.hidden && button.dataset.action === "mejorar-sobre" &&
               ((input?.value || "").length > 4000 || button.dataset.quotaExhausted === "true");
             button.classList.remove("cargando");
             if (button.dataset.action === "mejorar-sobre" || button.dataset.action === "mantener-original") {
