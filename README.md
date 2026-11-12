@@ -554,7 +554,7 @@ Esta sección prevalece sobre descripciones anteriores cuando haya contradiccion
 
 - Repositorio de trabajo: `Alternativy/test-empleos`.
 - Rama revisada: `main`.
-- HEAD al momento de esta actualización: `1b735ba9963df6fc9d92eed4ed5efcb8715eb4b6` — `Cambia ilustración principal por seniala-celular`.
+- HEAD previo documentado: `1b735ba9963df6fc9d92eed4ed5efcb8715eb4b6` — `Cambia ilustración principal por seniala-celular`. Verificar el HEAD de `main` antes de usar esta referencia.
 - Archivo principal del frontend: `index.html`. No hay proceso de build ni gestor de paquetes para la app.
 - No editar `Alternativy/MatchEmpleos` ni el proyecto Supabase de producción como parte del flujo habitual de desarrollo.
 
@@ -585,7 +585,7 @@ Los siguientes puntos son importantes: existen commits o archivos de backend/SQL
 - [ ] Resolver el manejo de excepciones inesperadas en `iniciarSesionForm()` y `recuperarForm()`; probar credenciales incorrectas, correo sin confirmar, errores de red, sesión persistente, recuperación, cambio de contraseña, cierre de sesión y redirección por rol.
 - [ ] Completar la revisión UX/UI responsive del login y de los flujos de IA.
 - [ ] Probar las animaciones de scroll con navegador real, desktop y mobile, incluyendo `prefers-reduced-motion`.
-- [x] Eliminado el modo demo del frontend y los flujos simulados de postulaciones y chats. Pendiente validar los recorridos completos con dos cuentas reales.
+- [x] El frontend parte de estado vacío, exige sesión autenticada y carga publicaciones, postulaciones y chats desde Supabase. Pendiente validar los recorridos completos con dos cuentas reales.
 - [ ] Antes de producción, resolver los bloqueantes de seguridad y configuración documentados en la sección 15 y comparar el diff completo con el repositorio de producción.
 
 ### Reglas para agentes de IA que retomen el trabajo
@@ -595,3 +595,16 @@ Los siguientes puntos son importantes: existen commits o archivos de backend/SQL
 - No volver a ejecutar scripts SQL existentes a ciegas. Inspeccionar primero tablas, funciones, políticas y migraciones del proyecto staging.
 - Trabajar en `Alternativy/test-empleos` y Supabase staging. Producción requiere autorización explícita.
 - Después de cada cambio, informar archivos, commit, validaciones realmente ejecutadas y pruebas que siguen pendientes. No llamar “verificado” a un flujo que solo pasó una inspección estática.
+
+
+## 17. Limpieza de datos ficticios (12 de noviembre de 2026)
+
+- Se eliminó el acceso sin autenticación y toda la lógica de sesión local que permitía navegar sin una cuenta de Supabase.
+- `freshState()` inicia con ofertas, postulaciones, búsquedas, candidatos, chats y notificaciones vacíos.
+- `hidratar()` asigna las ofertas y publicaciones obtenidas de Supabase; no mezcla resultados con registros locales de muestra.
+- `apply()` exige `real === true` y utiliza `DB.postular()`. Se quitaron los estados automáticos “Vista”/“Respondida” y los mensajes ficticios temporizados.
+- `sendChat()` solo persiste el texto que escribió el usuario. Los mensajes de la otra cuenta deben llegar desde Supabase/Realtime.
+- `enviarResp()` abre un chat únicamente cuando la empresa selecciona “Me interesa”; ya no crea respuestas o conversaciones ficticias.
+- No se borraron usuarios, búsquedas, postulaciones, chats ni mensajes de las bases de staging o producción. Tampoco se modificaron esquemas ni políticas remotas.
+- Cambios en `index.html`: `679ef35`, `561e091`, `10cb03d` y `074c77a`. La documentación se actualizó en `83c6c55` y se debe mantener sincronizada con el código.
+- Verificación pendiente: ejecutar `node --test tests/real-user-offers.test.mjs` y realizar pruebas manuales con una cuenta candidata y una empresa reales. No se declara validación E2E.
