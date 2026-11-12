@@ -664,19 +664,17 @@ Los siguientes puntos son importantes: existen commits o archivos de backend/SQL
 - Commit frontend: `e5b5ae8bf6b8adfe77e6a35bf9fd49fac1653e4f`.
 - Verificación realizada: inspección del cambio en `index.html` y comprobación estática de la función de puntaje, el orden descendente, la inclusión de datos del perfil y la etiqueta de coincidencia. Pendiente: prueba visual con postulaciones reales de perfiles con distintas preferencias y descripciones; no se ejecutó E2E.
 
-## 23. Verificación de empresas: infraestructura existente y diseño pendiente (12 de noviembre de 2026)
+## 23. Verificación manual de empresas: distintivo visual (12 de noviembre de 2026)
 
-- Se inspeccionó el proyecto Supabase de testing `gtnxlkqumppeintdpycn`. Ya existe una infraestructura parcial para verificación:
+- Se inspeccionó el proyecto Supabase de testing `gtnxlkqumppeintdpycn`. Ya existe una infraestructura parcial para registrar verificaciones:
   - `public.empresas_verificadas`: relación pública entre `empresa_id` y `verified_at`, con lectura permitida a usuarios autenticados.
   - `private.empresa_verificacion_revisiones`: registro privado por empresa con `estado` (default `pendiente`), `notas_internas`, `revisado_por`, `revisado_at`, `created_at` y `updated_at`.
   - `private.sync_empresa_verificada()`: trigger function SECURITY DEFINER que agrega/actualiza la empresa en `public.empresas_verificadas` cuando el estado de revisión es `verificada`, y la quita en los demás estados.
-- La fuente pública de verificación debe seguir siendo administrada por el backend. No se debe agregar un campo editable por el usuario en `perfiles.datos` ni aceptar escrituras directas desde el navegador sobre `empresas_verificadas` o la tabla privada de revisiones.
-- Diseño solicitado para la siguiente implementación:
-  1. Exponer al frontend un booleano derivado, por ejemplo `verificada`, consultando `public.empresas_verificadas` o mediante una vista/función segura. No confiar en un booleano enviado por el cliente.
-  2. Mostrar una insignia de tilde verificado junto al nombre de la empresa en las vistas públicas y contextos donde se identifica a la empresa (perfil, publicaciones, tarjetas y chat).
-  3. Permitir aprobar, rechazar o revocar la verificación únicamente a miembros autorizados del equipo Match Empleos desde una operación backend autenticada y auditada. La identidad de quien revisa debe guardarse en `revisado_por`; registrar fecha y notas internas.
-  4. Definir los permisos adicionales de las empresas verificadas explícitamente antes de implementarlos. Las ventajas todavía no fueron especificadas, por lo que no deben inferirse ni activarse automáticamente.
-  5. Aplicar las restricciones con RLS, privilegios SQL y/o funciones backend; ocultar controles en el frontend no es una medida de autorización.
+- **Objetivo funcional:** mostrar un tilde de verificado únicamente como distintivo visual de confianza para las empresas que hayan sido verificadas manualmente por el equipo de Match Empleos.
+- El distintivo no otorga ventajas ni permisos adicionales. No cambia la visibilidad, prioridad o distribución de las publicaciones, el orden del feed, el matching, las postulaciones ni ninguna otra funcionalidad de la plataforma. No debe interpretarse como una garantía sobre ofertas individuales ni como una evaluación automatizada.
+- La aprobación, el rechazo y la revocación corresponden exclusivamente a miembros autorizados del equipo Match Empleos. La empresa no puede solicitar o activar el tilde mediante un campo editable de su perfil ni modificar su estado desde el navegador.
+- El estado que consume el frontend debe derivarse de la fuente administrada por backend (por ejemplo, `public.empresas_verificadas` o una vista/función segura). No confiar en un booleano enviado por el cliente ni permitir escrituras directas desde el navegador sobre `empresas_verificadas` o la tabla privada de revisiones.
+- La insignia se mostrará junto al nombre de la empresa en los contextos donde se identifica a la organización (perfil, publicaciones, tarjetas y chat), siempre que su verificación manual esté vigente.
+- Las restricciones de aprobación y modificación deben aplicarse con RLS, privilegios SQL y/o funciones backend autenticadas. Ocultar controles en el frontend no constituye autorización. Conservar la auditoría mediante `revisado_por`, `revisado_at` y, cuando corresponda, `notas_internas`.
 - Estado al documentar: se inspeccionó el esquema de testing y la función de sincronización existente. En esta tarea no se modificaron tablas, funciones, triggers, políticas, permisos, datos ni frontend. Tampoco se creó el booleano derivado ni se muestra aún la insignia.
-- Pendiente: acordar qué permisos extra recibe una empresa verificada; definir cómo se autentican los miembros del equipo Match Empleos (rol/allowlist segura); auditar políticas y privilegios efectivos de las dos tablas; implementar y probar aprobación/revocación en staging; integrar el booleano y la insignia en el frontend; verificar que una empresa no pueda auto-verificarse ni alterar el estado mediante REST.
-
+- Pendiente: definir el mecanismo seguro para autenticar a los miembros del equipo Match Empleos; auditar políticas y privilegios efectivos; implementar y probar aprobación/rechazo/revocación en staging; integrar el estado derivado y el tilde visual en el frontend; verificar que una empresa no pueda auto-verificarse ni alterar su estado mediante REST.
