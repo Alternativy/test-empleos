@@ -606,5 +606,5 @@ Los siguientes puntos son importantes: existen commits o archivos de backend/SQL
 - `sendChat()` solo persiste el texto que escribió el usuario. Los mensajes de la otra cuenta deben llegar desde Supabase/Realtime.
 - `enviarResp()` abre un chat únicamente cuando la empresa selecciona “Me interesa”; ya no crea respuestas o conversaciones ficticias.
 - No se borraron usuarios, búsquedas, postulaciones, chats ni mensajes de las bases de staging o producción. Tampoco se modificaron esquemas ni políticas remotas.
-- Cambios en `index.html`: `679ef35`, `561e091`, `10cb03d` y `074c77a`. La documentación se actualizó en `83c6c55` y se debe mantener sincronizada con el código.
+- Cambios en `index.html`: `679ef35`, `561e091`, `10cb03d`, `074c77a`, `48fcf11`, `7b37f1e` y `f938402`. La documentación se actualizó en `83c6c55` y `2063a81`.
 - Verificación pendiente: ejecutar `node --test tests/real-user-offers.test.mjs` y realizar pruebas manuales con una cuenta candidata y una empresa reales. No se declara validación E2E.
