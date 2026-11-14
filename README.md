@@ -1,4 +1,60 @@
-# Match Empleos
+# Farmear Laburo
+
+## Rebranding: Farmear Laburo
+
+> Estado: dirección de marca definida; implementación visual y funcional pendiente.
+
+### Posicionamiento
+
+El proyecto anteriormente identificado como **Test Empleos** se transformará en **Farmear Laburo**, una plataforma de búsqueda y conexión laboral que funcionará como alternativa competitiva e independiente de Match Empleos.
+
+La decisión parte de una premisa estratégica: un sector saludable necesita alternativas y competencia. Match Empleos se posiciona como pionera en trasladar la lógica de *match* al entorno laboral; Farmear Laburo buscará ocupar otro lugar dentro del mismo mercado, con una identidad propia y una propuesta deliberadamente más informal.
+
+### Concepto de marca
+
+**Farmear Laburo** toma como referencia cultural la expresión y el formato de meme de **«farmear aura»**. El nombre combina humor de internet, cultura gamer y búsqueda de trabajo: conseguir empleo se presenta como una misión, una partida o una progresión dentro de un juego.
+
+La marca debe sentirse:
+
+- Meme, joven, irreverente y desestructurada.
+- Disruptiva y deliberadamente menos corporativa o profesional en su comunicación.
+- Cercana a la cultura gamer, anime, cyberpunk y estética digital underground.
+- Visualmente intensa, con neón, contrastes fuertes, brillos y composiciones de alto impacto.
+- Inspirada en pósters generados con IA: imágenes llamativas, personajes, escenarios futuristas, tipografía expresiva y capas visuales cargadas, sin perder legibilidad.
+
+### Dirección visual
+
+- **Universo:** anime + cyberpunk + cultura gamer + memes de internet.
+- **Color:** paletas neón y contrastes luminosos sobre fondos oscuros; la paleta definitiva queda pendiente de exploración.
+- **Recursos gráficos:** glow, glitch, scanlines, gradientes intensos, stickers, interfaces HUD, referencias visuales a videojuegos y pósters de IA.
+- **Tipografía:** display expresiva y contundente para titulares, combinada con una tipografía simple y legible para formularios y contenido funcional.
+- **Composición:** más libre, exagerada y experimental que la estética institucional de Match Empleos. Puede ser caótica en lo expresivo, pero no debe dificultar completar tareas reales.
+
+### Tono y comunicación
+
+Usar humor, referencias de internet y lenguaje juvenil cuando aporten identidad. La comunicación puede ser irónica, exagerada y autoconsciente, sin volverse confusa ni humillar a quienes buscan trabajo.
+
+La experiencia debe distinguir entre:
+- **Capa de marca:** divertida, meme, expresiva y disruptiva.
+- **Capa funcional:** clara, accesible y confiable para registrarse, cargar datos, publicar búsquedas, postularse y comunicarse.
+
+No convertir información laboral importante, estados de postulación, privacidad, seguridad o mensajes de error en chistes ambiguos.
+
+### Relación con Match Empleos
+
+Farmear Laburo es una marca y producto independiente, no una versión de prueba ni una submarca de Match Empleos. Comparte el mercado de empleo y competirá con una identidad diferenciada.
+
+- No reutilizar el nombre, logotipo, paleta ni tono institucional de Match Empleos como identidad de Farmear Laburo.
+- No presentar Farmear Laburo como un entorno de testing de Match Empleos.
+- Las decisiones de producto, diseño, comunicación y roadmap deben evaluarse desde su propio posicionamiento.
+- La referencia a Match Empleos como pionera en el uso del *match* laboral es parte de la estrategia competitiva interna; no implica afirmar exclusividad legal o histórica sobre esa mecánica.
+
+### Criterio para futuras modificaciones
+
+Antes de implementar cambios visuales o de comunicación, consultar esta sección como guía de marca. No asumir que el diseño actual de Test Empleos representa la identidad futura. La transformación visual debe realizarse por etapas y conservar la usabilidad, accesibilidad, seguridad y funcionamiento real de la plataforma.
+
+---
+
 
 Plataforma que conecta candidatos (personas que buscan trabajo) con empresas que publican búsquedas. Idioma de la interfaz: **español rioplatense** (voseo: "Creá", "Contanos", "Escribí").
 
