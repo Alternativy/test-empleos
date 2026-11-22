@@ -2427,7 +2427,7 @@
           transform: translateY(calc(-2 * var(--u)));
           box-shadow: 0 calc(9 * var(--u)) calc(20 * var(--u)) rgba(27,22,16,.17);
         }
-        .landing-v2 .lp-ad-banner img {
+        .landing-v2 .lp-ad-banner .lp-ad-logo {
           position: absolute;
           right: calc(12 * var(--u));
           bottom: calc(9 * var(--u));
@@ -2436,6 +2436,15 @@
           height: calc(52 * var(--u));
           object-fit: contain;
           border-radius: 0;
+          mix-blend-mode: multiply;
+        }
+        .landing-v2 .lp-ad-banner .lp-ad-product {
+          position: relative;
+          flex: 0 0 calc(112 * var(--u));
+          width: calc(112 * var(--u));
+          height: calc(112 * var(--u));
+          object-fit: contain;
+          margin-left: auto;
           mix-blend-mode: multiply;
         }
         .landing-v2 .lp-ad-copy {
@@ -3062,7 +3071,7 @@
           height: 4px;
           background: linear-gradient(90deg,#171717 0 28%,#d84b40 28% 40%,#e7b83c 40% 52%,#269b9b 52% 64%,#6b5a9c 64% 76%,#171717 76%);
         }
-        .landing-v2 .lp-ad-banner img {
+        .landing-v2 .lp-ad-banner .lp-ad-logo {
           position: absolute;
           right: 9px;
           bottom: 7px;
@@ -3070,6 +3079,15 @@
           width: 62px;
           height: 44px;
           object-fit: contain;
+          mix-blend-mode: multiply;
+        }
+        .landing-v2 .lp-ad-banner .lp-ad-product {
+          position: relative;
+          flex: 0 0 68px;
+          width: 68px;
+          height: 68px;
+          object-fit: contain;
+          margin-left: auto;
           mix-blend-mode: multiply;
         }
         .landing-v2 .lp-ad-copy {
@@ -3574,8 +3592,9 @@
                 <p>Tu próxima oportunidad empieza con un MATCH</p>
                 <div class="lp-ad-wrap" data-lp-ad-wrap>
                   <a class="lp-ad-banner" href="https://www.opticareyesbsas.com/" target="_blank" rel="noopener noreferrer" aria-label="No ves la X? Visitá Óptica Reyes Bs. As.">
-                    <img src="img/optica-reyes-2.jpg" alt="Logo de Óptica Reyes Bs. As." width="118" height="118">
                     <span class="lp-ad-copy"><small class="lp-ad-brand">Óptica Reyes Bs. As.</small><strong>No ves la X?</strong><span>Visitá Óptica Reyes</span></span>
+                    <img class="lp-ad-product" src="img/no-veo.png" alt="Anteojos de Óptica Reyes" width="112" height="112">
+                    <img class="lp-ad-logo" src="img/optica-reyes-2.jpg" alt="Logo de Óptica Reyes Bs. As." width="118" height="118">
                   </a>
                   <span class="lp-ad-countdown" data-lp-ad-countdown aria-live="off">5</span>
                   <button class="lp-ad-close" type="button" data-lp-ad-close aria-label="Cerrar anuncio" hidden>×</button>
