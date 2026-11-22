@@ -2449,6 +2449,7 @@
           object-position: center bottom;
           align-self: flex-end;
           margin: 0 0 calc(-14 * var(--u)) auto;
+          transition: opacity .22s ease;
           mix-blend-mode: multiply;
         }
         .landing-v2 .lp-ad-copy {
@@ -3096,6 +3097,7 @@
           object-position: center bottom;
           align-self: flex-end;
           margin: 0 0 -14px auto;
+          transition: opacity .22s ease;
           mix-blend-mode: multiply;
         }
         .landing-v2 .lp-ad-copy {
@@ -3601,7 +3603,7 @@
                 <div class="lp-ad-wrap" data-lp-ad-wrap>
                   <a class="lp-ad-banner" href="https://www.opticareyesbsas.com/" target="_blank" rel="noopener noreferrer" aria-label="No ves la X? Visitá Óptica Reyes Bs. As.">
                     <span class="lp-ad-copy"><small class="lp-ad-brand">Óptica Reyes Bs. As.</small><strong>No ves la X?</strong><span>Visitá Óptica Reyes</span></span>
-                    <img class="lp-ad-product" src="img/no-ve.png" alt="Anteojos destacados en la campaña publicitaria de Óptica Reyes." width="112" height="112">
+                    <img class="lp-ad-product" src="img/no-ve.png" alt="Persona con dificultad para ver, representando el problema visual." width="112" height="112">
                     <img class="lp-ad-logo" src="img/optica-reyes-2.jpg" alt="Logo de Óptica Reyes Bs. As." width="118" height="118">
                   </a>
                   <span class="lp-ad-countdown" data-lp-ad-countdown aria-live="off">5</span>
@@ -5387,18 +5389,36 @@ async function toggleBusqueda(id) {
         }
         let pendingScroll = null;
         let lpAdCountdownInterval = null;
+        let lpAdImageSwapTimeout = null;
         function initLandingAdBanner() {
           clearInterval(lpAdCountdownInterval);
+          clearTimeout(lpAdImageSwapTimeout);
           const wrap = document.querySelector("[data-lp-ad-wrap]");
           if (!wrap) return;
           const countdown = wrap.querySelector("[data-lp-ad-countdown]");
           const close = wrap.querySelector("[data-lp-ad-close]");
+          const product = wrap.querySelector(".lp-ad-product");
           const startedAt = Date.now();
+          // Precargar la imagen de solución para que el cambio a los 5 segundos sea inmediato.
+          const solutionImage = new Image();
+          solutionImage.src = "veo-feliz-ad.png";
+          let imageSwapped = false;
           const update = () => {
-            const remaining = Math.max(0, 5 - Math.floor((Date.now() - startedAt) / 1000));
+            const elapsed = Date.now() - startedAt;
+            const remaining = Math.max(0, 5 - Math.floor(elapsed / 1000));
             if (countdown) countdown.textContent = String(remaining);
             if (remaining <= 0) {
               clearInterval(lpAdCountdownInterval);
+              if (!imageSwapped && product) {
+                imageSwapped = true;
+                product.style.opacity = "0";
+                lpAdImageSwapTimeout = setTimeout(() => {
+                  if (!product.isConnected) return;
+                  product.src = solutionImage.src;
+                  product.alt = "Hombre con anteojos y expresión relajada, representando la solución para ver mejor.";
+                  product.style.opacity = "1";
+                }, 220);
+              }
               if (countdown) countdown.hidden = true;
               if (close) close.hidden = false;
             }
