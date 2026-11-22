@@ -2428,12 +2428,13 @@
           box-shadow: 0 calc(9 * var(--u)) calc(20 * var(--u)) rgba(27,22,16,.17);
         }
         .landing-v2 .lp-ad-banner .lp-ad-logo {
-          position: absolute;
-          right: calc(12 * var(--u));
-          bottom: calc(9 * var(--u));
+          position: relative;
+          flex: 0 0 auto;
+          align-self: flex-end;
           display: block;
           width: calc(72 * var(--u));
           height: calc(52 * var(--u));
+          margin: 0 0 calc(-14 * var(--u));
           object-fit: contain;
           border-radius: 0;
           mix-blend-mode: multiply;
@@ -2447,7 +2448,7 @@
           object-fit: contain;
           object-position: center bottom;
           align-self: flex-end;
-          margin: 0 calc(-42 * var(--u)) calc(-14 * var(--u)) auto;
+          margin: 0 0 calc(-14 * var(--u)) auto;
           mix-blend-mode: multiply;
         }
         .landing-v2 .lp-ad-copy {
@@ -3075,12 +3076,13 @@
           background: linear-gradient(90deg,#171717 0 28%,#d84b40 28% 40%,#e7b83c 40% 52%,#269b9b 52% 64%,#6b5a9c 64% 76%,#171717 76%);
         }
         .landing-v2 .lp-ad-banner .lp-ad-logo {
-          position: absolute;
-          right: 9px;
-          bottom: 7px;
+          position: relative;
+          flex: 0 0 auto;
+          align-self: flex-end;
           display: block;
           width: 62px;
           height: 44px;
+          margin: 0 0 -14px;
           object-fit: contain;
           mix-blend-mode: multiply;
         }
@@ -3093,7 +3095,7 @@
           object-fit: contain;
           object-position: center bottom;
           align-self: flex-end;
-          margin: 0 -40px -14px auto;
+          margin: 0 0 -14px auto;
           mix-blend-mode: multiply;
         }
         .landing-v2 .lp-ad-copy {
